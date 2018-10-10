@@ -1,0 +1,47 @@
+개요
+본 프로젝트에서 팀이 사용하려고 했던 것은 Object detection
+Object Detection을 사용하기 위해서는 머신러닝을 이용하여 모델을 학습하여야 하는데
+머신 러닝을 이용하기 위해 opensource library인 tensorflow를 사용했다
+우리에게 친숙한 알파고부터, 구글 번역, 질병 진단등에 쓰임
+tensorflow - google brain팀에서 연구용으로 개발한 API로서 범용성이 높은 시스템이다.
+영상 속의 객체를 인식하기 위해서는 학습된 모델이 필요하다
+모델은 생체 신경망을 비슷하게 구현한 인공신경망을 통하여 주어진 이미지 데이터 셋을 반복적으로 학습합니다.
+앞서 실험해본 모델은 합성곱 방식인 CNN을 기반으로 개발된 방식인 Faster R-CNN방식으로 학습했다
+
+CNN(Convolutional Neural Network)은 합성곱 연산을 사용하는 인공 신경망이다.
+http://deeplearning.stanford.edu/wiki/index.php/Feature_extraction_using_convolution
+위 사진은 합성곱 방식을 간단하게 보여주는 이미지입니다
+위 사진은 2차원 데이터이지만 실생활 이미지는 가로,세로,색상으로 구성된 3차원 데이터이다
+각 차원마다 주어지는 matrix를 랜덤한 필터를 이용하여 특징 맵을 생성한다.
+이 특징 맵은 이미지의 특징만을 추출한 것이다.
+http://aikorea.org/cs231n/convolutional-networks/
+
+Faster R-CNN
+간단하게 CNN을 살펴보았으므로 실제로 사용한 방식인 Faster R-CNN을 사펴보자.
+Faster R-CNN은 Fast R-CNN의 단점을 개선한 방식으로
+기존 Fast R-CNN과 R-CNN이 객체를 인식하는 과정에서 객체를 구별할때 사용하던 방식인
+selective search을 사용하지 않고, 별도의 네트워크인
+
+RPN(Region Proposal Network)을 사용하여 객체를 예측합니다.
+RPN은 object가 있을 만한 구역을 제안하는 서브 네트워크이다.
+rpn을 사용하거나 ss를 사용하거나 결과
+table 5 pdf 
+연산 속도의 관점에서 본다면 rpn을 사용한게 10배정도 성능이 더 좋다
+
+학습 결과
+앞서 설명한 방식인 Faster R-CNN을 사용하여 약 12번 정도의 학습을 진행해보았다.
+각 시도 차수마다 샘플 이미지의 개수, 이미지의 해상도를 달리하여 학습을 진행하였으며,
+실험실 컴퓨터 기준 (I7-6700,16GB RAM,GT730) 평균 학습 시간은 xx시간이었다.
+다음은 학습된 모델을 통해 샘플 이미지를 detect한 결과이다.
+어쩌고 저쩌고
+
+번외 실험
+추가로 조도가 낮은 상태에서의 object detection이 가능한지에 대해 실험을 진행하였다.
+학습을 위한 샘플 이미지는 https://github.com/cs-chan/Exclusively-Dark-Image-Dataset 에서 제공하는
+7363개의 이미지 데이터셋을 사용하였다
+결과는 이러이러했다.
+
+결론
+
+
+출처
