@@ -132,7 +132,6 @@ def draw_bounding_box_on_image_array(image,
                              use_normalized_coordinates)
   np.copyto(image, np.array(image_pil))
 
-
 def draw_bounding_box_on_image(image,
                                ymin,
                                xmin,
@@ -186,12 +185,16 @@ def draw_bounding_box_on_image(image,
   display_str_heights = [font.getsize(ds)[1] for ds in display_str_list]
   # Each display_str has a top and bottom margin of 0.05x.
   total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
+  # mid_x = (right+left)/2
+  # mid_y = (top+bottom)/2
+
 
   if top > total_display_str_height:
     text_bottom = top
   else:
     text_bottom = bottom + total_display_str_height
   # Reverse list and print from bottom to top.
+
   for display_str in display_str_list[::-1]:
     text_width, text_height = font.getsize(display_str)
     margin = np.ceil(0.05 * text_height)
@@ -262,12 +265,14 @@ def draw_bounding_boxes_on_image(image,
     return
   if len(boxes_shape) != 2 or boxes_shape[1] != 4:
     raise ValueError('Input must be of size [N, 4]')
+
   for i in range(boxes_shape[0]):
     display_str_list = ()
     if display_str_list_list:
       display_str_list = display_str_list_list[i]
     draw_bounding_box_on_image(image, boxes[i, 0], boxes[i, 1], boxes[i, 2],
                                boxes[i, 3], color, thickness, display_str_list)
+
 
 
 def _visualize_boxes(image, boxes, classes, scores, category_index, **kwargs):
@@ -552,7 +557,7 @@ def visualize_boxes_and_labels_on_image_array(
     instance_masks=None,
     instance_boundaries=None,
     keypoints=None,
-    use_normalized_coordinates=False,
+    use_normalized_coordinates=True,
     max_boxes_to_draw=20,
     min_score_thresh=.5,
     agnostic_mode=False,
@@ -609,6 +614,15 @@ def visualize_boxes_and_labels_on_image_array(
   box_to_keypoints_map = collections.defaultdict(list)
 # 매 프레임에서 인식되는 객체의 이름을 저장할 리스트
   e_list = []
+  c_list = []
+  # for i, b in enumerate(boxes):
+  #     if scores[i] >= 0.6:
+  #         mid_x = (boxes[i][1] + boxes[i][3]) / 2
+  #         mid_y = (boxes[i][0] + boxes[i][2]) / 2
+  #         # cv2.putText(frame, 'M', (int(mid_x * 1280), int(mid_y * 720)),
+  #         #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+  #         print(mid_x)
+  #         print(mid_y)
 
   if not max_boxes_to_draw:
     max_boxes_to_draw = boxes.shape[0]
@@ -627,9 +641,18 @@ def visualize_boxes_and_labels_on_image_array(
         display_str = ''
         if not skip_labels:
           if not agnostic_mode:
+            # print(category_index)
             if classes[i] in category_index.keys():
+              # print(category_index[classes[i]])
               class_name = category_index[classes[i]]['name']
+              mid_x = (boxes[i][1] + boxes[i][3]) / 2
+              mid_y = (boxes[i][0] + boxes[i][2]) / 2
+              # cv2.putText(frame, 'M', (int(mid_x * 1280), int(mid_y * 720)),
+              #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+              # print(mid_x)
+              # print(mid_y)
               e_list.append(class_name) # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
+              c_list.append((mid_x,mid_y)) # 인식된 개체의 좌표 값을 저장
             else:
               class_name = 'N/A' # 해당 화면에 인식된 객체의 이름이 존재하지 않는다면
             display_str = str(class_name) # 그 전까지 인식한 객체들만 표시
@@ -686,6 +709,15 @@ def visualize_boxes_and_labels_on_image_array(
       emergency_check()
       if count_stat < 10: # 10초의 시간을 기다린 후에도 위험한 상황이 인식된다면
         print("위험 상황을 확인했습니다. {}초 후 알림을 전송합니다.".format(10 - count_stat))
+        for warn in range(len(e_list)):
+            # 특정 클래스의 좌표값을 반환
+            if e_list[warn] == 'warning':
+                print("{}".format(c_list[warn]))
+        # 쓰레기와 사람의 좌표값을 비교
+        # if e_list has person and trash:
+        #     if (((c_list[person_x] + c_list[trash_x])/2)**2 + ((c_list[person_y] + c_list[trash_y])/2)**2)**0.5 <= 일정 수준 거리(ex: 50cm):
+        #         do dumping_trash_status
+
       else: # 알림 전송
           print("알림을 전송합니다. 위험 상황 발생 {}초 경과".format(count_stat))
       return image
