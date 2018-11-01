@@ -119,6 +119,12 @@ def status_handler():
         #     line_thickness=8,
         #     min_score_thresh=0.60))
         # All the results have been drawn on the frame, so it's time to display it.
+        # for i, b in enumerate(boxes[0]):
+        #     if scores[0][i] >= 0.6:
+        #         mid_x = (boxes[0][i][1] + boxes[0][i][3]) / 2
+        #         mid_y = (boxes[0][i][0] + boxes[0][i][2]) / 2
+        #         cv2.putText(frame, 'M', (int(mid_x * 1280), int(mid_y * 720)),
+        #                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
         cv2.imshow('Object detector', frame)
 
         # Press 'q' to quit
