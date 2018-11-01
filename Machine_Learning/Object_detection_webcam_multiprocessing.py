@@ -30,7 +30,7 @@ def status_handler(int):
     PATH_TO_CKPT = os.path.join(CWD_PATH,MODEL_NAME,'frozen_inference_graph.pb')
 
     # 학습 모델을 사용하여 구분할 class명이 저장되어있는 폴더와 파일을 지정합니다.
-    PATH_TO_LABELS = os.path.join(CWD_PATH,'training','labelmap.pbtxt')
+    PATH_TO_LABELS = os.path.join(CWD_PATH,'labelmap.pbtxt')
     # 인식을 할 가짓수는 2가지입니다. (안전[Person], 위험[Warning])
     NUM_CLASSES = 2
     # 객체의 라벨과 클래스를 연관지어 저장합니다.
