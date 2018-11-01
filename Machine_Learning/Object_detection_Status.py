@@ -75,4 +75,4 @@ def status_handler():
     video.release()
     cv2.destroyAllWindows()
 if __name__ == '__main__':
-    status_handler(
+    status_handler()
