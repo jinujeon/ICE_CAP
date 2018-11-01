@@ -781,4 +781,4 @@ def add_hist_image_summary(values, bins, name):
             1, int(height), int(width), 3)
     return image
   hist_plot = tf.py_func(hist_plot, [values, bins], tf.uint8)
-  tf.summary.image(name, hist_plot
+  tf.summary.image(name, hist_plot)
