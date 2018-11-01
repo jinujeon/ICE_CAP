@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 import tensorflow as tf
-import sys
+import sys, time
 
 from utils import label_map_util
 from utils import visualization_utils as vis_util
@@ -50,28 +50,55 @@ def status_handler():
     video = cv2.VideoCapture(0)
     ret = video.set(3,1280)
     ret = video.set(4,720)
-
+    present = time.time()
+    timer = time.time()
     while(True):
-        # 영상 분석 시작
-        ret, frame = video.read()
-        frame_expanded = np.expand_dims(frame, axis=0)
-        # 객체에 씌울 경계선, 정밀도, 이름, 확률 값을 텐서에 넣어 지정합니다.
-        (boxes, scores, classes, num) = sess.run(
-            [detection_boxes, detection_scores, detection_classes, num_detections],
-            feed_dict={image_tensor: frame_expanded})
-        # 유틸 프로그램에 해당 변수를 넣어 나온 결과물들을 저장합니다.
-        vis_util.visualize_boxes_and_labels_on_image_array(
-            frame,
-            np.squeeze(boxes),
-            np.squeeze(classes).astype(np.int32),
-            np.squeeze(scores),
-            category_index,
-            use_normalized_coordinates=True,
-            min_score_thresh=0.60) # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
-        # 최종 출력물을 이미지에 씌워 출력합니다.
-        cv2.imshow('Object detector', frame)
-        if cv2.waitKey(1) == ord('q'):
-            break
+        if int(timer - present) >= 3: # 3초 간격으로 객체 인식 실행
+                # 영상 분석 시작
+                timer = time.time()
+                ret, frame = video.read()
+                frame_expanded = np.expand_dims(frame, axis=0)
+                # 객체에 씌울 경계선, 정밀도, 이름, 확률 값을 텐서에 넣어 지정합니다.
+                (boxes, scores, classes, num) = sess.run(
+                    [detection_boxes, detection_scores, detection_classes, num_detections],
+                    feed_dict={image_tensor: frame_expanded})
+                # 유틸 프로그램에 해당 변수를 넣어 나온 결과물들을 저장합니다.
+                vis_util.visualize_boxes_and_labels_on_image_array(
+                    frame,
+                    np.squeeze(boxes),
+                    np.squeeze(classes).astype(np.int32),
+                    np.squeeze(scores),
+                    category_index,
+                    use_normalized_coordinates=True,
+                    min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
+                # 최종 출력물을 이미지에 씌워 출력합니다.
+                # 각 객체들의 core 좌표를 opencv를 통해 출력
+                for i, b in enumerate(boxes[0]):
+                    if scores[0][i] >= 0.6:
+                        mid_x = (boxes[0][i][1] + boxes[0][i][3]) / 2
+                        mid_y = (boxes[0][i][0] + boxes[0][i][2]) / 2
+                        apx_distance = round(((1 - (boxes[0][i][3] - boxes[0][i][1])) ** 4), 1)
+                        cv2.putText(frame, '{}'.format(apx_distance), (int(mid_x * 1280), int(mid_y * 720)),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+                cv2.imshow('Object detector', frame)
+                if cv2.waitKey(1) == ord('q'):
+                    break
+
+                if int(timer - present) >=6: # 객체 인식 3초 지속 후 초기화
+                    present = timer
+        else:
+            timer = time.time() # 타이머를 갱신하며 3초를 count
+            ret1, frame1 = video.read() # 타이머를 갱신중엔 객체 인식을 하지 않는 프레임 출력
+            cv2.imshow('Object detector', frame1)
+            if cv2.waitKey(1) == ord('q'):
+                break
+
+#     while(True):
+#         ret, frame = video.read()
+#         cv2.imshow('asd',frame)
+#         if cv2.waitKey(1) == ord('q'):
+#             break
     video.release()
     cv2.destroyAllWindows()
 if __name__ == '__main__':
