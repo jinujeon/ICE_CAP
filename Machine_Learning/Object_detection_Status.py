@@ -33,7 +33,7 @@ def showMultiImage(dst, src, h, w, d, col, row):
         dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 2] = src[0:h, 0:w]
 
 
-cv2.namedWindow('multiView')
+# cv2.namedWindow('multiView')
 
 
 ##### 코드 시작 ####
@@ -87,51 +87,66 @@ def status_handler():
     # update
     cap2 = cv2.VideoCapture(0)  # 카메라 생성
     cap = cv2.VideoCapture(1)
-    ret = cap.set(3, 640)
-    ret = cap.set(3, 640)
+    ret1 = cap.set(3, 640)
+    ret2 = cap.set(3, 640)
 
     while (True):
 
-        ret, frame = cap.read()
-        ret1, frame1 = cap2.read()
+        ret1, frame1 = cap.read()
+        ret2, frame2 = cap2.read()
 
         # 이미지 높이
-        height = frame.shape[0]
         height1 = frame1.shape[0]
+        height2 = frame2.shape[0]
         # 이미지 넓이
-        width = frame.shape[1]
         width1 = frame1.shape[1]
+        width2 = frame2.shape[1]
         # 이미지 색상 크기
-        depth = frame.shape[2]
         depth1 = frame1.shape[2]
-
-        # 화면에 표시할 이미지 만들기 ( 2 x 2 )
-        video = create_image_multiple(height, width, depth, 2, 2)
-
-        # 원하는 위치에 복사
-        # 왼쪽 위에 표시(0,0)
-        showMultiImage(video, frame, height, width, depth, 0, 0)
-        # 오른쪽 위에 표시(0,1)
-        showMultiImage(video, frame1, height1, width1, depth1, 0, 1)
+        depth2 = frame2.shape[2]
 
         # 영상 분석 시작
-        ret, frame = video.read()
-        frame_expanded = np.expand_dims(frame, axis=0)
+        # ret, frame = video.read()
+        frame_expanded = np.expand_dims(frame1, axis=0)
         # 객체에 씌울 경계선, 정밀도, 이름, 확률 값을 텐서에 넣어 지정합니다.
         (boxes, scores, classes, num) = sess.run(
             [detection_boxes, detection_scores, detection_classes, num_detections],
             feed_dict={image_tensor: frame_expanded})
         # 유틸 프로그램에 해당 변수를 넣어 나온 결과물들을 저장합니다.
         vis_util.visualize_boxes_and_labels_on_image_array(
-            frame,
+            frame1,
             np.squeeze(boxes),
             np.squeeze(classes).astype(np.int32),
             np.squeeze(scores),
             category_index,
             use_normalized_coordinates=True,
             min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
+
+        frame_expanded2 = np.expand_dims(frame2, axis=0)
+        # 객체에 씌울 경계선, 정밀도, 이름, 확률 값을 텐서에 넣어 지정합니다.
+        (boxes2, scores2, classes2, num2) = sess.run(
+            [detection_boxes, detection_scores, detection_classes, num_detections],
+            feed_dict={image_tensor: frame_expanded2})
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            frame2,
+            np.squeeze(boxes2),
+            np.squeeze(classes2).astype(np.int32),
+            np.squeeze(scores2),
+            category_index,
+            use_normalized_coordinates=True,
+            min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
         # 최종 출력물을 이미지에 씌워 출력합니다.
-        cv2.imshow('Object detector', frame)
+
+        # 화면에 표시할 이미지 만들기 ( 2 x 2 )
+        dstvideo = create_image_multiple(height1, width1, depth1, 2, 2)
+
+        # 원하는 위치에 복사
+        # 왼쪽 위에 표시(0,0)
+        showMultiImage(dstvideo, frame1, height1, width1, depth1, 0, 0)
+        # 오른쪽 위에 표시(0,1)
+        showMultiImage(dstvideo, frame2, height2, width2, depth2, 0, 1)
+
+        cv2.imshow('Object detector', dstvideo)
         if cv2.waitKey(1) == ord('q'):
             break
     video.release()
