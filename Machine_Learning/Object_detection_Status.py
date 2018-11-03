@@ -23,14 +23,8 @@ def create_image_multiple(h, w, d, hcout, wcount):
 
 
 def showMultiImage(dst, src, h, w, d, col, row):
-    # 3 color
-    if d == 3:
-        dst[(col * h):(col * h) + h, (row * w):(row * w) + w] = src[0:h, 0:w]
-    # 1 color
-    elif d == 1:
-        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 0] = src[0:h, 0:w]
-        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 1] = src[0:h, 0:w]
-        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 2] = src[0:h, 0:w]
+    dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 0] = src[0:h, 0:w]
+
 
 
 # cv2.namedWindow('multiView')
@@ -87,8 +81,11 @@ def status_handler():
     # update
     cap2 = cv2.VideoCapture(0)  # 카메라 생성
     cap = cv2.VideoCapture(1)
+
     ret1 = cap.set(3, 640)
-    ret2 = cap.set(3, 640)
+    ret2 = cap2.set(3, 640)
+    ret1 = cap.set(4, 480)
+    ret2 = cap2.set(4, 480)
 
     while (True):
 
@@ -96,14 +93,12 @@ def status_handler():
         ret2, frame2 = cap2.read()
 
         # 이미지 높이
-        height1 = frame1.shape[0]
-        height2 = frame2.shape[0]
+        height = frame1.shape[0]
         # 이미지 넓이
-        width1 = frame1.shape[1]
-        width2 = frame2.shape[1]
+        width = frame1.shape[1]
         # 이미지 색상 크기
-        depth1 = frame1.shape[2]
-        depth2 = frame2.shape[2]
+        depth = frame1.shape[2]
+
 
         # 영상 분석 시작
         # ret, frame = video.read()
@@ -138,13 +133,13 @@ def status_handler():
         # 최종 출력물을 이미지에 씌워 출력합니다.
 
         # 화면에 표시할 이미지 만들기 ( 2 x 2 )
-        dstvideo = create_image_multiple(height1, width1, depth1, 2, 2)
+        dstvideo = create_image_multiple(height, width, depth, 1, 2)
 
         # 원하는 위치에 복사
         # 왼쪽 위에 표시(0,0)
-        showMultiImage(dstvideo, frame1, height1, width1, depth1, 0, 0)
+        showMultiImage(dstvideo, frame1, height, width, depth, 0, 0)
         # 오른쪽 위에 표시(0,1)
-        showMultiImage(dstvideo, frame2, height2, width2, depth2, 0, 1)
+        showMultiImage(dstvideo, frame2, height, width, depth, 0, 1)
 
         cv2.imshow('Object detector', dstvideo)
         if cv2.waitKey(1) == ord('q'):

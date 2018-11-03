@@ -7,7 +7,7 @@ CAM_ID = 0
 
 
 
-#검정색 이미지를 생성 
+#검정색 이미지를 생성
 #h : 높이
 #w : 넓이
 #d : 깊이 (1 : gray, 3: bgr)
@@ -37,24 +37,20 @@ def create_image_multiple(h, w, d, hcout, wcount):
 #w : 넓이
 #d : 깊이
 #col : 행 위치(0부터 시작)
-#row : 열 위치(0부터 시작) 
-def showMultiImage(dst, src, h, w, d, col, row):
-    # 3 color
-    if  d==3:
-        dst[(col*h):(col*h)+h, (row*w):(row*w)+w] = src[0:h, 0:w]
-    # 1 color
-    elif d==1:
-        dst[(col*h):(col*h)+h, (row*w):(row*w)+w, 0] = src[0:h, 0:w]
-        dst[(col*h):(col*h)+h, (row*w):(row*w)+w, 1] = src[0:h, 0:w]
-        dst[(col*h):(col*h)+h, (row*w):(row*w)+w, 2] = src[0:h, 0:w]
+#row : 열 위치(0부터 시작)
 
+def showMultiImage(dst, src, h, w, d, col, row):
+    dst[(col*h):(col*h)+h, (row*w):(row*w)+w] = src[0:h, 0:w]
 
 
 ##### 코드 시작 ####
 cap2 = cv2.VideoCapture(CAM_ID) #카메라 생성
 cap = cv2.VideoCapture(1)
 ret = cap.set(3,640)
-ret = cap.set(3,640)
+ret1 = cap2.set(3,640)
+ret = cap.set(4,480)
+ret1 = cap2.set(4,480)
+
 if cap.isOpened() == False: #카메라 생성 확인
     print ('Can\'t open the CAM(%d)' % (CAM_ID))
     exit()
@@ -72,22 +68,21 @@ while(True):
 
     # 이미지 높이
     height = frame.shape[0]
-    height1 = frame1.shape[0]
+
     # 이미지 넓이
     width = frame.shape[1]
-    width1 = frame1.shape[1]
+
     # 이미지 색상 크기
     depth = frame.shape[2]
-    depth1 = frame1.shape[2]
 
     # 화면에 표시할 이미지 만들기 ( 2 x 2 )
-    dstimage = create_image_multiple(height, width, depth, 2, 2)
+    dstimage = create_image_multiple(height, width, depth, 1, 2)
 
     # 원하는 위치에 복사
     #왼쪽 위에 표시(0,0)
     showMultiImage(dstimage, frame, height, width, depth, 0, 0)
     #오른쪽 위에 표시(0,1)
-    showMultiImage(dstimage, frame1, height1, width1, depth1, 0, 1)
+    showMultiImage(dstimage, frame1, height, width, depth, 0, 1)
 
 
     # 화면 표시
