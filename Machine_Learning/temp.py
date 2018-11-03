@@ -51,10 +51,14 @@ def showMultiImage(dst, src, h, w, d, col, row):
 
 
 ##### 코드 시작 ####
-cap = cv2.VideoCapture(CAM_ID) #카메라 생성
+cap2 = cv2.VideoCapture(CAM_ID) #카메라 생성
+cap = cv2.VideoCapture(1)
 ret = cap.set(3,640)
-ret = cap.set(4,360)
+ret = cap.set(3,640)
 if cap.isOpened() == False: #카메라 생성 확인
+    print ('Can\'t open the CAM(%d)' % (CAM_ID))
+    exit()
+elif cap2.isOpened() == False: #카메라 생성 확인
     print ('Can\'t open the CAM(%d)' % (CAM_ID))
     exit()
 
@@ -64,28 +68,17 @@ cv2.namedWindow('multiView')
 while(True):
     #카메라에서 이미지 얻기
     ret, frame = cap.read()
+    ret1, frame1 = cap2.read()
 
     # 이미지 높이
     height = frame.shape[0]
+    height1 = frame1.shape[0]
     # 이미지 넓이
     width = frame.shape[1]
+    width1 = frame1.shape[1]
     # 이미지 색상 크기
     depth = frame.shape[2]
-    # print(height)
-    # print(width)
-    # print(depth)
-    #흑백으로 변경
-    grayframe = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    #밝기 평균 분포
-    grayframe = cv2.equalizeHist(grayframe)
-
-    #median 필터 적용
-    blur = cv2.medianBlur(grayframe,5)
-
-    ret, th1 = cv2.threshold(blur, 127, 255, cv2.THRESH_BINARY)
-    th2 = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 2)
-    th3 = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    depth1 = frame1.shape[2]
 
     # 화면에 표시할 이미지 만들기 ( 2 x 2 )
     dstimage = create_image_multiple(height, width, depth, 2, 2)
@@ -94,11 +87,8 @@ while(True):
     #왼쪽 위에 표시(0,0)
     showMultiImage(dstimage, frame, height, width, depth, 0, 0)
     #오른쪽 위에 표시(0,1)
-    showMultiImage(dstimage, th1, height, width, 1, 0, 1)
-    #왼쪽 아래에 표시(1,0)
-    showMultiImage(dstimage, th2, height, width, 1, 1, 0)
-    #오른쪽 아래에 표시(1,1)
-    showMultiImage(dstimage, th3, height, width, 1, 1, 1)
+    showMultiImage(dstimage, frame1, height1, width1, depth1, 0, 1)
+
 
     # 화면 표시
     cv2.imshow('multiView',dstimage)
