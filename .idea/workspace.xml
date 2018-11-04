@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d22078b-86de-465f-a668-7b9b2ec37ba5" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py" beforeDir="false" afterPath="$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Machine_Learning/temp.py" beforeDir="false" afterPath="$PROJECT_DIR$/Machine_Learning/temp.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Machine_Learning/Object_detection_Timecheck.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -19,7 +17,7 @@
         <entry file="file://$PROJECT_DIR$/Machine_Learning/temp.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="656">
-              <caret line="77" column="31" lean-forward="true" selection-start-line="77" selection-start-column="31" selection-end-line="77" selection-end-column="31" />
+              <caret line="77" column="31" selection-start-line="77" selection-start-column="31" selection-end-line="77" selection-end-column="31" />
               <folding>
                 <element signature="e#48#58#0" expanded="true" />
               </folding>
@@ -27,11 +25,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Object_detection_Status.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Object_detection_Status.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="297">
-              <caret line="112" column="30" lean-forward="true" selection-start-line="112" selection-start-column="30" selection-end-line="112" selection-end-column="30" />
+            <state relative-caret-position="-2261">
+              <caret line="9" selection-start-line="9" selection-end-line="9" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Object_detection_Timecheck.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Timecheck.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1995">
+              <caret line="105" column="20" selection-start-line="105" selection-start-column="20" selection-end-line="105" selection-end-column="20" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -55,12 +65,19 @@
         <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_webcam.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-1719">
-              <caret line="23" column="23" lean-forward="true" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
+              <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -78,6 +95,7 @@
         <option value="$PROJECT_DIR$/Machine_Learning/temp.py" />
         <option value="$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py" />
         <option value="$PROJECT_DIR$/Machine_Learning/utils/visualization_utils.py" />
+        <option value="$PROJECT_DIR$/Machine_Learning/Object_detection_Timecheck.py" />
       </list>
     </option>
   </component>
@@ -102,6 +120,12 @@
               <item name="ICE_CAP" type="b2602c69:ProjectViewProjectNode" />
               <item name="ICE_CAP" type="462c0819:PsiDirectoryNode" />
               <item name="Machine_Learning" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ICE_CAP" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ICE_CAP" type="462c0819:PsiDirectoryNode" />
+              <item name="Machine_Learning" type="462c0819:PsiDirectoryNode" />
+              <item name="utils" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -260,10 +284,97 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/utils/check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="542">
+          <caret line="105" column="20" selection-start-line="105" selection-start-column="20" selection-end-line="105" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Time.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="276">
+          <caret line="71" column="31" lean-forward="true" selection-end-line="105" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="112" column="30" lean-forward="true" selection-start-line="112" selection-start-column="30" selection-end-line="112" selection-end-column="30" />
+        <state relative-caret-position="-2261">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/323168641/cv2/cv2/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="201">
+          <caret line="8257" column="4" selection-start-line="8257" selection-start-column="4" selection-end-line="8257" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/312321.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="92" column="16" lean-forward="true" selection-start-line="92" selection-start-column="16" selection-end-line="92" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/temp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="656">
+          <caret line="77" column="31" selection-start-line="77" selection-start-column="31" selection-end-line="77" selection-end-column="31" />
+          <folding>
+            <element signature="e#48#58#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Run Guide.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mysite/manage.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/utils/visualization_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="697" column="18" selection-start-line="697" selection-start-column="18" selection-end-line="697" selection-end-column="18" />
+          <folding>
+            <element signature="e#907#925#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_webcam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1719">
+          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2261">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Timecheck.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1995">
+          <caret line="105" column="20" selection-start-line="105" selection-start-column="20" selection-end-line="105" selection-end-column="20" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
