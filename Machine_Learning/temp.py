@@ -75,7 +75,7 @@ while(True):
     # 이미지 색상 크기
     depth = frame.shape[2]
 
-    # 화면에 표시할 이미지 만들기 ( 2 x 2 )
+    # 화면에 표시할 이미지 만들기 ( 1 x 2 )
     dstimage = create_image_multiple(height, width, depth, 1, 2)
 
     # 원하는 위치에 복사

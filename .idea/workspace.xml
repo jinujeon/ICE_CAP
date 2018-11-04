@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d22078b-86de-465f-a668-7b9b2ec37ba5" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py" beforeDir="false" afterPath="$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Machine_Learning/temp.py" beforeDir="false" afterPath="$PROJECT_DIR$/Machine_Learning/temp.py" afterDir="false" />
     </list>
@@ -15,11 +15,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="temp.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="temp.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Machine_Learning/temp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="276">
-              <caret line="87" column="11" lean-forward="true" selection-start-line="48" selection-end-line="51" selection-end-column="22" />
+            <state relative-caret-position="656">
+              <caret line="77" column="31" lean-forward="true" selection-start-line="77" selection-start-column="31" selection-end-line="77" selection-end-column="31" />
               <folding>
                 <element signature="e#48#58#0" expanded="true" />
               </folding>
@@ -27,14 +27,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Object_detection_Status.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Object_detection_Status.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="21" column="16" lean-forward="true" selection-start-line="21" selection-start-column="16" selection-end-line="21" selection-end-column="16" />
+            <state relative-caret-position="297">
+              <caret line="112" column="30" lean-forward="true" selection-start-line="112" selection-start-column="30" selection-end-line="112" selection-end-column="30" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="visualization_utils.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Machine_Learning/utils/visualization_utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret line="697" column="18" selection-start-line="697" selection-start-column="18" selection-end-line="697" selection-end-column="18" />
+              <folding>
+                <element signature="e#907#925#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Object_detection_webcam.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_webcam.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1719">
+              <caret line="23" column="23" lean-forward="true" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -44,6 +65,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>dst</find>
+      <find>3</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -55,6 +77,7 @@
         <option value="$USER_HOME$/Desktop/312321.py" />
         <option value="$PROJECT_DIR$/Machine_Learning/temp.py" />
         <option value="$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py" />
+        <option value="$PROJECT_DIR$/Machine_Learning/utils/visualization_utils.py" />
       </list>
     </option>
   </component>
@@ -167,10 +190,10 @@
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32978722" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32978722" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Python Console" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -204,22 +227,45 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py">
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/temp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="21" column="16" lean-forward="true" selection-start-line="21" selection-start-column="16" selection-end-line="21" selection-end-column="16" />
+        <state relative-caret-position="656">
+          <caret line="77" column="31" lean-forward="true" selection-start-line="77" selection-start-column="31" selection-end-line="77" selection-end-column="31" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#48#58#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Machine_Learning/temp.py">
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_webcam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="276">
-          <caret line="87" column="11" lean-forward="true" selection-start-line="48" selection-end-line="51" selection-end-column="22" />
+        <state relative-caret-position="-1719">
+          <caret line="23" column="23" lean-forward="true" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Run Guide.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mysite/manage.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/utils/visualization_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="697" column="18" selection-start-line="697" selection-start-column="18" selection-end-line="697" selection-end-column="18" />
           <folding>
-            <element signature="e#48#58#0" expanded="true" />
+            <element signature="e#907#925#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="112" column="30" lean-forward="true" selection-start-line="112" selection-start-column="30" selection-end-line="112" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
