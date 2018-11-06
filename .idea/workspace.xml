@@ -3,7 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="1d22078b-86de-465f-a668-7b9b2ec37ba5" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ctm-python/sendsms.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctm-python/sendsms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sms/version3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sms/version3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sms/version3/examples/message/send.py" beforeDir="false" afterPath="$PROJECT_DIR$/sms/version3/examples/message/send.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -13,29 +14,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="coolsms.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="20" column="14" selection-start-line="20" selection-start-column="14" selection-end-line="20" selection-end-column="14" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="sendsms.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
-              <folding>
-                <element signature="e#119#129#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -124,7 +103,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.sendsms">
+  <component name="RunManager" selected="Python.temp">
     <configuration name="312321" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ICE_CAP" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -138,6 +117,24 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$USER_HOME$/Desktop/312321.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="Object_detection_Status(2cams 1window)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="ICE_CAP" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Machine_Learning" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Machine_Learning/Object_detection_Status(2cams 1window).py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -183,11 +180,13 @@
       <item itemvalue="Python.temp" />
       <item itemvalue="Python.312321" />
       <item itemvalue="Python.sendsms" />
+      <item itemvalue="Python.Object_detection_Status(2cams 1window)" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.sendsms" />
         <item itemvalue="Python.temp" />
+        <item itemvalue="Python.Object_detection_Status(2cams 1window)" />
+        <item itemvalue="Python.sendsms" />
         <item itemvalue="Python.312321" />
       </list>
     </recent_temporary>
@@ -207,18 +206,17 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="953" y="0" width="974" height="1047" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.50104386" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32975295" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32975295" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.3329753" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -232,57 +230,41 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py">
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status(2cams 1window).py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="20" column="14" selection-start-line="20" selection-start-column="14" selection-end-line="20" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="551">
-          <caret line="29" column="70" selection-start-line="29" selection-start-column="70" selection-end-line="29" selection-end-column="70" />
+        <state relative-caret-position="304">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
           <folding>
-            <element signature="e#119#129#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py">
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_webcam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="20" column="14" lean-forward="true" selection-start-line="20" selection-start-column="14" selection-end-line="20" selection-end-column="14" />
+        <state relative-caret-position="437">
+          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py">
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status(2cams 1window).py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="13" column="11" lean-forward="true" selection-end-line="59" />
+        <state relative-caret-position="304">
+          <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
           <folding>
-            <element signature="e#119#129#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2185">
-          <caret line="120" column="30" lean-forward="true" selection-start-line="120" selection-start-column="30" selection-end-line="120" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="741">
-          <caret line="40" column="33" lean-forward="true" selection-start-line="40" selection-start-column="33" selection-end-line="40" selection-end-column="33" />
-          <folding>
-            <element signature="e#119#129#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py" />
     <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/323168641/cv2/cv2/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="201">
@@ -353,13 +335,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Machine_Learning/temp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="656">
-          <caret line="77" column="31" selection-start-line="77" selection-start-column="31" selection-end-line="77" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Machine_Learning/Run Guide.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -370,13 +345,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret line="697" column="18" selection-start-line="697" selection-start-column="18" selection-end-line="697" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_webcam.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1719">
-          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
         </state>
       </provider>
     </entry>
@@ -400,22 +368,29 @@
     <entry file="file://$PROJECT_DIR$/sms/sdk/api/message.py" />
     <entry file="file://$PROJECT_DIR$/sms/examples/message/send_mms.py" />
     <entry file="file://$PROJECT_DIR$/ctm-python/example_utf8_sendsms.py" />
-    <entry file="file://$PROJECT_DIR$/../sms/sendsms.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py">
+    <entry file="file://$PROJECT_DIR$/../sms/sendsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py" />
+    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py" />
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/temp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="20" column="14" selection-start-line="20" selection-start-column="14" selection-end-line="20" selection-end-column="14" />
+        <state relative-caret-position="646">
+          <caret line="35" column="7" lean-forward="true" selection-start-line="35" selection-start-column="7" selection-end-line="35" selection-end-column="7" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py">
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_webcam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+        <state relative-caret-position="121">
+          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Machine_Learning/Object_detection_Status(2cams 1window).py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
           <folding>
-            <element signature="e#119#129#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
