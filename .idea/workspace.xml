@@ -1,51 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1d22078b-86de-465f-a668-7b9b2ec37ba5" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/coolsms_unit_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/add_messages.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/add_messages_json.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/create_group.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/delete_groups.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/delete_messages.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/group_info.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/group_list.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/message_list.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/group_message/send.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/image/delete_image.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/image/image_info.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/image/image_list.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/image/test.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/image/upload_image.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/message/balance.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/message/cancel.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/message/send.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/message/send_ata.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/message/send_lms.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/message/send_mms.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/message/sent.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/message/status.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/sender_id/delete.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/sender_id/get_default.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/sender_id/register.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/sender_id/senderid_list.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/sender_id/set_default.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/examples/sender_id/verify.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/sdk/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/sdk/api/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/sdk/api/group_message.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/sdk/api/image.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/sdk/api/message.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/sdk/api/sender_id.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/sdk/coolsms.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/sdk/exceptions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/setup.cfg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms/setup.py" beforeDir="false" />
-    </list>
+    <list default="true" id="1d22078b-86de-465f-a668-7b9b2ec37ba5" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -54,26 +10,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="coolsms.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2185">
-              <caret line="120" column="30" selection-start-line="120" selection-start-column="30" selection-end-line="120" selection-end-column="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="sendsms.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="466">
-              <caret line="53" column="13" lean-forward="true" selection-start-line="53" selection-start-column="13" selection-end-line="53" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -104,7 +41,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="953" />
     <option name="width" value="974" />
     <option name="height" value="1047" />
@@ -222,8 +159,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -405,17 +341,17 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ctm-python/example_utf8_sendsms.py" />
-    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py">
+    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2185">
-          <caret line="120" column="30" selection-start-line="120" selection-start-column="30" selection-end-line="120" selection-end-column="30" />
+        <state relative-caret-position="988">
+          <caret line="53" column="13" lean-forward="true" selection-start-line="53" selection-start-column="13" selection-end-line="53" selection-end-column="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ctm-python/sendsms.py">
+    <entry file="file://$PROJECT_DIR$/ctm-python/coolsms.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="466">
-          <caret line="53" column="13" lean-forward="true" selection-start-line="53" selection-start-column="13" selection-end-line="53" selection-end-column="13" />
+        <state relative-caret-position="542">
+          <caret line="120" column="30" selection-start-line="120" selection-start-column="30" selection-end-line="120" selection-end-column="30" />
         </state>
       </provider>
     </entry>

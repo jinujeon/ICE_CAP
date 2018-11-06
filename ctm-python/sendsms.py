@@ -42,13 +42,13 @@ def main():
         nsent = cs.send()
     else:
         # 오류처리
-        print "서버에 접속할 수 없습니다. 네트워크 상태를 확인하세요."
+        print("서버에 접속할 수 없습니다. 네트워크 상태를 확인하세요.")
 
     # 연결 해제
     cs.disconnect()
 
     # 결과를 출력합니다.
-    print "%d 개를 전송한 결과입니다." % nsent
+    print("%d 개를 전송한 결과입니다." % nsent)
     cs.printr()
  
     # 메모리 초기화
