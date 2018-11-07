@@ -647,19 +647,15 @@ def visualize_boxes_and_labels_on_image_array(
               print(mid_y)
               #사람 객체를 인식하면
               if(class_name == 'person'):
+                  #boundary box의 네 개의 꼭짓점
                   xylist = [boxes[i][1], boxes[i][2], boxes[i][3], boxes[i][2],
                             boxes[i][1], boxes[i][0], boxes[i][3], boxes[i][0]]
-                  #xylist = [boxes[i][1] * 1280, boxes[i][2] * 720, boxes[i][3] * 1280, boxes[i][2] * 720,
-                  #          boxes[i][1] * 1280, boxes[i][0] * 720, boxes[i][3]* 1280,boxes[i][0] * 720]
-                  #x1, y1 = boxes[i][1], boxes[i][2]
-                  #x2, y2 = boxes[i][3], boxes[i][0]
-                  colist = [0.03, 0.916, 0.917, 0.52]
+                  colist = [0.03, 0.916, 0.917, 0.52] #직선 가상 펜스 좌표
+                  #가상 펜스에 침입 감지
                   for i in range(0, len(xylist), 2):
                       global is_warning
                       is_warning = intr.isIntrusion(colist, xylist[i], xylist[i+1])
                       print(colist, xylist[i], xylist[i+1])
-                  #is_warning = intr.isIntrusion(colist, x1, y1)
-                  #is_warning = intr.isIntrusion(colist, x2, y2)
               e_list.append(class_name)  # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
               c_list.append((mid_x, mid_y))
             else:
