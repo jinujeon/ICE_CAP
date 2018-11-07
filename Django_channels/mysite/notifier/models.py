@@ -7,3 +7,5 @@ class Camera(models.Model):
 	cam_status = models.CharField(max_length=20)
 	cam_location = models.CharField(max_length=50)
 
+
+

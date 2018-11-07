@@ -13,10 +13,12 @@ def announce_cam_stat(sender, instance, created, **kwargs):
         async_to_sync(channel_layer.group_send)(
             "cameras", {"type": "cam_message",
                        "event": "created",
-                       "cam_id": instance.cam_id})
+                       "cam_id": instance.cam_id,
+			"cam_location": instance.cam_location})
     elif instance.cam_status == 'warning':
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "cameras", {"type": "cam_message",
                        "event": "warning",
-                       "cam_id": instance.cam_id})
+                       "cam_id": instance.cam_id,
+			"cam_location": instance.cam_location})
