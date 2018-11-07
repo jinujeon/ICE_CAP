@@ -63,11 +63,17 @@ STANDARD_COLORS = [
 ]
 # 전역변수 선언
 global count_stat
-count_stat = 0 # 위험 상활 발생시 알림 전송을 위한 대기 시간 변수
+count_stat = 0 # (누운사람) 위험 상황 발생시 알림 전송을 위한 대기 시간 변수
 import urllib.request
 global is_warning # 해당 CCTV 상태 변수
 is_warning = False
-
+global fence_warning
+fence_warning = False
+global count_fence
+count_fence = 0 #가상 펜스 위험 상황 발생 시의 대기 시간 변수
+# 사람 객체의 네 꼭짓점 좌표값 리스트
+fxy_list = []
+colist = [0.03, 0.916, 0.917, 0.52]
 
 def save_image_array_as_png(image, output_path):
   """Saves an image (represented as a numpy array) to PNG.
@@ -647,15 +653,9 @@ def visualize_boxes_and_labels_on_image_array(
               print(mid_y)
               #사람 객체를 인식하면
               if(class_name == 'person'):
-                  #boundary box의 네 개의 꼭짓점
-                  xylist = [boxes[i][1], boxes[i][2], boxes[i][3], boxes[i][2],
-                            boxes[i][1], boxes[i][0], boxes[i][3], boxes[i][0]]
-                  colist = [0.03, 0.916, 0.917, 0.52] #직선 가상 펜스 좌표
-                  #가상 펜스에 침입 감지
-                  for i in range(0, len(xylist), 2):
-                      global is_warning
-                      is_warning = intr.isIntrusion(colist, xylist[i], xylist[i+1])
-                      print(colist, xylist[i], xylist[i+1])
+                  xylist = (boxes[i][1], boxes[i][2], boxes[i][3], boxes[i][2],
+                            boxes[i][1], boxes[i][0], boxes[i][3], boxes[i][0])
+              fxy_list.append(xylist)
               e_list.append(class_name)  # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
               c_list.append((mid_x, mid_y))
             else:
@@ -707,8 +707,7 @@ def visualize_boxes_and_labels_on_image_array(
           color=color,
           radius=line_thickness / 2,
           use_normalized_coordinates=use_normalized_coordinates)
-    #warning 객체가 인식되었거나 가상 펜스에 사람이 인식되어 is_warning이 True가 되었으면
-  if 'warning' in e_list or is_warning: # 해당 화면에 인식된 개체의 이름을 저장한 리스트에서 위험한 상황에 처한 객체가 있는지 확인합니다.
+  if 'warning' in e_list: # 해당 화면에 인식된 개체의 이름을 저장한 리스트에서 위험한 상황에 처한 객체가 있는지 확인합니다.
       emergency_count(True)  # 있다면 카운터 증가
       emergency_check()
       if count_stat < 10: # 10초의 시간을 기다린 후에도 위험한 상황이 인식된다면
@@ -721,6 +720,15 @@ def visualize_boxes_and_labels_on_image_array(
       emergency_check() # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
       print("확인된 위험이 없습니다. 위험상태: {}".format(is_warning))
       return image
+  if 'person' in e_list and fence_warning:
+      fence_count()
+      fence_check()
+      if fence_count() < 10:
+          print("가상 펜스 접근을 감지했습니다. {}초 후 알림을 전송합니다.".format(10 - count_fence))
+      else:
+          print("가상 펜스 침입 알림을 전송합니다. 위험 상황 발생 {}초 경과".format(count_fence))
+
+
 
 def emergency_count(stat): # 위험한 상태 확인, 일정 시간을 대기하기 위해 카운트하는 함수
     global count_stat, is_warning # 카운트하는 int형과 현재 CCTV 위치의 위험 상태를 알려주는 boolean형 전역 변수
@@ -748,6 +756,26 @@ def emergency_check():
             is_warning = True # CCTV의 상태 위험으로 변경
         pass
 
+def fence_count():
+    global count_fence
+    f_stat = False
+    for i, b in enumerate(fxy_list):
+        for m in range(0, 8, 2):
+            f_stat = intr.isIntrusion(colist, fxy_list[i][m], fxy_list[i][m + 1])
+    if f_stat:
+        count_fence = count_fence + 1
+    else:
+        count_fence = 0
+
+def fence_check():
+    global fence_warning
+    if count_fence > 10:
+        data = {'cam_id': 1, 'alert': 'warning'}  # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
+        req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
+        with urllib.request.urlopen(req) as f:
+            pass
+        fence_warning = True
+    pass
 
 
 def add_cdf_image_summary(values, name):
