@@ -2,7 +2,8 @@ import os
 import cv2
 import numpy as np
 import tensorflow as tf
-import sys,time
+import sys
+import time
 
 from utils import label_map_util
 from utils import visualization_utils as vis_util
@@ -23,14 +24,8 @@ def create_image_multiple(h, w, d, hcout, wcount):
 
 
 def showMultiImage(dst, src, h, w, d, col, row):
-    # 3 color
-    if d == 3:
-        dst[(col * h):(col * h) + h, (row * w):(row * w) + w] = src[0:h, 0:w]
-    # 1 color
-    elif d == 1:
-        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 0] = src[0:h, 0:w]
-        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 1] = src[0:h, 0:w]
-        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 2] = src[0:h, 0:w]
+   dst[(col * h):(col * h) + h, (row * w):(row * w) + w] = src[0:h, 0:w]
+
 
 
 def status_handler():
@@ -96,6 +91,7 @@ def status_handler():
     present = time.time()
     timer = time.time()
 
+
     while (True):
         if int(timer - present) >= 3:
             # 카메라에서 이미지 얻기
@@ -104,13 +100,13 @@ def status_handler():
 
             # 이미지 높이
             height = frame.shape[0]
-            height1 = frame1.shape[0]
+
             # 이미지 넓이
             width = frame.shape[1]
-            width1 = frame1.shape[1]
+
             # 이미지 색상 크기
             depth = frame.shape[2]
-            depth1 = frame1.shape[2]
+
 
             frame_expanded = np.expand_dims(frame, axis=0)
             # 객체에 씌울 경계선, 정밀도, 이름, 확률 값을 텐서에 넣어 지정합니다.
@@ -126,11 +122,18 @@ def status_handler():
                 category_index,
                 use_normalized_coordinates=True,
                 min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
+
+            frame_expanded1 = np.expand_dims(frame1, axis=0)
+            # 객체에 씌울 경계선, 정밀도, 이름, 확률 값을 텐서에 넣어 지정합니다.
+            (boxes_two, scores_two, classes_two, num_two) = sess.run(
+                [detection_boxes, detection_scores, detection_classes, num_detections],
+                feed_dict={image_tensor: frame_expanded1})
+
             vis_util.visualize_boxes_and_labels_on_image_array(
                 frame1,
-                np.squeeze(boxes),
-                np.squeeze(classes).astype(np.int32),
-                np.squeeze(scores),
+                np.squeeze(boxes_two),
+                np.squeeze(classes_two).astype(np.int32),
+                np.squeeze(scores_two),
                 category_index,
                 use_normalized_coordinates=True,
                 min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
@@ -140,20 +143,25 @@ def status_handler():
                 if scores[0][i] >= 0.6:
                     mid_x = (boxes[0][i][1] + boxes[0][i][3]) / 2
                     mid_y = (boxes[0][i][0] + boxes[0][i][2]) / 2
-                    cv2.putText(frame, "Core", (int(mid_x * 1280), int(mid_y * 720)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+                    cv2.putText(frame, "Core", (int(mid_x * 640), int(mid_y * 360)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+            for i, b in enumerate(boxes[0]):
+                if scores[0][i] >= 0.6:
+                    mid_x_two = (boxes_two[0][i][1] + boxes_two[0][i][3]) / 2
+                    mid_y_two = (boxes_two[0][i][0] + boxes_two[0][i][2]) / 2
+                    cv2.putText(frame1, "Core", (int(mid_x_two * 640), int(mid_y_two * 400)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
             # 화면에 표시할 이미지 만들기 ( 2 x 2 )
 
-            dstimage = create_image_multiple(height, width, depth, 2, 2)
+            dstimage = create_image_multiple(height, width, depth, 1, 2)
 
             # 원하는 위치에 복사
             # 왼쪽 위에 표시(0,0)
             showMultiImage(dstimage, frame, height, width, depth, 0, 0)
             # 오른쪽 위에 표시(0,1)
-            showMultiImage(dstimage, frame1, height1, width1, depth1, 0, 1)
+            showMultiImage(dstimage, frame1, height, width, depth, 0, 1)
 
-
+            print(present)
             if int(timer - present) >= 6:  # 객체 인식 3초 지속 후 초기화
                 present = timer
 
@@ -162,23 +170,24 @@ def status_handler():
             if cv2.waitKey(1) == ord('q'):
                 break
         else:
+            print('3')
             timer = time.time()  # 타이머를 갱신하며 3초를 count
             ret, frame = video.read()  # 타이머를 갱신중엔 객체 인식을 하지 않는 프레임 출력
             ret1, frame1 = video2.read()
 
             # 이미지 높이
             height = frame.shape[0]
-            height = frame1.shape[0]
+
             # 이미지 넓이
             width = frame.shape[1]
-            width = frame1.shape[1]
+
             # 이미지 색상 크기
             depth = frame.shape[2]
-            depth = frame1.shape[2]
+
 
             # 화면에 표시할 이미지 만들기 ( 2 x 2 )
 
-            dstimage = create_image_multiple(height, width, depth, 2, 2)
+            dstimage = create_image_multiple(height, width, depth, 1, 2)
 
             # 원하는 위치에 복사
             # 왼쪽 위에 표시(0,0)
