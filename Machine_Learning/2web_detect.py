@@ -32,11 +32,11 @@ def status_handler():
     # 현재 폴더의 디렉토리를 저장할수있게 추가합니다
     sys.path.append("..")
     # 객체 인식을 실행하는 프로그램의 디렉토리를 저장하여 프로그램을 실행하기 위한 유틸 파일을 사용할수 있게 설정합니다
-    sys.path.insert(0, 'C:/models/research/object_detection')
+    sys.path.insert(0, 'C:/tensorflow1/models/research/object_detection')
     # 학습 모델이 저장되어 있는 폴더의 이름을 저장합니다.
     MODEL_NAME = 'inference_graph'
     # 작업 중인 디렉토리를 저장합니다
-    CWD_PATH = 'C:/models/research/object_detection'
+    CWD_PATH = 'C:/tensorflow1/models/research/object_detection'
 
     # 학습 모델 파일을 지정합니다
     PATH_TO_CKPT = os.path.join(CWD_PATH,MODEL_NAME,'frozen_inference_graph.pb')
@@ -94,6 +94,7 @@ def status_handler():
 
     while (True):
         if int(timer - present) >= 3:
+            print('1번 카메라')
             # 카메라에서 이미지 얻기
             ret, frame = video.read()
             ret1, frame1 = video2.read()
@@ -123,6 +124,25 @@ def status_handler():
                 use_normalized_coordinates=True,
                 min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
 
+            for i, b in enumerate(boxes[0]):
+                if scores[0][i] >= 0.6:
+                    mid_x = (boxes[0][i][1] + boxes[0][i][3]) / 2
+                    mid_y = (boxes[0][i][0] + boxes[0][i][2]) / 2
+                    cv2.putText(frame, "Core", (int(mid_x * 640), int(mid_y * 360)), cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                                (255, 255, 255), 2)
+
+            dstimage = create_image_multiple(height, width, depth, 1, 2)
+
+            # 원하는 위치에 복사
+            # 왼쪽 위에 표시(0,0)
+            showMultiImage(dstimage, frame, height, width, depth, 0, 0)
+            # 오른쪽 위에 표시(0,1)
+            showMultiImage(dstimage, frame1, height, width, depth, 0, 1)
+            timer = time.time()
+            print(present)
+
+        if int(timer - present) >= 4.5:
+            print('2번카메라')
             frame_expanded1 = np.expand_dims(frame1, axis=0)
             # 객체에 씌울 경계선, 정밀도, 이름, 확률 값을 텐서에 넣어 지정합니다.
             (boxes_two, scores_two, classes_two, num_two) = sess.run(
@@ -139,11 +159,6 @@ def status_handler():
                 min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
             # 최종 출력물을 이미지에 씌워 출력합니다.
             # 각 객체들의 core 좌표를 opencv를 통해 출력
-            for i, b in enumerate(boxes[0]):
-                if scores[0][i] >= 0.6:
-                    mid_x = (boxes[0][i][1] + boxes[0][i][3]) / 2
-                    mid_y = (boxes[0][i][0] + boxes[0][i][2]) / 2
-                    cv2.putText(frame, "Core", (int(mid_x * 640), int(mid_y * 360)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
             for i, b in enumerate(boxes[0]):
                 if scores[0][i] >= 0.6:
@@ -160,8 +175,9 @@ def status_handler():
             showMultiImage(dstimage, frame, height, width, depth, 0, 0)
             # 오른쪽 위에 표시(0,1)
             showMultiImage(dstimage, frame1, height, width, depth, 0, 1)
-
+            timer = time.time()
             print(present)
+
             if int(timer - present) >= 6:  # 객체 인식 3초 지속 후 초기화
                 present = timer
 
@@ -170,7 +186,7 @@ def status_handler():
             if cv2.waitKey(1) == ord('q'):
                 break
         else:
-            print('3')
+            print('3초이후')
             timer = time.time()  # 타이머를 갱신하며 3초를 count
             ret, frame = video.read()  # 타이머를 갱신중엔 객체 인식을 하지 않는 프레임 출력
             ret1, frame1 = video2.read()

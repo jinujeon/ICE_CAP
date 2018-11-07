@@ -8,4 +8,5 @@ class Camera(models.Model):
 	cam_location = models.CharField(max_length=50)
 
 
-
+class Trash(models.Model):
+	trash = models.BooleanField(default=False)
