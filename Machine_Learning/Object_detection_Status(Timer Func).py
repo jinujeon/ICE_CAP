@@ -14,7 +14,7 @@ def status_handler():
     # 학습 모델이 저장되어 있는 폴더의 이름을 저장합니다.
     MODEL_NAME = 'inference_graph'
     # 작업 중인 디렉토리를 저장합니다
-    CWD_PATH = 'C:/models/research/object_detection'
+    CWD_PATH = os.getcwd()
 
     # 학습 모델 파일을 지정합니다
     PATH_TO_CKPT = os.path.join(CWD_PATH,MODEL_NAME,'frozen_inference_graph.pb')
