@@ -724,13 +724,10 @@ def visualize_boxes_and_labels_on_image_array(
       emergency_check() # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
       print("확인된 위험이 없습니다. 위험상태: {}".format(is_warning))
       return image
-  if 'person' in e_list and fence_warning:
-      fence_count()
+  if 'person' in e_list:
+#      fence_count()
       fence_check()
-      if fence_count() < 10:
-          print("가상 펜스 접근을 감지했습니다. {}초 후 알림을 전송합니다.".format(10 - count_fence))
-      else:
-          print("가상 펜스 침입 알림을 전송합니다. 위험 상황 발생 {}초 경과".format(count_fence))
+
 
 
 
@@ -760,27 +757,34 @@ def emergency_check():
             is_warning = True # CCTV의 상태 위험으로 변경
         pass
 
-def fence_count():
-    global count_fence
+def fence_check():
+    #check fence warning
+    global fence_warning
     f_stat = False
     for i, b in enumerate(fxy_list):
         for m in range(0, 8, 2):
             f_stat = intr.isIntrusion(colist, fxy_list[i][m], fxy_list[i][m + 1])
     if f_stat:
-        count_fence = count_fence + 1
-    else:
-        count_fence = 0
-
-def fence_check():
-    global fence_warning
-    if count_fence > 10:
+        #count_fence = count_fence + 1
+        fence_warning = True
         data = {'cam_id': 1, 'alert': 'warning'}  # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
         req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
         with urllib.request.urlopen(req) as f:
             pass
-        fence_warning = True
+    #else:
+        #count_fence = 0
+'''
+def fence_check():
+    global fence_warning
+    if fence_warning:
+    #if count_fence > 10:
+        data = {'cam_id': 1, 'alert': 'warning'}  # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
+        req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
+        with urllib.request.urlopen(req) as f:
+            pass
+        #fence_warning = True
     pass
-
+'''
 
 def add_cdf_image_summary(values, name):
   """Adds a tf.summary.image for a CDF plot of the values.
