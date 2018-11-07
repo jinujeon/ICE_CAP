@@ -72,7 +72,7 @@ fence_warning = False
 global count_fence
 count_fence = 0 #가상 펜스 위험 상황 발생 시의 대기 시간 변수
 # 사람 객체의 네 꼭짓점 좌표값 리스트
-fxy_list = []
+global fxy_list
 colist = [0.03, 0.916, 0.917, 0.52]
 
 def save_image_array_as_png(image, output_path):
@@ -618,6 +618,10 @@ def visualize_boxes_and_labels_on_image_array(
   e_list = []
 # 좌표 값 저장할 리스트
   c_list = []
+#사람 꼭짓점 좌표값 리스트 초기화
+  global fxy_list
+  fxy_list = []
+
   for i , b in enumerate(boxes):
       if scores[i] >= 0.6:
           mid_x = (boxes[i][1] + boxes[i][3]) / 2
