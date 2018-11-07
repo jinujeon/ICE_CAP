@@ -6,6 +6,33 @@ import sys,time
 
 from utils import label_map_util
 from utils import visualization_utils as vis_util
+
+
+def create_image(h, w, d):
+    image = np.zeros((h, w, d), np.uint8)
+    color = tuple(reversed((0, 0, 0)))
+    image[:] = color
+    return image
+
+
+def create_image_multiple(h, w, d, hcout, wcount):
+    image = np.zeros((h * hcout, w * wcount, d), np.uint8)
+    color = tuple(reversed((0, 0, 0)))
+    image[:] = color
+    return image
+
+
+def showMultiImage(dst, src, h, w, d, col, row):
+    # 3 color
+    if d == 3:
+        dst[(col * h):(col * h) + h, (row * w):(row * w) + w] = src[0:h, 0:w]
+    # 1 color
+    elif d == 1:
+        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 0] = src[0:h, 0:w]
+        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 1] = src[0:h, 0:w]
+        dst[(col * h):(col * h) + h, (row * w):(row * w) + w, 2] = src[0:h, 0:w]
+
+
 def status_handler():
     # 현재 폴더의 디렉토리를 저장할수있게 추가합니다
     sys.path.append("..")
@@ -14,7 +41,7 @@ def status_handler():
     # 학습 모델이 저장되어 있는 폴더의 이름을 저장합니다.
     MODEL_NAME = 'inference_graph'
     # 작업 중인 디렉토리를 저장합니다
-    CWD_PATH = os.getcwd()
+    CWD_PATH = 'C:/models/research/object_detection'
 
     # 학습 모델 파일을 지정합니다
     PATH_TO_CKPT = os.path.join(CWD_PATH,MODEL_NAME,'frozen_inference_graph.pb')
@@ -47,16 +74,44 @@ def status_handler():
     # 총 인식된 객체의 수를 지정합니다.
     num_detections = detection_graph.get_tensor_by_name('num_detections:0')
     # 연결된 카메라의 초기설정
-    video = cv2.VideoCapture(0)
-    ret = video.set(3,1280)
-    ret = video.set(4,800)
+
+    ##### 코드 시작 ####
+    video = cv2.VideoCapture(0)  # 카메라 생성
+    video2 = cv2.VideoCapture(1)
+    ret = video.set(3, 640)
+    ret1 = video2.set(3, 640)
+
+    if video.isOpened() == False:  # 카메라 생성 확인
+        print('Can\'t open the CAM(%d)' % (0))
+        exit()
+    elif video2.isOpened() == False:  # 카메라 생성 확인
+        print('Can\'t open the CAM(%d)' % ())
+        exit()
+    else:
+        print('all clear')
+
+    # 윈도우 생성 및 사이즈 변경
+    cv2.namedWindow('multiView')
+
     present = time.time()
     timer = time.time()
-    while(True):
-        if int(timer - present) >= 3:  # 3초 간격으로 객체 인식 실행
-            # 영상 분석 시작
-            timer = time.time()
+
+    while (True):
+        if int(timer - present) >= 3:
+            # 카메라에서 이미지 얻기
             ret, frame = video.read()
+            ret1, frame1 = video2.read()
+
+            # 이미지 높이
+            height = frame.shape[0]
+            height1 = frame1.shape[0]
+            # 이미지 넓이
+            width = frame.shape[1]
+            width1 = frame1.shape[1]
+            # 이미지 색상 크기
+            depth = frame.shape[2]
+            depth1 = frame1.shape[2]
+
             frame_expanded = np.expand_dims(frame, axis=0)
             # 객체에 씌울 경계선, 정밀도, 이름, 확률 값을 텐서에 넣어 지정합니다.
             (boxes, scores, classes, num) = sess.run(
@@ -71,35 +126,76 @@ def status_handler():
                 category_index,
                 use_normalized_coordinates=True,
                 min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
+            vis_util.visualize_boxes_and_labels_on_image_array(
+                frame1,
+                np.squeeze(boxes),
+                np.squeeze(classes).astype(np.int32),
+                np.squeeze(scores),
+                category_index,
+                use_normalized_coordinates=True,
+                min_score_thresh=0.60)  # 객체의 정밀도가 60% 이상일때만 화면에 표시합니다
             # 최종 출력물을 이미지에 씌워 출력합니다.
             # 각 객체들의 core 좌표를 opencv를 통해 출력
             for i, b in enumerate(boxes[0]):
                 if scores[0][i] >= 0.6:
                     mid_x = (boxes[0][i][1] + boxes[0][i][3]) / 2
                     mid_y = (boxes[0][i][0] + boxes[0][i][2]) / 2
-                    apx_distance = round(((1 - (boxes[0][i][3] - boxes[0][i][1])) ** 4), 1)
-                    cv2.putText(frame, '{}'.format(apx_distance), (int(mid_x * 1280), int(mid_y * 720)),
+                    cv2.putText(frame, "Core", (int(mid_x * 1280), int(mid_y * 720)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
-            cv2.imshow('Object detector', frame)
-            if cv2.waitKey(1) == ord('q'):
-                break
+            # 화면에 표시할 이미지 만들기 ( 2 x 2 )
+
+            dstimage = create_image_multiple(height, width, depth, 2, 2)
+
+            # 원하는 위치에 복사
+            # 왼쪽 위에 표시(0,0)
+            showMultiImage(dstimage, frame, height, width, depth, 0, 0)
+            # 오른쪽 위에 표시(0,1)
+            showMultiImage(dstimage, frame1, height1, width1, depth1, 0, 1)
+
 
             if int(timer - present) >= 6:  # 객체 인식 3초 지속 후 초기화
                 present = timer
+
+            # 화면 표시
+            cv2.imshow('multiView', dstimage)
+            if cv2.waitKey(1) == ord('q'):
+                break
         else:
             timer = time.time()  # 타이머를 갱신하며 3초를 count
-            ret1, frame1 = video.read()  # 타이머를 갱신중엔 객체 인식을 하지 않는 프레임 출력
-            cv2.imshow('Object detector', frame1)
+            ret, frame = video.read()  # 타이머를 갱신중엔 객체 인식을 하지 않는 프레임 출력
+            ret1, frame1 = video2.read()
+
+            # 이미지 높이
+            height = frame.shape[0]
+            height = frame1.shape[0]
+            # 이미지 넓이
+            width = frame.shape[1]
+            width = frame1.shape[1]
+            # 이미지 색상 크기
+            depth = frame.shape[2]
+            depth = frame1.shape[2]
+
+            # 화면에 표시할 이미지 만들기 ( 2 x 2 )
+
+            dstimage = create_image_multiple(height, width, depth, 2, 2)
+
+            # 원하는 위치에 복사
+            # 왼쪽 위에 표시(0,0)
+            showMultiImage(dstimage, frame, height, width, depth, 0, 0)
+            # 오른쪽 위에 표시(0,1)
+            showMultiImage(dstimage, frame1, height, width, depth, 0, 1)
+
+
+            # 화면 표시
+            cv2.imshow('multiView', dstimage)
             if cv2.waitKey(1) == ord('q'):
                 break
 
-        #     while(True):
-        #         ret, frame = video.read()
-        #         cv2.imshow('asd',frame)
-        #         if cv2.waitKey(1) == ord('q'):
-        #             break
+    # 윈도우 종료
     video.release()
-    cv2.destroyAllWindows()
+    cv2.destroyWindow('multiView')
+
+
 if __name__ == '__main__':
     status_handler()
