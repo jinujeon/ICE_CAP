@@ -619,6 +619,9 @@ def visualize_boxes_and_labels_on_image_array(
 # 매 프레임에서 인식되는 객체의 이름을 저장할 리스트
   e_list = []
   c_list = []
+  # CCTV 초기 설정
+  global data
+  data = {'cam_id': 1, 'alert': 'safe', 'trash': False}
   # for i, b in enumerate(boxes):
   #     if scores[i] >= 0.6:
   #         mid_x = (boxes[i][1] + boxes[i][3]) / 2
@@ -710,16 +713,24 @@ def visualize_boxes_and_labels_on_image_array(
   global trash_timer
   # 쓰레기가 감지되었다면 감지된 시각을 초기화하고 그로부터 30분동안 지속적으로 감지 되었을때 쓰레기가 투기되었다고 생각하여 알림을 전송한다
   # 이따금씩 감지가 안될 때를 대비하여 별도의 카운터 변수를 선언, 10초의 기간을 두어 쓰레기가 실제로 사라졌는지를 확인한다.
-  if 'trash' in e_list:
-      trash_timer = 0
-      trash_count(True)
-      trash_check()
-      # 사람이 쓰레기를 버리러 가는 중일수도, 버리고 갈수도 있다
-      # 쓰레기가 감지되면 그떄부터 20초간 타임 함수를 사용해서 영상을 캡쳐한다
-      # 일정시간이 지나면 쓰레기가 버려진것
-      # 유틸 파일에서는 단순히 감지만 하고 메인 파일에서 좌표 추출해서 영상 저장가능하게
+  if 'trash' in e_list: # 쓰레기를 감지했다면
+      trash_timer = 0 # 간헐적인 오감지를 방지하기 위해 카운터를 초기화하고
+      trash_count(True) # 10분동안 지속적으로 쓰레기가 감지되는지를 확인하기 위해 감지된 시각을 초기화합니다.
+      trash_check() # 실시간으로 시간을 재어 10분동안 쓰레기가 감지되면 상태를 업데이트합니다.
+
+      # 향후 개발 목적
+      # 사람이 쓰레기를 버리러 가는 중일수도, 버리고 갈수도 있다.
+      # 일정시간이 지나면 쓰레기가 버려진것이므로 범인을 색출하기 위해
+      # 쓰레기가 감지되는 시각부터 약 20초간 영상을 캡쳐한다.
+      # 이후 쓰레기가 10분동안 감지되었다면 영상을 DB에 업로드하고, 쓰레기가 사라졌다면 해당 영상을 삭제
+      # 유틸 파일에서는 단순히 감지만 하고 메인 파일에서 영상 저장가능하게 개발 -> OPENCV 사용
+
       if count_warn % 10 == 0 and count_warn != 0: # 10초에 한번씩 알림 발신
         print("쓰레기가 발견되었습니다.")
+        # 쓰레기와 사람의 좌표값을 비교
+        # if e_list has person and trash:
+        #     if (((c_list[person_x] + c_list[trash_x])/2)**2 + ((c_list[person_y] + c_list[trash_y])/2)**2)**0.5 <= 일정 수준 거리(ex: 50cm):
+        #         do dumping_trash_status
       # else: # 알림 전송
       #     print("알림을 전송합니다. 쓰레기 감지 {}분 경과".format((int(time.time()) - count_warn))/60)
   else:
@@ -729,7 +740,6 @@ def visualize_boxes_and_labels_on_image_array(
         trash_count(False)  # 없다면 카운터 초기화 및 현 상황 변동 확인
         trash_check() # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
 
-
   if 'warning' in e_list: # 해당 화면에 인식된 개체의 이름을 저장한 리스트에서 위험한 상황에 처한 객체가 있는지 확인합니다.
       emergency_count(True)  # 있다면 카운터 증가
       emergency_check()
@@ -737,12 +747,8 @@ def visualize_boxes_and_labels_on_image_array(
         print("위험 상황을 확인했습니다. {}초 후 알림을 전송합니다.".format(10 - count_warn))
         for warn in range(len(e_list)):
             # 특정 클래스의 좌표값을 반환
-            # if e_list[warn] == 'warning':
+            if e_list[warn] == 'warning':
                 print("{}객체 좌표: {}".format(e_list[warn], c_list[warn]))
-        # 쓰레기와 사람의 좌표값을 비교
-        # if e_list has person and trash:
-        #     if (((c_list[person_x] + c_list[trash_x])/2)**2 + ((c_list[person_y] + c_list[trash_y])/2)**2)**0.5 <= 일정 수준 거리(ex: 50cm):
-        #         do dumping_trash_status
 
       else: # 알림 전송
           print("알림을 전송합니다. 위험 상황 발생 {}초 경과".format(count_warn))
@@ -754,56 +760,56 @@ def visualize_boxes_and_labels_on_image_array(
       return image
 
 def trash_count(stat):
-    global count_trash, is_trash  # 카운트하는 int형과 현재 CCTV 위치의 위험 상태를 알려주는 boolean형 전역 변수
-    if stat:  # 위험한 상황을 인식하였으므로 카운트 1 증가
-        if not is_trash:
+    global count_trash, is_trash, data  # 카운트하는 int형과 현재 CCTV 위치의 쓰레기 투기 상태를 알려주는 boolean형 전역 변수
+    if stat:  # 쓰레기 감지
+        if not is_trash: # 처음으로 쓰레기를 감지하였을때의 시간을 저장하고 상태를 변경
             count_trash = int(time.time())
             is_trash = True
-    else:
-        count_trash = 0
-        data = {'cam_id': 1, 'alert': 'safe'}  # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
-        # if is_trash:  # HTTP 방식으로 서버에 전송
-        #     data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
-        #     req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
-        #     with urllib.request.urlopen(req) as f:
-        #         pass
+    else: # 쓰레기가 없다고 판단
+        count_trash = 0 # 카운터 변수 초기화
+        data['trash'] = False  # 쓰레기가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
+        if is_trash:  # HTTP 방식으로 서버에 전송
+            data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
+            req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
+            with urllib.request.urlopen(req) as f:
+                pass
         is_trash = False  # CCTV의 상태 위험하지 않음으로 변경
 
 def trash_check():
     global count_trash,is_trash # 전역 변수인 알림 대기 시간과 현 위험상태 변수를 받습니다.
-    timer = int(time.time())
-    if timer - count_trash >= 1800: # 일정 시간 이후에도 지속적인 위험 상황 확인
-        data = {'cam_id': 1, 'alert': 'warning'} # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
-         # data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
-         # req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
-        # with urllib.request.urlopen(req) as f:
-        #     pass
-        # 쓰레기가 CCTV에서 30분 이상 지속적으로 카운트 되었다.
+    timer = int(time.time()) # 현재 시각을 확인하여 최초 쓰레기가 발견된 시각과 비교
+    if timer - count_trash >= 600: # 일정 시간(10분) 이후에도 지속적인 위험 상황 확인
+        data['trash'] = True # 현재 CCTV 위치에 버려진 쓰레기가 감지되었으므로 상태를 변경합니다.
+        data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
+        req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
+        with urllib.request.urlopen(req) as f:
+            pass
+        # 쓰레기가 CCTV에서 10분 이상 지속적으로 카운트 되었다.
         pass
 
 def emergency_count(stat): # 위험한 상태 확인, 일정 시간을 대기하기 위해 카운트하는 함수
-    global count_warn, is_warning # 카운트하는 int형과 현재 CCTV 위치의 위험 상태를 알려주는 boolean형 전역 변수
+    global count_warn, is_warning # 위험 상황 검사용 int 형 카운트 변수와 현재 CCTV 위치의 위험 상태를 알려주는 boolean형 전역 변수
     if stat: # 위험한 상황을 인식하였으므로 카운트 1 증가
         count_warn = count_warn + 1
     else:
         count_warn = 0
-        data = {'cam_id': 1, 'alert': 'safe'} # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
-        # if is_warning:  # HTTP 방식으로 서버에 전송
-        #     data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
-        #     req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
-        #     with urllib.request.urlopen(req) as f:
-        #         pass
-        is_warning = False # CCTV의 상태 위험하지 않음으로 변경
+        data['alert'] = 'safe' # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
+        if is_warning:  # Warning 상태였던 변수를 HTTP 방식으로 서버에 safe로 변경하여 전송
+            data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
+            req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
+            with urllib.request.urlopen(req) as f:
+                pass
+        is_warning = False # CCTV의 상태 안전으로 변경
 
 def emergency_check():
-    global count_warn,is_warning # 전역 변수인 알림 대기 시간과 현 위험상태 변수를 받습니다.
+    global count_warn, is_warning, data # 전역 변수인 알림 대기 시간과 현 위험상태 변수, CCTV의 상태를 받습니다.
     if count_warn> 10: # 일정 시간 이후에도 지속적인 위험 상황 확인
-        data = {'cam_id': 1, 'alert': 'warning'} # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
+        data['alert'] = 'warning' # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
         if not is_warning: # HTTP 방식으로 서버에 전송
-            # data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
-            # req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
-            # with urllib.request.urlopen(req) as f:
-            #     pass
+            data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
+            req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
+            with urllib.request.urlopen(req) as f:
+                pass
             is_warning = True # CCTV의 상태 위험으로 변경
         pass
 
