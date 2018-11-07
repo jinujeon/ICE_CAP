@@ -1,12 +1,12 @@
 {% load staticfiles %}
 <html>
   <head>
-    <title>Notifier</title>
+    <title>Cam_notifier</title>
     <script src="{% static '/channels/js/websocketbridge.js' %}" type="text/javascript"></script>
   </head>
   <body>
-    <h1>Notifier</h1>
-    <p>Notifications</p>
+    <h1>Camera_alert</h1>
+    <p>Alerts</p>
     <ul id="notifylist"></ul>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -14,17 +14,18 @@
       const nl = document.querySelector("#notifylist");
       var alert_audio = new Audio('audios/note.mp3');
       alert_audio.volume = (1.0);
-      function popupOpen(){
-		var url= "home/alert.html";    
-		var winWidth = 700;
-	    var winHeight = 600;
-	    var popupOption= "width="+winWidth+", height="+winHeight;    
-		window.open(url,"",popupOption);
-	}
+      
 
       webSocketBridge.connect('/notifications/');
       webSocketBridge.listen(function(action, stream) {
         console.log("RESPONSE:", action);
+	function popupOpen(){
+		var url= "home/alert.html";    
+		var winWidth = 480;
+	    var winHeight = 240;
+	    var popupOption= "width="+winWidth+", height="+winHeight;    
+		window.open(url,"",popupOption);
+	}
         if(action.event == "warning") {
           var el = document.createElement("li");
           el.innerHTML = `Warning on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
