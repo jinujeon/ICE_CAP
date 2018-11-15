@@ -11,7 +11,8 @@
  {% for cam in cams %}
   {% if cam.cam_status == 'warning' %}
   <body>
-	Alert! warning for some situation at {{cam.cam_location}} on camera {{cam.cam_id}}!
+  <h1>camera {{cam.cam_id}}: {{cam.cam_location}}</h1>
+  <img src = "{% url 'livefe' %}">
   </body>
   {% else %}
   <body>		
@@ -19,6 +20,8 @@
   {% endif %}
   {% endfor %}
   <script>
-
+        //var alert_audio = new Audio('audios/note.mp3');
+        //alert_audio.volume = (10);
+	//alert_audio.play();
   </script>
 </html>

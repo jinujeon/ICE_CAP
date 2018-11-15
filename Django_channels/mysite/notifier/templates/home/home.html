@@ -6,7 +6,12 @@
   </head>
   <body>
     <h1>Camera_alert</h1>
-    <p>Alerts</p>
+    <p><br>{% if user.is_authenticated %}
+           Current admin: {{ user.username }}, phone number: {{user.profile.phone_number}}
+       {% else %}
+         Not logged in.
+       {% endif %}</br>
+    Alerts </p>
     <ul id="notifylist"></ul>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -21,8 +26,8 @@
         console.log("RESPONSE:", action);
 	function popupOpen(){
 		var url= "home/alert.html";    
-		var winWidth = 480;
-	    var winHeight = 240;
+		var winWidth = 720;
+	    var winHeight = 480;
 	    var popupOption= "width="+winWidth+", height="+winHeight;    
 		window.open(url,"",popupOption);
 	}
