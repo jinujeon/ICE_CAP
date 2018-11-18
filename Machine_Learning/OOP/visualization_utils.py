@@ -643,7 +643,7 @@ def visualize_boxes_and_labels_on_image_array(
       cam.trash_timer = 0 # 간헐적인 오감지를 방지하기 위해 카운터를 초기화하고
       trash_count(True,cam) # 10분동안 지속적으로 쓰레기가 감지되는지를 확인하기 위해 감지된 시각을 초기화합니다.
       trash_check(cam) # 실시간으로 시간을 재어 10분동안 쓰레기가 감지되면 상태를 업데이트합니다.
-      if (cam.count_trash- int(time.time())) % 10 == 0 and cam.count_trash != 0: # 10초에 한번씩 알림 발신
+      if (int(time.time()) - cam.count_trash) % 10 == 0 and cam.count_trash != 0: # 10초에 한번씩 알림 발신
         print("쓰레기가 발견되었습니다. {}초 경과". format(int(time.time()) - cam.count_trash))
   else:
       if cam.is_trash:
@@ -658,14 +658,14 @@ def visualize_boxes_and_labels_on_image_array(
   if 'warning' in cam.e_list: # 해당 화면에 인식된 개체의 이름을 저장한 리스트에서 위험한 상황에 처한 객체가 있는지 확인합니다.
       emergency_count(True,cam)  # 있다면 카운터 증가
       emergency_check(cam)
-      if cam.count_warn < 10: # 10초의 시간을 기다린 후에도 위험한 상황이 인식된다면
-        print("위험 상황을 확인했습니다. {}초 후 알림을 전송합니다.".format(10 - cam.count_warn))
+      if (int(time.time()) - cam.count_warn) < 10: # 10초의 시간을 기다린 후에도 위험한 상황이 인식된다면
+        print("위험 상황을 확인했습니다. {}초 후 알림을 전송합니다.".format(10 - (int(time.time()) - cam.count_warn)))
         for warn in range(len(cam.e_list)):
             # 특정 클래스의 좌표값을 반환
             if cam.e_list[warn] == 'warning':
                 print("{}객체 좌표: {}".format(cam.e_list[warn], cam.c_list[warn]))
       else: # 알림 전송
-          print("알림을 전송합니다. 위험 상황 발생 {}초 경과".format(cam.count_warn))
+          print("알림을 전송합니다. 위험 상황 발생 {}초 경과".format(int(time.time()) - cam.count_warn))
       return image
   else:
       emergency_count(False,cam)  # 없다면 카운터 초기화 및 현 상황 변동 확인
@@ -694,7 +694,7 @@ def trash_check(cam):
     if cam.count_trash != 0:
         timer = int(time.time()) # 현재 시각을 확인하여 최초 쓰레기가 발견된 시각과 비교
     else: timer = 0
-    if ((int(time.time()) - cam.count_trash) % 60) == 0:
+    if ((timer - cam.count_trash) % 60) == 0:
         print("알림을 전송합니다. 쓰레기 감지 {}분 경과".format(int((int(time.time()) - cam.count_trash) / 60)))
     if timer - cam.count_trash >= 600: # 일정 시간(10분) 이후에도 지속적인 위험 상황 확인
         if cam.data['trash'] == False:
@@ -708,37 +708,32 @@ def trash_check(cam):
 
 def emergency_count(stat,cam): # 위험한 상태 확인, 일정 시간을 대기하기 위해 카운트하는 함수
     if stat: # 위험한 상황을 인식하였으므로 카운트 1 증가
-        cam.count_warn += 1
+        if not cam.is_warning:
+            cam.count_warn = int(time.time())
+            cam.is_warning = True
     else:
         cam.count_warn = 0
-        cam.data['cam_status'] = 'safe' # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
-        if cam.is_warning:  # Warning 상태였던 변수를 HTTP 방식으로 서버에 safe로 변경하여 전송
-            # data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
-            # req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
-            # with urllib.request.urlopen(req) as f:
-            #     pass
+        if cam.data['cam_status'] == 'warning':
+            cam.data['cam_status'] = 'safe' # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
             params = json.dumps(cam.data).encode("utf-8")
             req = urllib.request.Request(cam.url, data=params,
                                          headers={'content-type': 'application/json'})
             response = urllib.request.urlopen(req)
             print(response.read().decode('utf8'))
-        is_warning = False # CCTV의 상태 안전으로 변경
+        cam.is_warning = False # CCTV의 상태 안전으로 변경
 
 def emergency_check(cam):
-    if cam.count_warn> 10: # 일정 시간 이후에도 지속적인 위험 상황 확인
-        cam.data['cam_status'] = 'warning' # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
-        if not cam.is_warning: # HTTP 방식으로 서버에 전송
-            # data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
-            # req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
-            # with urllib.request.urlopen(req) as f:
-            #     pass
+    if cam.count_warn != 0:
+        timer = int(time.time())
+    else: timer = 0
+    if timer - cam.count_warn > 10: # 일정 시간 이후에도 지속적인 위험 상황 확인
+        if cam.data['cam_stauts'] == 'safe':
+            cam.data['cam_status'] = 'warning' # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
             params = json.dumps(cam.data).encode("utf-8")
             req = urllib.request.Request(cam.url, data=params,
                                          headers={'content-type': 'application/json'})
             response = urllib.request.urlopen(req)
             print(response.read().decode('utf8'))
-            cam.is_warning = True # CCTV의 상태 위험으로 변경
-        pass
 
 def add_cdf_image_summary(values, name):
   """Adds a tf.summary.image for a CDF plot of the values.
