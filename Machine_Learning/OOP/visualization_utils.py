@@ -1,27 +1,5 @@
-# Copyright 2017 The TensorFlow Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
-"""A set of functions that are used for visualization.
-
-These functions often receive an image, perform some visualization on the image.
-The functions do not return a value, instead they modify the image itself.
-
-"""
 import collections
 import functools
-# Set headless-friendly backend.
 import matplotlib.pyplot as plt  # pylint: disable=g-import-not-at-top
 import numpy as np
 import PIL.Image as Image
@@ -33,9 +11,8 @@ import time
 import tensorflow as tf
 import json
 import urllib.request
-
 from object_detection.core import standard_fields as fields
-
+import urllib.request
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
@@ -64,17 +41,6 @@ STANDARD_COLORS = [
     'Teal', 'Thistle', 'Tomato', 'Turquoise', 'Violet', 'Wheat', 'White',
     'WhiteSmoke', 'Yellow', 'YellowGreen'
 ]
-# 전역변수 선언
-global count_warn, count_trash, url
-count_warn = 0 # 위험 상활 발생시 알림 전송을 위한 대기 시간 변수
-count_trash = 0
-import urllib.request
-global is_warning # 해당 CCTV 상태 변수
-global is_trash, trash_timer
-is_warning = False
-is_trash = False
-trash_timer = 0
-url = "http://127.0.0.1:8000/home/change_stat"
 
 def save_image_array_as_png(image, output_path):
   """Saves an image (represented as a numpy array) to PNG.
@@ -554,7 +520,6 @@ def draw_mask_on_image_array(image, mask, color='red', alpha=0.4):
   pil_image = Image.composite(pil_solid_color, pil_image, pil_mask)
   np.copyto(image, np.array(pil_image.convert('RGB')))
 
-
 def visualize_boxes_and_labels_on_image_array(
     image,
     boxes,
@@ -573,60 +538,15 @@ def visualize_boxes_and_labels_on_image_array(
     groundtruth_box_visualization_color='black',
     skip_scores=False,
     skip_labels=False):
-  """Overlay labeled boxes on an image with formatted scores and label names.
-
-  This function groups boxes that correspond to the same location
-  and creates a display string for each detection and overlays these
-  on the image. Note that this function modifies the image in place, and returns
-  that same image.
-
-  Args:
-    image: uint8 numpy array with shape (img_height, img_width, 3)
-    boxes: a numpy array of shape [N, 4]
-    classes: a numpy array of shape [N]. Note that class indices are 1-based,
-      and match the keys in the label map.
-    scores: a numpy array of shape [N] or None.  If scores=None, then
-      this function assumes that the boxes to be plotted are groundtruth
-      boxes and plot all boxes as black with no classes or scores.
-    category_index: a dict containing category dictionaries (each holding
-      category index `id` and category name `name`) keyed by category indices.
-    instance_masks: a numpy array of shape [N, image_height, image_width] with
-      values ranging between 0 and 1, can be None.
-    instance_boundaries: a numpy array of shape [N, image_height, image_width]
-      with values ranging between 0 and 1, can be None.
-    keypoints: a numpy array of shape [N, num_keypoints, 2], can
-      be None
-    use_normalized_coordinates: whether boxes is to be interpreted as
-      normalized coordinates or not.
-    max_boxes_to_draw: maximum number of boxes to visualize.  If None, draw
-      all boxes.
-    min_score_thresh: minimum score threshold for a box to be visualized
-    agnostic_mode: boolean (default: False) controlling whether to evaluate in
-      class-agnostic mode or not.  This mode will display scores but ignore
-      classes.
-    line_thickness: integer (default: 4) controlling line width of the boxes.
-    groundtruth_box_visualization_color: box color for visualizing groundtruth
-      boxes
-    skip_scores: whether to skip score when drawing a single detection
-    skip_labels: whether to skip label when drawing a single detection
-
-  Returns:
-    uint8 numpy array with shape (img_height, img_width, 3) with overlaid boxes.
-  """
-  # Create a display string (and color) for every box location, group any boxes
-  # that correspond to the same location.
+  cam.e_list = []
+  cam.c_list = []
   box_to_display_str_map = collections.defaultdict(list)
   box_to_color_map = collections.defaultdict(str)
   box_to_instance_masks_map = {}
   box_to_instance_boundaries_map = {}
   box_to_keypoints_map = collections.defaultdict(list)
-# 매 프레임에서 인식되는 객체의 이름을 저장할 리스트
-#   e_list = []
-#   c_list = []
-  # CCTV 초기 설정
-  global data
   # data = {'cam_id': 1, 'alert': 'safe', 'trash': False}
-  data = {'cam_id': 1, 'cam_status': 'safe', 'cam_location': 'Engineering_Univ.1st.right_corridor', 'trash': False, 'intrusion':False}
+  # data = {'cam_id': 1, 'cam_status': 'safe', 'cam_location': 'Engineering_Univ.1st.right_corridor', 'trash': False, 'intrusion':False}
   # for i, b in enumerate(boxes):
   #     if scores[i] >= 0.6:
   #         mid_x = (boxes[i][1] + boxes[i][3]) / 2
@@ -663,8 +583,8 @@ def visualize_boxes_and_labels_on_image_array(
               #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
               # print(mid_x)
               # print(mid_y)
-              e_list.append(class_name) # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
-              c_list.append((mid_x,mid_y)) # 인식된 개체의 좌표 값을 저장
+              cam.e_list.append(class_name) # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
+              cam.c_list.append((mid_x,mid_y)) # 인식된 개체의 좌표 값을 저장
               cam.e_list.append(class_name)  # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
               cam.c_list.append((mid_x, mid_y))  # 인식된 개체의 좌표 값을 저장
             else:
@@ -717,128 +637,108 @@ def visualize_boxes_and_labels_on_image_array(
           radius=line_thickness / 2,
           use_normalized_coordinates=use_normalized_coordinates)
 
-  global trash_timer
   # 쓰레기가 감지되었다면 감지된 시각을 초기화하고 그로부터 30분동안 지속적으로 감지 되었을때 쓰레기가 투기되었다고 생각하여 알림을 전송한다
   # 이따금씩 감지가 안될 때를 대비하여 별도의 카운터 변수를 선언, 10초의 기간을 두어 쓰레기가 실제로 사라졌는지를 확인한다.
-  if 'trash' in e_list: # 쓰레기를 감지했다면
+  if 'trash' in cam.e_list or 'bottle' in cam.e_list: # 쓰레기를 감지했다면
       cam.trash_timer = 0 # 간헐적인 오감지를 방지하기 위해 카운터를 초기화하고
       trash_count(True,cam) # 10분동안 지속적으로 쓰레기가 감지되는지를 확인하기 위해 감지된 시각을 초기화합니다.
       trash_check(cam) # 실시간으로 시간을 재어 10분동안 쓰레기가 감지되면 상태를 업데이트합니다.
-      # print(count_trash)
-      # 향후 개발 목적
-      # 사람이 쓰레기를 버리러 가는 중일수도, 버리고 갈수도 있다.
-      # 일정시간이 지나면 쓰레기가 버려진것이므로 범인을 색출하기 위해
-      # 쓰레기가 감지되는 시각부터 약 20초간 영상을 캡쳐한다.
-      # 이후 쓰레기가 10분동안 감지되었다면 영상을 DB에 업로드하고, 쓰레기가 사라졌다면 해당 영상을 삭제
-      # 유틸 파일에서는 단순히 감지만 하고 메인 파일에서 영상 저장가능하게 개발 -> OPENCV 사용
-
-      if (count_trash- int(time.time())) % 10 == 0: # 10초에 한번씩 알림 발신
-        print("쓰레기가 발견되었습니다. {}초 경과". format(int(time.time()) - count_trash))
-        # 쓰레기와 사람의 좌표값을 비교
-        # if e_list has person and trash:
-        #     if (((c_list[person_x] + c_list[trash_x])/2)**2 + ((c_list[person_y] + c_list[trash_y])/2)**2)**0.5 <= 일정 수준 거리(ex: 50cm):
-        #         do dumping_trash_status
-      # else: # 알림 전송
-      #     print("알림을 전송합니다. 쓰레기 감지 {}분 경과".format((int(time.time()) - count_warn))/60)
+      if (cam.count_trash- int(time.time())) % 10 == 0 and cam.count_trash != 0: # 10초에 한번씩 알림 발신
+        print("쓰레기가 발견되었습니다. {}초 경과". format(int(time.time()) - cam.count_trash))
   else:
-      if is_trash:
-          cam.trash_timer += 1
-          if cam.trash_timer > 10:
+      if cam.is_trash:
+          if cam.trash_timer == 0:
+              cam.trash_timer = int(time.time())
+          if int(time.time()) - cam.trash_timer > 10:
             print("쓰레기가 없습니다.")
             trash_count(False,cam)  # 없다면 카운터 초기화 및 현 상황 변동 확인
             trash_check(cam) # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
+          else: print("사라진 쓰레기를 찾고있습니다. {}초 후 상태를 변경합니다.".format(10 - (int(time.time()) - cam.trash_timer)))
 
-  if 'warning' in e_list: # 해당 화면에 인식된 개체의 이름을 저장한 리스트에서 위험한 상황에 처한 객체가 있는지 확인합니다.
+  if 'warning' in cam.e_list: # 해당 화면에 인식된 개체의 이름을 저장한 리스트에서 위험한 상황에 처한 객체가 있는지 확인합니다.
       emergency_count(True,cam)  # 있다면 카운터 증가
       emergency_check(cam)
       if cam.count_warn < 10: # 10초의 시간을 기다린 후에도 위험한 상황이 인식된다면
-        print("위험 상황을 확인했습니다. {}초 후 알림을 전송합니다.".format(10 - count_warn))
+        print("위험 상황을 확인했습니다. {}초 후 알림을 전송합니다.".format(10 - cam.count_warn))
         for warn in range(len(cam.e_list)):
             # 특정 클래스의 좌표값을 반환
             if cam.e_list[warn] == 'warning':
                 print("{}객체 좌표: {}".format(cam.e_list[warn], cam.c_list[warn]))
-
       else: # 알림 전송
           print("알림을 전송합니다. 위험 상황 발생 {}초 경과".format(cam.count_warn))
       return image
   else:
       emergency_count(False,cam)  # 없다면 카운터 초기화 및 현 상황 변동 확인
       emergency_check(cam) # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
-      print("확인된 위험이 없습니다. 위험상태: {}".format(is_warning))
+      print("확인된 위험이 없습니다. 위험상태: {}".format(cam.is_warning))
       return image
 
 def trash_count(stat,cam):
-    global count_trash, is_trash, data  # 카운트하는 int형과 현재 CCTV 위치의 쓰레기 투기 상태를 알려주는 boolean형 전역 변수
     if stat:  # 쓰레기 감지
-        print("is_trash:{}".format(is_trash))
-        if not is_trash: # 처음으로 쓰레기를 감지하였을때의 시간을 저장하고 상태를 변경
-            count_trash = int(time.time())
-            is_trash = True
+        print("is_trash:{}".format(cam.is_trash))
+        if not cam.is_trash: # 처음으로 쓰레기를 감지하였을때의 시간을 저장하고 상태를 변경
+            cam.count_trash = int(time.time())
+            cam.is_trash = True
     else: # 쓰레기가 없다고 판단
-        count_trash = 0 # 카운터 변수 초기화
-        if data['trash'] == True:
-            data['trash'] = False  # 쓰레기가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
-            params = json.dumps(data).encode("utf-8")
-            req = urllib.request.Request(url, data=params,
+        cam.count_trash = 0 # 카운터 변수 초기화
+        if cam.data['trash'] == True:
+            cam.data['trash'] = False  # 쓰레기가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
+            params = json.dumps(cam.data).encode("utf-8")
+            req = urllib.request.Request(cam.url, data=params,
                                          headers={'content-type': 'application/json'})
             response = urllib.request.urlopen(req)
             print(response.read().decode('utf8'))
-        is_trash = False  # CCTV의 상태 위험하지 않음으로 변경
+        cam.is_trash = False  # CCTV의 상태 위험하지 않음으로 변경
 
 def trash_check(cam):
-    global count_trash,is_trash,data # 전역 변수인 알림 대기 시간과 현 위험상태 변수를 받습니다.
-    if count_trash != 0:
+    if cam.count_trash != 0:
         timer = int(time.time()) # 현재 시각을 확인하여 최초 쓰레기가 발견된 시각과 비교
     else: timer = 0
-    print(int(timer- count_trash))
-    if timer - count_trash >= 600: # 일정 시간(10분) 이후에도 지속적인 위험 상황 확인
-        print("알림을 전송합니다. 쓰레기 감지 {}분 경과".format(int((int(time.time()) - count_trash)/60)))
-        if data['trash'] == False:
-            data['trash'] = True # 현재 CCTV 위치에 버려진 쓰레기가 감지되었으므로 상태를 변경합니다.
-            params = json.dumps(data).encode("utf-8")
-            req = urllib.request.Request(url, data=params,
+    if ((int(time.time()) - cam.count_trash) % 60) == 0:
+        print("알림을 전송합니다. 쓰레기 감지 {}분 경과".format(int((int(time.time()) - cam.count_trash) / 60)))
+    if timer - cam.count_trash >= 600: # 일정 시간(10분) 이후에도 지속적인 위험 상황 확인
+        if cam.data['trash'] == False:
+            cam.data['trash'] = True # 현재 CCTV 위치에 버려진 쓰레기가 감지되었으므로 상태를 변경합니다.
+            params = json.dumps(cam.data).encode("utf-8")
+            req = urllib.request.Request(cam.url, data=params,
                                          headers={'content-type': 'application/json'})
             response = urllib.request.urlopen(req)
             print(response.read().decode('utf8'))
             # 쓰레기가 CCTV에서 10분 이상 지속적으로 카운트 되었다.
 
 def emergency_count(stat,cam): # 위험한 상태 확인, 일정 시간을 대기하기 위해 카운트하는 함수
-    global count_warn, is_warning,data # 위험 상황 검사용 int 형 카운트 변수와 현재 CCTV 위치의 위험 상태를 알려주는 boolean형 전역 변수
     if stat: # 위험한 상황을 인식하였으므로 카운트 1 증가
-        count_warn = count_warn + 1
+        cam.count_warn += 1
     else:
-        count_warn = 0
-        data['cam_status'] = 'safe' # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
-        if is_warning:  # Warning 상태였던 변수를 HTTP 방식으로 서버에 safe로 변경하여 전송
+        cam.count_warn = 0
+        cam.data['cam_status'] = 'safe' # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
+        if cam.is_warning:  # Warning 상태였던 변수를 HTTP 방식으로 서버에 safe로 변경하여 전송
             # data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
             # req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
             # with urllib.request.urlopen(req) as f:
             #     pass
-            params = json.dumps(data).encode("utf-8")
-            req = urllib.request.Request(url, data=params,
+            params = json.dumps(cam.data).encode("utf-8")
+            req = urllib.request.Request(cam.url, data=params,
                                          headers={'content-type': 'application/json'})
             response = urllib.request.urlopen(req)
             print(response.read().decode('utf8'))
         is_warning = False # CCTV의 상태 안전으로 변경
 
 def emergency_check(cam):
-    global count_warn, is_warning, data # 전역 변수인 알림 대기 시간과 현 위험상태 변수, CCTV의 상태를 받습니다.
-    if count_warn> 10: # 일정 시간 이후에도 지속적인 위험 상황 확인
-        data['cam_status'] = 'warning' # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
-        if not is_warning: # HTTP 방식으로 서버에 전송
+    if cam.count_warn> 10: # 일정 시간 이후에도 지속적인 위험 상황 확인
+        cam.data['cam_status'] = 'warning' # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
+        if not cam.is_warning: # HTTP 방식으로 서버에 전송
             # data_en = urllib.parse.urlencode(data).encode('utf-8') # 서버의 주소로 CCTV의 상태를 update합니다.
             # req = urllib.request.Request(url='http://220.67.124.240:8000/index', data=data_en, method='PUT')
             # with urllib.request.urlopen(req) as f:
             #     pass
-            params = json.dumps(data).encode("utf-8")
-            req = urllib.request.Request(url, data=params,
+            params = json.dumps(cam.data).encode("utf-8")
+            req = urllib.request.Request(cam.url, data=params,
                                          headers={'content-type': 'application/json'})
             response = urllib.request.urlopen(req)
             print(response.read().decode('utf8'))
-            is_warning = True # CCTV의 상태 위험으로 변경
+            cam.is_warning = True # CCTV의 상태 위험으로 변경
         pass
-
-
 
 def add_cdf_image_summary(values, name):
   """Adds a tf.summary.image for a CDF plot of the values.
