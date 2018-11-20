@@ -12,7 +12,6 @@
   {% if cam.cam_status == 'warning' %}
   <body>
   <h1>camera {{cam.cam_id}}: {{cam.cam_location}}</h1>
-  <img src = "{% url 'livefe' %}">
   </body>
   {% else %}
   <body>		

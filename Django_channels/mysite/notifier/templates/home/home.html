@@ -6,13 +6,15 @@
   </head>
   <body>
     <h1>Camera_alert</h1>
-    <p><br>{% if user.is_authenticated %}
-           Current admin: {{ user.username }}, phone number: {{user.profile.phone_number}}
+    <p>{% if user.is_authenticated %}
+           <br>Current admin: {{ user.username }}, phone number: {{user.profile.phone_number}}<br>
+           Alerts
        {% else %}
          Not logged in.
-       {% endif %}</br>
-    Alerts </p>
+       {% endif %}
+    </p>
     <ul id="notifylist"></ul>
+    {% if user.is_authenticated %}
     <script>
     document.addEventListener('DOMContentLoaded', function() {
       const webSocketBridge = new channels.WebSocketBridge();
@@ -27,7 +29,7 @@
 	function popupOpen(){
 		var url= "home/alert.html";    
 		var winWidth = 720;
-	    var winHeight = 480;
+	    var winHeight = 360;
 	    var popupOption= "width="+winWidth+", height="+winHeight;    
 		window.open(url,"",popupOption);
 	}
@@ -46,6 +48,7 @@
       })
       document.ws = webSocketBridge; /* for debugging */
     })
+    {% endif %}
     </script>
   </body>
 </html>
