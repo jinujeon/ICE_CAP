@@ -1,8 +1,6 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 
-
-
 class CamConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):

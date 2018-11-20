@@ -3,7 +3,7 @@ import urllib.request
 
 url = "http://127.0.0.1:8000/home/change_stat"  # URL
 
-d = {'cam_id': 1, 'cam_status': 'warning', 'cam_location': 'Engineering_Univ.1st.right_corridor'}
+d = {'cam_id': 1, 'cam_status': 'warning', 'cam_location': 'Engineering_Univ.1st.right_corridor', 'trash': False, 'instrusion': False, 'fallen': True}
 params = json.dumps(d).encode("utf-8")  
 req = urllib.request.Request(url, data=params,
                              headers={'content-type': 'application/json'})
