@@ -4,6 +4,12 @@ from multiprocessing.connection import Listener,Client
 import threading, time, os, cv2
 import numpy as np
 import sys
+import socket
+import io
+import struct
+import time
+import pickle
+import zlib
 
 def showMultiImage(dst, src, h, w, d, col, row):
     # 3 color
@@ -27,28 +33,23 @@ def create_image_multiple(h, w, d, hcout, wcount):
     image[:] = color
     return image
 
-
-
 def oneshot():
-    address = ('localhost', 8001)  # family is deduced to be 'AF_INET'
-    listener = Listener(address)
-    # listener2 = Listener(address, authkey=b'abcd')
-    conn = listener.accept()
-    # conn2 = listener2.accept()
-    print('connection accepted from', listener.last_accepted)
-    # cap2 = cv2.VideoCapture(0)  # 카메라 생성
-    # cap =  cv2.VideoCapture(1)q
-    # ret1 = cap2.set(3, 640)
-    # ret = cap.set(3, 640)
+    cam_info = (['1st_Floor', 0], ['2nd_Floor', 1], ['3rd_Floor', 2])
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(('220.67.124.240', 8485))
+    # connection = client_socket.makefile('wb')
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+    # 소켓 통신 통해서 보낼것 -> frame, id, loc
+    cap = cv2.VideoCapture(0)
+    cap2 = cv2.VideoCapture(1)
     while (True):
-        try:
-            msg = conn.recv()
-        except EOFError:
-            break
-        # ret1, frame1 = cap.read()
-        # ret2, frame2 = cap.read()
-        frame1 = msg
-        frame2 = msg
+        ret1, frame1 = cap.read()
+        ret2, frame2 = cap.read()
+        ret3, frame3 = cv2.imencode('.jpg', frame1, encode_param)
+        data = pickle.dumps(frame3, 0)
+        size = len(data)
+        client_socket.sendall(struct.pack(">L", size) + data)
+
         # if not ret1:
         #     continue
         # 이미지 높이
@@ -68,6 +69,10 @@ def oneshot():
 
         cv2.imshow('Object detector', dstvideo)
         if cv2.waitKey(1) == ord('q'):
-            listener.close()
             break
+    cap.release()
+    cap2.release()
     cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    oneshot()
