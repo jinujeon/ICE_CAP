@@ -4,16 +4,21 @@ import numpy as np
 class Tracker():
     def __init__(self):
         #trackwindow = x, y, w, h
-        self.trackwindow, self.roi, self.hsv_roi, self.mask, self.roi_hist = [], [], [], [], []
+        self.prevwindow, self.trackwindow, self.roi, self.hsv_roi, self.mask, self.roi_hist = [], [], [], [], [], []
         self.hsv, self.dst, self.state = 0, 0, 0
         self.term_crit = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
+        self.warning = False
+
     def settings(self, box, frame):
         # box[] = [(x, y, w, h), (x, y, w, h), ....] : tensorflow
         # trackwindow = [(x, y, w, h), (x, y, w, h), ....] : opencv
+        self.prevwindow, self.trackwindow, self.roi, self.hsv_roi, self.mask, self.roi_hist = [], [], [], [], [], []
         for i in box:
             i0, i2 = int(i[0] * 1280), int(i[2] * 1280)
             i1, i3 = int(i[1] * 720), int(i[3] * 720)
             self.trackwindow.append((i0, i1, i2, i3))
+
+        self.prevwindow = self.trackwindow
 
         for i in self.trackwindow:
             index = self.trackwindow.index(i)
@@ -34,9 +39,13 @@ class Tracker():
             # Draw it on image
             x, y, w, h = i
             cv2.rectangle(frame, (x, y), (x + w, y + h), 255, 2)
+            if (i[1] - self.prevwindow[index][1]) >= 30:
+                self.warning = True
+            print(i[1], self.prevwindow[index][1], self.warning)
+            self.trackwindow[index] = i
+            self.warning = False
 
-    def run(self, box, frame, ret):
-        if len(self.trackwindow) == 0:
-            self.settings(box, frame)
-        else:
-            self.update(frame, ret)
+        self.prevwindow = self.trackwindow
+
+    def updateInit(self):
+        self.hsv, self.dst, self.state = 0, 0, 0
