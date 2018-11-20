@@ -257,7 +257,7 @@ class Cam(threading.Thread):
         self.category_index = label_map_util.create_category_index(self.categories)
 
 def main():
-    cam_info = (['1st_Floor', 0], ['2nd_Floor', 1], ['3rd_Floor', 2])
+    cam_info = (['1st_Floor', 1], ['2nd_Floor', 2], ['3rd_Floor', 3])
     procs = []
     multiprocessing.set_start_method('spawn')
     for cam_list in range(3):
