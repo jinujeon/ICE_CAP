@@ -1,4 +1,6 @@
 from multiprocessing import Process
+from multiprocessing.connection import Listener,Client
+
 import threading, time, os, cv2
 import numpy as np
 import sys
@@ -26,16 +28,27 @@ def create_image_multiple(h, w, d, hcout, wcount):
     return image
 
 def oneshot():
-    cap2 = cv2.VideoCapture(0)  # 카메라 생성
-    cap =  cv2.VideoCapture(1)
-    ret1 = cap2.set(3, 640)
-    ret = cap.set(3, 640)
+    address = ('localhost', 8001)  # family is deduced to be 'AF_INET'
+    listener = Listener(address)
+    # listener2 = Listener(address, authkey=b'abcd')
+    conn = listener.accept()
+    # conn2 = listener2.accept()
+    print('connection accepted from', listener.last_accepted)
+    # cap2 = cv2.VideoCapture(0)  # 카메라 생성
+    # cap =  cv2.VideoCapture(1)q
+    # ret1 = cap2.set(3, 640)
+    # ret = cap.set(3, 640)
     while (True):
-
-        ret1, frame1 = cap.read()
-        ret2, frame2 = cap2.read()
-        if not ret1:
-            continue
+        try:
+            msg = conn.recv()
+        except EOFError:
+            break
+        # ret1, frame1 = cap.read()
+        # ret2, frame2 = cap.read()
+        frame1 = msg
+        frame2 = msg
+        # if not ret1:
+        #     continue
         # 이미지 높이
         height1 = frame1.shape[0]
         height2 = frame2.shape[0]
@@ -53,9 +66,8 @@ def oneshot():
 
         cv2.imshow('Object detector', dstvideo)
         if cv2.waitKey(1) == ord('q'):
+            listener.close()
             break
-    cap.release()
-    cap2.release()
     cv2.destroyAllWindows()
 
 def q(a,b,c):
@@ -63,12 +75,24 @@ def q(a,b,c):
     video = cv2.VideoCapture(cam.id)
     ret = video.set(3, 640)
     ret = video.set(4, 360)
+    address = ('localhost', 8001)
+    conn = Client(address)
+    print(type(conn))
     while True:
         ret, cam.frame = video.read()
+        try:
+            conn.send(cam.frame)
+        except EOFError:
+            pass
+        except ConnectionAbortedError:
+            pass
+        except ConnectionRefusedError:
+            pass
         cv2.imshow('Object detector({})'.format(cam.id), cam.frame)
 
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
+            conn.close()
             break
 
 def qq(a,b,c):
@@ -76,8 +100,11 @@ def qq(a,b,c):
     video = cv2.VideoCapture(cam.id)
     ret = video.set(3, 640)
     ret = video.set(4, 480)
+    # address = ('localhost', 8000)
+    # conn = Client(address, authkey=b'abcd')
     while True:
         ret, cam.frame = video.read()
+        # conn.send(cam.frame)
         cv2.imshow('Object detector({})'.format(cam.id), cam.frame)
 
         # Press 'q' to quit
@@ -126,9 +153,9 @@ class Cam(threading.Thread):
 if __name__ == "__main__":
     cam_info = (['1st_Floor', 0], ['2nd_Floor', 1], ['3rd_Floor', 2])
     procs = []
-    # proc = Process(target=oneshot)
-    # procs.append(proc)
-    # proc.start()
+    proc = Process(target=oneshot)
+    procs.append(proc)
+    proc.start()
     for cam_list in range(3):
         video = cv2.VideoCapture(cam_list)
         if video.isOpened() == True:  # 카메라 생성 확인
@@ -147,6 +174,9 @@ if __name__ == "__main__":
                     proc = Process(target=qq, args=(cam_info[cam_list][0], cam_info[cam_list][1], virtual))
                     procs.append(proc)
                     proc.start()
+        # proc = Process(target=oneshot)
+        # procs.append(proc)
+        # proc.start()
 
     for proc in procs:
         proc.join()
