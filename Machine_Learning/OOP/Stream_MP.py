@@ -23,10 +23,15 @@ def cam_stream1(location,id,virtual, client_socket,encode_param):
         try:
             client_socket.sendall(struct.pack(">L", size) + data)
         except ConnectionResetError:
+            logging.error('ConnectionResetError')
+            break
+        except ConnectionAbortedError:
+            logging.error('ConnectionAbortedError')
             break
         cv2.imshow('Object detector(cam_{})'.format(id), frame)
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
+            print("{}: Stream send closed".format(os.getpid()))
             client_socket.close()
             break
 
