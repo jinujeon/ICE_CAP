@@ -573,16 +573,10 @@ def visualize_boxes_and_labels_on_image_array(
         display_str = ''
         if not skip_labels:
           if not agnostic_mode:
-            # print(category_index)
             if classes[i] in category_index.keys():
-              # print(category_index[classes[i]])
               class_name = category_index[classes[i]]['name']
               mid_x = (boxes[i][1] + boxes[i][3]) / 2
               mid_y = (boxes[i][0] + boxes[i][2]) / 2
-              # cv2.putText(frame, 'M', (int(mid_x * 1280), int(mid_y * 720)),
-              #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-              # print(mid_x)
-              # print(mid_y)
               cam.e_list.append(class_name) # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
               cam.c_list.append((mid_x,mid_y)) # 인식된 개체의 좌표 값을 저장
               cam.e_list.append(class_name)  # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
@@ -734,62 +728,62 @@ def emergency_check(cam):
                                          headers={'content-type': 'application/json'})
             response = urllib.request.urlopen(req)
             print(response.read().decode('utf8'))
-
-def add_cdf_image_summary(values, name):
-  """Adds a tf.summary.image for a CDF plot of the values.
-
-  Normalizes `values` such that they sum to 1, plots the cumulative distribution
-  function and creates a tf image summary.
-
-  Args:
-    values: a 1-D float32 tensor containing the values.
-    name: name for the image summary.
-  """
-  def cdf_plot(values):
-    """Numpy function to plot CDF."""
-    normalized_values = values / np.sum(values)
-    sorted_values = np.sort(normalized_values)
-    cumulative_values = np.cumsum(sorted_values)
-    fraction_of_examples = (np.arange(cumulative_values.size, dtype=np.float32)
-                            / cumulative_values.size)
-    fig = plt.figure(frameon=False)
-    ax = fig.add_subplot('111')
-    ax.plot(fraction_of_examples, cumulative_values)
-    ax.set_ylabel('cumulative normalized values')
-    ax.set_xlabel('fraction of examples')
-    fig.canvas.draw()
-    width, height = fig.get_size_inches() * fig.get_dpi()
-    image = np.fromstring(fig.canvas.tostring_rgb(), dtype='uint8').reshape(
-        1, int(height), int(width), 3)
-    return image
-  cdf_plot = tf.py_func(cdf_plot, [values], tf.uint8)
-  tf.summary.image(name, cdf_plot)
-
-
-def add_hist_image_summary(values, bins, name):
-  """Adds a tf.summary.image for a histogram plot of the values.
-
-  Plots the histogram of values and creates a tf image summary.
-
-  Args:
-    values: a 1-D float32 tensor containing the values.
-    bins: bin edges which will be directly passed to np.histogram.
-    name: name for the image summary.
-  """
-
-  def hist_plot(values, bins):
-    """Numpy function to plot hist."""
-    fig = plt.figure(frameon=False)
-    ax = fig.add_subplot('111')
-    y, x = np.histogram(values, bins=bins)
-    ax.plot(x[:-1], y)
-    ax.set_ylabel('count')
-    ax.set_xlabel('value')
-    fig.canvas.draw()
-    width, height = fig.get_size_inches() * fig.get_dpi()
-    image = np.fromstring(
-        fig.canvas.tostring_rgb(), dtype='uint8').reshape(
-            1, int(height), int(width), 3)
-    return image
-  hist_plot = tf.py_func(hist_plot, [values, bins], tf.uint8)
-  tf.summary.image(name, hist_plot)
+#
+# def add_cdf_image_summary(values, name):
+#   """Adds a tf.summary.image for a CDF plot of the values.
+#
+#   Normalizes `values` such that they sum to 1, plots the cumulative distribution
+#   function and creates a tf image summary.
+#
+#   Args:
+#     values: a 1-D float32 tensor containing the values.
+#     name: name for the image summary.
+#   """
+#   def cdf_plot(values):
+#     """Numpy function to plot CDF."""
+#     normalized_values = values / np.sum(values)
+#     sorted_values = np.sort(normalized_values)
+#     cumulative_values = np.cumsum(sorted_values)
+#     fraction_of_examples = (np.arange(cumulative_values.size, dtype=np.float32)
+#                             / cumulative_values.size)
+#     fig = plt.figure(frameon=False)
+#     ax = fig.add_subplot('111')
+#     ax.plot(fraction_of_examples, cumulative_values)
+#     ax.set_ylabel('cumulative normalized values')
+#     ax.set_xlabel('fraction of examples')
+#     fig.canvas.draw()
+#     width, height = fig.get_size_inches() * fig.get_dpi()
+#     image = np.fromstring(fig.canvas.tostring_rgb(), dtype='uint8').reshape(
+#         1, int(height), int(width), 3)
+#     return image
+#   cdf_plot = tf.py_func(cdf_plot, [values], tf.uint8)
+#   tf.summary.image(name, cdf_plot)
+#
+#
+# def add_hist_image_summary(values, bins, name):
+#   """Adds a tf.summary.image for a histogram plot of the values.
+#
+#   Plots the histogram of values and creates a tf image summary.
+#
+#   Args:
+#     values: a 1-D float32 tensor containing the values.
+#     bins: bin edges which will be directly passed to np.histogram.
+#     name: name for the image summary.
+#   """
+#
+#   def hist_plot(values, bins):
+#     """Numpy function to plot hist."""
+#     fig = plt.figure(frameon=False)
+#     ax = fig.add_subplot('111')
+#     y, x = np.histogram(values, bins=bins)
+#     ax.plot(x[:-1], y)
+#     ax.set_ylabel('count')
+#     ax.set_xlabel('value')
+#     fig.canvas.draw()
+#     width, height = fig.get_size_inches() * fig.get_dpi()
+#     image = np.fromstring(
+#         fig.canvas.tostring_rgb(), dtype='uint8').reshape(
+#             1, int(height), int(width), 3)
+#     return image
+#   hist_plot = tf.py_func(hist_plot, [values, bins], tf.uint8)
+#   tf.summary.image(name, hist_plot)
