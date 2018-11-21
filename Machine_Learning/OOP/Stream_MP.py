@@ -9,17 +9,35 @@ import struct
 import time
 import pickle
 import zlib
+import time
+
+a = 1
+
+def capture(frame,index):
+
+    # png로 압축 영상 저장
+    name = '/img_{}.png'.format(int(time.time())-(a*index))
+    #index += 1
+    cv2.imwrite('C:/Users/ice/Documents/GitHub/ICE_CAP/Django_channels/mysite/notifier/statics' + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 5])
+    if index == 8000:
+        a += 1
+
+    print(index)
 
 def cam_stream1(location,id,virtual, client_socket,encode_param):
     send_info(location, id, virtual, client_socket)
     video = cv2.VideoCapture(id)
-    ret = video.set(3, 640)
-    ret = video.set(4, 360)
+    ret = video.set(3, 800)
+    ret = video.set(4, 600)
+    index = 0
     while True:
         ret, frame = video.read()
+        capture(frame, index)
+        index += 1
         ret, frame_encode = cv2.imencode('.jpg', frame, encode_param)
         data = pickle.dumps(frame_encode, 0)
         size = len(data)
+
         try:
             client_socket.sendall(struct.pack(">L", size) + data)
         except ConnectionResetError:
@@ -48,10 +66,15 @@ def cam_stream2(location,id,virtual, client_socket,encode_param):
         try:
             client_socket.sendall(struct.pack(">L", size) + data)
         except ConnectionResetError:
+            logging.error('ConnectionResetError')
+            break
+        except ConnectionAbortedError:
+            logging.error('ConnectionAbortedError')
             break
         cv2.imshow('Object detector(cam_{})'.format(id), frame)
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
+            print("{}: Stream send closed".format(os.getpid()))
             client_socket.close()
             break
 
@@ -68,10 +91,15 @@ def cam_stream3(location,id,virtual, client_socket,encode_param):
         try:
             client_socket.sendall(struct.pack(">L", size) + data)
         except ConnectionResetError:
+            logging.error('ConnectionResetError')
+            break
+        except ConnectionAbortedError:
+            logging.error('ConnectionAbortedError')
             break
         cv2.imshow('Object detector(cam_{})'.format(id), frame)
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
+            print("{}: Stream send closed".format(os.getpid()))
             client_socket.close()
             break
 
@@ -93,7 +121,7 @@ def connect_server(ADDRESS,PORT):
 
 def main():
     cam_info = (['1st_Floor', 0], ['2nd_Floor', 1], ['3rd_Floor', 2])
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
     ADDRESS = '220.67.124.193'
     PORT = 8485
     client_socket = connect_server(ADDRESS,PORT)
@@ -103,7 +131,7 @@ def main():
     # proc.start()
     for cam_list in range(3):
         video = cv2.VideoCapture(cam_list)
-        if video.isOpened() == True:  # 카메라 생성 확인
+        if video.isOpened():  # 카메라 생성 확인
             if cam_list == 2:
                 virtual = True
                 send_info(cam_info[cam_list][0], cam_info[cam_list][1], virtual, client_socket)
