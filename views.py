@@ -64,7 +64,7 @@ def livefe(request):
 
 
 def homeview(request):
-    return render(request,'blog/index.html')
+    return render(request,'blog/alert.html')
 
 def request_page(request):
     # cam.__del__()

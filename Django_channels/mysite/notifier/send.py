@@ -73,9 +73,9 @@ class Sendsms:
 
         sys.exit()
 
-def run():
-    use = Sendsms('01087602435', '놀이터', '위험')
+def run(phone_number, cam_location, s_type):
+    use = Sendsms(phone_number, cam_location, s_type)
     use.sendSms()
 
-if __name__ == "__main__":
-    run()
+# if __name__ == "__main__":
+#     run()

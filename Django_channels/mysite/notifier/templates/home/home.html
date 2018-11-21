@@ -13,6 +13,7 @@
          Not logged in.
        {% endif %}
     </p>
+
     <ul id="notifylist"></ul>
     {% if user.is_authenticated %}
     <script>
@@ -28,15 +29,27 @@
         console.log("RESPONSE:", action);
 	function popupOpen(){
 		var url= "home/alert.html";    
-		var winWidth = 720;
-	    var winHeight = 360;
+		var winWidth = 1080;
+	    var winHeight = 1080;
 	    var popupOption= "width="+winWidth+", height="+winHeight;    
 		window.open(url,"",popupOption);
 	}
         if(action.event == "warning") {
           var el = document.createElement("li");
-          el.innerHTML = `Warning on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
-          nl.appendChild(el);
+          var e2 = document.createElement("li");
+          var e3 = document.createElement("li");
+          if(action.trash){
+            el.innerHTML = `Trash on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
+            nl.appendChild(el);
+          }
+          if(action.instrusion){
+            e2.innerHTML = `Trepassing on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
+            nl.appendChild(e2);
+          }
+          if(action.fallen){
+            e3.innerHTML = `Fallen person on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
+            nl.appendChild(e3);
+          }
 	  alert_audio.play();
 	  popupOpen();
         }

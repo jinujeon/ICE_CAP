@@ -16,12 +16,8 @@ a = 1
 def capture(frame,index):
 
     # png로 압축 영상 저장
-    name = '/img_{}.png'.format(int(time.time())-(a*index))
-    #index += 1
+    name = '/img_{}.png'.format(index)
     cv2.imwrite('C:/Users/ice/Documents/GitHub/ICE_CAP/Django_channels/mysite/notifier/statics' + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 5])
-    if index == 8000:
-        a += 1
-
     print(index)
 
 def cam_stream1(location,id,virtual, client_socket,encode_param):
@@ -34,6 +30,8 @@ def cam_stream1(location,id,virtual, client_socket,encode_param):
         ret, frame = video.read()
         capture(frame, index)
         index += 1
+        if index == 5:
+            index = 0
         ret, frame_encode = cv2.imencode('.jpg', frame, encode_param)
         data = pickle.dumps(frame_encode, 0)
         size = len(data)
