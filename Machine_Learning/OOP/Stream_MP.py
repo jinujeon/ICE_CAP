@@ -11,23 +11,29 @@ import pickle
 import zlib
 import time
 
-a = 1
+# a = 1
 
 def capture(frame,index):
 
     # png로 압축 영상 저장
     name = '/img_{}.png'.format(index)
-    cv2.imwrite('C:/Users/ice/Documents/GitHub/ICE_CAP/Django_channels/mysite/notifier/statics' + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 5])
-    print(index)
+    cv2.imwrite('C:/Users/ice/Documents/GitHub/ICE_CAP/Django_channels/mysite/notifier/statics' + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 6])
+    # print(index)
 
 def cam_stream1(location,id,virtual, client_socket,encode_param):
     send_info(location, id, virtual, client_socket)
     video = cv2.VideoCapture(id)
-    ret = video.set(3, 800)
-    ret = video.set(4, 600)
+
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    # 파일에 저장하기 위해 VideoWriter 객체를 생성
+    out = cv2.VideoWriter('C:/Users/ice/Documents/GitHub/ICE_CAP/Django_channels/mysite/notifier/statics/output.avi', fourcc, 30.0, (640, 480))
+
+    ret = video.set(3, 640)
+    ret = video.set(4, 480)
     index = 0
     while True:
         ret, frame = video.read()
+        out.write(frame)
         capture(frame, index)
         index += 1
         if index == 5:
@@ -47,9 +53,10 @@ def cam_stream1(location,id,virtual, client_socket,encode_param):
         cv2.imshow('Object detector(cam_{})'.format(id), frame)
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
-            print("{}: Stream send closed".format(os.getpid()))
+            print("Process[{}]: Socket closed".format(os.getpid()))
             client_socket.close()
             break
+
 
 def cam_stream2(location,id,virtual, client_socket,encode_param):
     send_info(location, id, virtual, client_socket)
@@ -72,7 +79,7 @@ def cam_stream2(location,id,virtual, client_socket,encode_param):
         cv2.imshow('Object detector(cam_{})'.format(id), frame)
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
-            print("{}: Stream send closed".format(os.getpid()))
+            print("Process[{}]: Socket closed".format(os.getpid()))
             client_socket.close()
             break
 
@@ -97,7 +104,7 @@ def cam_stream3(location,id,virtual, client_socket,encode_param):
         cv2.imshow('Object detector(cam_{})'.format(id), frame)
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
-            print("{}: Stream send closed".format(os.getpid()))
+            print("Process[{}]: Socket closed".format(os.getpid()))
             client_socket.close()
             break
 

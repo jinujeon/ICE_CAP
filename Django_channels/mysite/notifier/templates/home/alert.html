@@ -8,16 +8,17 @@
      {% endif %}
   {% endfor %}
    </head>
+  <body>
  {% for cam in cams %}
   {% if cam.cam_status == 'warning' %}
-  <body>
   <h1>camera {{cam.cam_id}}: {{cam.cam_location}}</h1>
-  </body>
   {% else %}
-  <body>		
-  </body>	
   {% endif %}
   {% endfor %}
+  <br>
+    <img src="{% url 'livefe' %}">
+  <br>
+ </body>
   <script>
         //var alert_audio = new Audio('audios/note.mp3');
         //alert_audio.volume = (10);
