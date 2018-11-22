@@ -81,14 +81,14 @@ class VideoCamera(object):
         # image = self.frame
         try :
             name = '/img_{}.png'.format(cam.index)
-            image = cv2.imread('C:/Users/ice/Documents/GitHub/ICE_CAP/Django_channels/mysite/notifier/statics' + name)
+            image = cv2.imread('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics' + name)
             ret, jpeg = cv2.imencode('.jpg', image)
         except:
             if cam.index == 0:
                 cam.index = 4
             else: cam.index -= 1
             name = '/img_{}.png'.format(cam.index)
-            image = cv2.imread('C:/Users/ice/Documents/GitHub/ICE_CAP/Django_channels/mysite/notifier/statics' + name)
+            image = cv2.imread('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics' + name)
             ret, jpeg = cv2.imencode('.jpg', image)
         else:
             cam.index += 1

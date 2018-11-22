@@ -18,19 +18,22 @@ from utils import visualization_utilsM as vis_util
 class Cam(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name='Cam({})'.format(id))
-        self.url = "http://220.67.124.197:8000/home/change_stat"
+        # self.url = "http://220.67.124.197:8000/home/change_stat"
+        self.url = "http://127.0.0.1:8000/home/change_stat"
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        self.colist = [38, 660, 1174, 374] # 가상 펜스
         self.frame = None
         self.id = None
         self.expired = False
         self.count_trash = 0
         self.count_fallen = 0
+        self.count_tracking= 0
         self.is_trash = False
         self.is_fallen = False
         self.time = time.time()
         self.trash_timer = 0
         self.e_list = []
-        self.c_list = []
+        self.fxy_list = []
         self.data = {'cam_id': 0, 'cam_status': 'safe', 'cam_location': "location", 'trash': False,'instrusion': False,'fallen': False}
         self.MODEL_NAME = 'inference_graph'
         self.CWD_PATH = "C:/models/research/object_detection"
@@ -53,6 +56,14 @@ class Cam(threading.Thread):
         self.expired = False
         if self.timer.is_alive():   # Timer thread alive?
             self.timer.cancel()
+
+
+def capture(frame,index):
+
+    # png로 압축 영상 저장
+    name = '/img_{}.png'.format(index)
+    cv2.imwrite('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics' + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 5])
+    # print(index)
 
 HOST='192.168.0.66'
 PORT=8485
@@ -88,7 +99,7 @@ while True:
         cam_info = decoded
         break
     else:
-        continue
+        continue1
 
 print("################CAM INFO###############: ",cam_info)
 location = cam_info[cam_info.find('location')+9:cam_info.find('\r\n')]
@@ -105,10 +116,16 @@ cam.data['cam_location'] = location
 cam.id = cam_id
 cam.data['cam_id'] = cam_id
 cam.data['trusion'] = fence
+index = 0
 while True:
-    while len(data) < payload_size:
-        #print("Recv: {}".format(len(data)))
-        data += conn.recv(4096)
+    try:
+        while len(data) < payload_size:
+            #print("Recv: {}".format(len(data)))
+            data += conn.recv(4096)
+    except ConnectionResetError:
+        print("ConnectionResetError")
+        conn.close()
+        break
 
     #print("Done Recv: {}".format(len(data)))
     packed_msg_size = data[:payload_size]
@@ -122,6 +139,10 @@ while True:
 
     frame=pickle.loads(frame_data, fix_imports=True, encoding="bytes")
     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+    capture(frame, index)
+    index += 1
+    if index == 5:
+        index = 0
     cam.frame = frame
     #capture(frame,index)
     #index += 1
@@ -131,7 +152,7 @@ while True:
     # cam.time = time.time()
     if int(time.time() - cam.time) >= 1:
         (boxes, scores, classes, num) = sess.run(
-            [detection_boxes, detection_scores, detection_classes, num_detections],
+           [detection_boxes, detection_scores, detection_classes, num_detections],
             feed_dict={image_tensor: frame_expanded})
 
         vis_util.visualize_boxes_and_labels_on_image_array(
@@ -144,6 +165,9 @@ while True:
             use_normalized_coordinates=True,
             min_score_thresh=0.60)
         cam.time = time.time()
+        cv2.line(cam.frame, (cam.colist[0], cam.colist[1]),
+                 (cam.colist[2], cam.colist[3]),
+                 (255, 0, 0), 2)
         cv2.imshow('Object detector({})'.format(cam.id), cam.frame)
 
     # cv2.imshow('Object detector({})'.format(cam.id), cam.frame)

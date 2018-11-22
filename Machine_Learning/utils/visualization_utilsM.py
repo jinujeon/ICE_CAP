@@ -13,6 +13,8 @@ import json
 import urllib.request
 from object_detection.core import standard_fields as fields
 import urllib.request
+import intr_detect as intr
+import multitracker
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
@@ -539,7 +541,7 @@ def visualize_boxes_and_labels_on_image_array(
     skip_scores=False,
     skip_labels=False):
   cam.e_list = []
-  cam.c_list = []
+  cam.fxy_list= []
   box_to_display_str_map = collections.defaultdict(list)
   box_to_color_map = collections.defaultdict(str)
   box_to_instance_masks_map = {}
@@ -575,18 +577,13 @@ def visualize_boxes_and_labels_on_image_array(
           if not agnostic_mode:
             # print(category_index)
             if classes[i] in category_index.keys():
-              # print(category_index[classes[i]])
               class_name = category_index[classes[i]]['name']
-              mid_x = (boxes[i][1] + boxes[i][3]) / 2
-              mid_y = (boxes[i][0] + boxes[i][2]) / 2
-              # cv2.putText(frame, 'M', (int(mid_x * 1280), int(mid_y * 720)),
-              #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-              # print(mid_x)
-              # print(mid_y)
+              if class_name == 'person':
+                  x, y = boxes[0][i][1], boxes[0][i][0]
+                  w, h = boxes[0][i][3] - boxes[0][i][1], boxes[0][i][2] - boxes[0][i][0]
+                  coord = (x, y, w, h)
+                  cam.fxy_list.append(coord)
               cam.e_list.append(class_name) # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
-              cam.c_list.append((mid_x,mid_y)) # 인식된 개체의 좌표 값을 저장
-              cam.e_list.append(class_name)  # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
-              cam.c_list.append((mid_x, mid_y))  # 인식된 개체의 좌표 값을 저장
             else:
               class_name = 'N/A' # 해당 화면에 인식된 객체의 이름이 존재하지 않는다면
             display_str = str(class_name) # 그 전까지 인식한 객체들만 표시
@@ -637,6 +634,52 @@ def visualize_boxes_and_labels_on_image_array(
           radius=line_thickness / 2,
           use_normalized_coordinates=use_normalized_coordinates)
 
+  if cam.data['instrusion']:
+      if 'person' in cam.e_list:
+          fence = intr.fence()
+          trackers = multitracker.multitracker()
+          fence.fence_check(cam.fxy_list, cam.frame)
+          if (fence.fence_warning):
+              print("제한 구역 침입을 감지했습니다. 알림을 전송합니다.")
+              if cam.data['instrusion'] == False:
+                  cam.data['cam_status'] = 'warning'
+                  cam.data['instrusion'] = True
+                  params = json.dumps(cam.data).encode("utf-8")
+                  req = urllib.request.Request(cam.url, data=params,
+                                               headers={'content-type': 'application/json'})
+                  response = urllib.request.urlopen(req)
+                  print(response.read().decode('utf8'))
+              fence.fence_warning = False
+          else:
+              print("해당 구역은 안전합니다.")
+              if cam.data['instrusion'] == True:
+                  cam.data['cam_status'] = 'safe'
+                  cam.data['instrusion'] = False
+                  params = json.dumps(cam.data).encode("utf-8")
+                  req = urllib.request.Request(cam.url, data=params,
+                                               headers={'content-type': 'application/json'})
+                  response = urllib.request.urlopen(req)
+                  print(response.read().decode('utf8'))
+
+          if trackers.isFirst or (cam.count_tracking % 15 == 0):
+              try:
+                  trackers.settings(cam.fxy_list, cam.frame)
+                  # now = 0
+                  cam.count_tracking += 1
+              except Exception as e:
+                  print(str(e))
+                  pass
+          elif len(cam.fxy_list) != 0:
+              try:
+                  trackers.updatebox(cam.frame)
+                  cam.count_tracking += 1
+              except Exception as e:
+                  print(str(e))
+                  pass
+          else:
+              trackers.isFirst = True
+              cam.count_tracking = 0
+
   # 쓰레기가 감지되었다면 감지된 시각을 초기화하고 그로부터 30분동안 지속적으로 감지 되었을때 쓰레기가 투기되었다고 생각하여 알림을 전송한다
   # 이따금씩 감지가 안될 때를 대비하여 별도의 카운터 변수를 선언, 10초의 기간을 두어 쓰레기가 실제로 사라졌는지를 확인한다.
   if 'trash' in cam.e_list or 'bottle' in cam.e_list: # 쓰레기를 감지했다면
@@ -678,7 +721,7 @@ def trash_count(stat,cam):
     else: # 쓰레기가 없다고 판단
         cam.count_trash = 0 # 카운터 변수 초기화
         if cam.data['trash'] == True:
-            cam.data['warning'] = 'safe'
+            cam.data['cam_status'] = 'safe'
             cam.data['trash'] = False  # 쓰레기가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
             params = json.dumps(cam.data).encode("utf-8")
             req = urllib.request.Request(cam.url, data=params,
@@ -695,7 +738,7 @@ def trash_check(cam):
         print("알림을 전송합니다. 쓰레기 감지 {}분 경과".format(int((int(time.time()) - cam.count_trash) / 60)))
     if timer - cam.count_trash >= 600: # 일정 시간(10분) 이후에도 지속적인 위험 상황 확인
         if cam.data['trash'] == False:
-            cam.data['warning'] = 'warning'
+            cam.data['cam_status'] = 'warning'
             cam.data['trash'] = True # 현재 CCTV 위치에 버려진 쓰레기가 감지되었으므로 상태를 변경합니다.
             params = json.dumps(cam.data).encode("utf-8")
             req = urllib.request.Request(cam.url, data=params,
