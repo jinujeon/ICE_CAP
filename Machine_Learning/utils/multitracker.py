@@ -16,8 +16,8 @@ class multitracker():
             self.isFirst = False
         self.prev = []
         for i in coord:
-            i0, i2 = abs(int(i[0] * 1280)), abs(int(i[2] * 1280))
-            i1, i3 = abs(int(i[1] * 800)), abs(int(i[3] * 800))
+            i0, i2 = abs(int(i[0] * 640)), abs(int(i[2] * 640))
+            i1, i3 = abs(int(i[1] * 360)), abs(int(i[3] * 360))
             #trackers.add(tracker, frame, box)
             #roi = frame[x:x + h, y:y + w]
             #roi = frame[i0: i0 + i3, i1: i1 + i2]
