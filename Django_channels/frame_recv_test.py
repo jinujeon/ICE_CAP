@@ -19,7 +19,7 @@ def capture(frame,index):
 
 
 
-HOST='192.168.0.66'
+HOST='localhost'
 PORT=8485
 
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -29,21 +29,31 @@ s.bind((HOST,PORT))
 print('Socket bind complete')
 s.listen(10)
 print('Socket now listening')
-
+x = 1
 conn,addr=s.accept()
 while True:
     data = conn.recv(1024)
     decoded = data.decode('utf-8')
-    if decoded:
-        cam_info = decoded
-        break
-    else:
+    try:
+        cam_num = int(decoded)
+    except:
         continue
-print("#########Cam_id#########: ",cam_info)
-location = cam_info[cam_info.find('location')+9:cam_info.find('\r\n')]
-cam_id = cam_info[cam_info.find('cam_id')+7 :cam_info.find('virtual') -2]
-fence = cam_info[cam_info.find('virtual:')+8:cam_info.find('False')  + 5]
-print("#######Cam_id:", cam_id, "location:", location, "fence:", fence)
+    else:
+        conn.send("OK".encode("UTF-8"))
+        print("Number of CCTV: {}".format(cam_num))
+    if decoded:
+        if x >= int(cam_num):
+            break
+        x += 1
+    else:
+        for num in range(cam_num):
+
+            continue
+# print("#########Cam_id#########: ",cam_info)
+# #location = cam_info[cam_info.find('location')+9:cam_info.find('\r\n')]
+# cam_id = cam_info[cam_info.find('cam_id')+7 :cam_info.find('virtual') -2]
+# fence = cam_info[cam_info.find('virtual:')+8:cam_info.find('False')  + 5]
+# print("#######Cam_id:", cam_id, "fence:", fence)
 index = 0
 data = b""
 payload_size = struct.calcsize(">L")
