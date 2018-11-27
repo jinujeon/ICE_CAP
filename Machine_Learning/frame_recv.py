@@ -4,7 +4,6 @@ import cv2
 import pickle
 import numpy as np
 import struct
-import zlib
 import os
 import cv2
 import numpy as np
@@ -20,8 +19,7 @@ class Cam(threading.Thread):
         threading.Thread.__init__(self, name='Cam({})'.format(id))
         # self.url = "http://220.67.124.197:8000/home/change_stat"
         self.url = "http://127.0.0.1:8000/home/change_stat"
-        self.socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.colist = [38, 660, 1174, 374] # 가상 펜스
+        self.colist = []
         self.frame = None
         self.id = None
         self.expired = False
@@ -34,16 +32,19 @@ class Cam(threading.Thread):
         self.trash_timer = 0
         self.e_list = []
         self.fxy_list = []
-        self.data = {'cam_id': 0, 'cam_status': 'safe', 'cam_location': "location", 'trash': False,'instrusion': False,'fallen': False}
+        self.data = {'cam_id': 0, 'cam_status': 'safe', 'trash': False,'instrusion': False,'fallen': False}
         self.MODEL_NAME = 'inference_graph'
         self.CWD_PATH = "C:/models/research/object_detection"
         self.PATH_TO_CKPT = os.path.join(self.CWD_PATH, self.MODEL_NAME, 'frozen_inference_graph.pb')
         self.PATH_TO_LABELS = os.path.join(self.CWD_PATH, 'training', 'labelmap.pbtxt')
-        self.NUM_CLASSES = 4
+        self.NUM_CLASSES = 5
         self.label_map = label_map_util.load_labelmap(self.PATH_TO_LABELS)
         self. categories = label_map_util.convert_label_map_to_categories(self.label_map, max_num_classes=self.NUM_CLASSES,
                                                                     use_display_name=True)
         self.category_index = label_map_util.create_category_index(self.categories)
+
+    def __repr__(self):
+        return "CCTV_{}".format(self.id)
 
     def start_timer(self, second):
         def handler():
@@ -57,18 +58,34 @@ class Cam(threading.Thread):
         if self.timer.is_alive():   # Timer thread alive?
             self.timer.cancel()
 
+    def parse_data(self,data):
+        """
+        :param data: Received data from streaming process, decoded.
+        :return: print id, instrusion info
+        """
+        print("Parsing the CAM INFO...")
+        self.id = int(data[data.find('cam_id') + 7:data.find('virtual') - 2])
+        self.data['cam_id'] = self.id
+        print("Cam_id: {}".format(self.id))
+        if (data[data.find('virtual:') + 8:]) == 'True':
+            self.data['instrusion'] = True
+        else:
+            self.data['instrusion'] = False
+        print("instrusion: {}".format(self.data['instrusion']))
+        print(("COMPLETE"))
+
 
 def capture(frame,index):
-
     # png로 압축 영상 저장
     name = '/img_{}.png'.format(index)
     cv2.imwrite('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics' + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 5])
     # print(index)
 
+# Initialize
 HOST='192.168.0.66'
 PORT=8485
-cam = Cam()
-print('Socket created')
+
+# Load to memory
 detection_graph = tf.Graph()
 with detection_graph.as_default():
     od_graph_def = tf.GraphDef()
@@ -77,45 +94,50 @@ with detection_graph.as_default():
         od_graph_def.ParseFromString(serialized_graph)
         tf.import_graph_def(od_graph_def, name='')
     sess = tf.Session(graph=detection_graph)
-# Load to memory
 image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
 detection_boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
 detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
 detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
 num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+
 # Socket conection
-cam.socket.bind((HOST,PORT))
+print('Socket created')
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((HOST,PORT))
 print('Socket bind complete')
 # logging.INFO('Socket bind complete')
-cam.socket.listen(10)
+sock.listen(10)
 print('Socket now listening')
 # logging.INFO('Socket now listening')
-conn,addr=cam.socket.accept()
+conn,addr=sock.accept()
 # Receive camera information
+cam_list = ['cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
 while True:
     data = conn.recv(1024)
     decoded = data.decode('utf-8')
-    if decoded:
-        cam_info = decoded
-        break
+    try:
+        cam_num = int(decoded)
+    except:
+        continue
     else:
-        continue1
+        conn.send("OK".encode("UTF-8"))
+        print("Number of CCTV: {}".format(cam_num))
+    if decoded:
+        if x >= int(cam_num):
+            break
+        x += 1
+    else:
+        for num in range(cam_num):
+            exec('{} =  Cam()'.format(cam_list[num]))
+            # data = conn.recv(1024)
+            # decoded = data.decode('utf-8')
+            exec("{}.parse_data(decoded)".format(cam_list[num]))
+        continue
 
-print("################CAM INFO###############: ",cam_info)
-location = cam_info[cam_info.find('location')+9:cam_info.find('\r\n')]
-cam_id = int(cam_info[cam_info.find('cam_id')+7 :cam_info.find('virtual') -2])
-if (cam_info[cam_info.find('virtual:')+8:]) == 'True':
-    fence = True
-else:
-    fence = False
-print("#########COMPLETE SAVE CAM INFO#########: ")
+cam.parse_data(cam_info)
+
 data = b""
 payload_size = struct.calcsize(">L")
-# Initialize Cam
-cam.data['cam_location'] = location
-cam.id = cam_id
-cam.data['cam_id'] = cam_id
-cam.data['trusion'] = fence
 index = 0
 while True:
     try:
