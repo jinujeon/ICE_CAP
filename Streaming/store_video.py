@@ -4,7 +4,7 @@ class VideoCamera(object):
     def __init__(self):
         self.time = 0
         self.clock = time.gmtime(time.time()) #동영상 이름 -> 현재시간
-        self.now = str(self.clock.tm_year) +'.'+ str(self.clock.tm_mon) +'.'+ str(self.clock.tm_mday) +'.'+ str(self.clock.tm_hour) +'.'+ str(self.clock.tm_min) +'.'+ str(self.clock.tm_sec)
+        self.now = str(self.clock.tm_year) +'.'+ str(self.clock.tm_mon) +'.'+ str(self.clock.tm_mday) +'.'+ str(self.clock.tm_hour + 9) +'.'+ str(self.clock.tm_min) +'.'+ str(self.clock.tm_sec)
         # 카메라에 접근하기 위해 VideoCapture 객체를 생성
         self.video = cv2.VideoCapture(0)
         (self.grabbed, self.frame) = self.video.read()
@@ -31,7 +31,7 @@ class VideoCamera(object):
 store = VideoCamera() # 영상 저장을 위한 객체 생성
 store.write() # 영상저장함수실행
 
-while (store.video.isOpened()):
+while True:
 
     # 카메라로부터 이미지를 가져옴
     store.getframe()
@@ -42,10 +42,9 @@ while (store.video.isOpened()):
     # 이미지를 파일에 저장, VideoWriter 객체에 연속적으로 저장하면 동영상이 됨.
     store.storeframe()
 
-
     print(store.time) # 저장시간
 
-    if store.time == 200:
+    if store.time == 8000:
         store.__del__() # 현재까지 영상 저장
         store = VideoCamera()  # 영상 저장을 위한 객체 재생성
         store.write() # 영상저장함수실행
