@@ -13,8 +13,6 @@ import json
 import urllib.request
 from object_detection.core import standard_fields as fields
 import urllib.request
-import intr_detect as intr
-import multitracker
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
