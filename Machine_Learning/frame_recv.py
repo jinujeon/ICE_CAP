@@ -35,13 +35,13 @@ class Cam(threading.Thread):
         self.data = {'cam_id': 0, 'cam_status': 'safe', 'trash': False,'instrusion': False,'fallen': False}
         self.MODEL_NAME = 'inference_graph'
         self.CWD_PATH = "C:/models/research/object_detection"
-        self.PATH_TO_CKPT = os.path.join(self.CWD_PATH, self.MODEL_NAME, 'frozen_inference_graph.pb')
-        self.PATH_TO_LABELS = os.path.join(self.CWD_PATH, 'training', 'labelmap.pbtxt')
-        self.NUM_CLASSES = 5
-        self.label_map = label_map_util.load_labelmap(self.PATH_TO_LABELS)
-        self. categories = label_map_util.convert_label_map_to_categories(self.label_map, max_num_classes=self.NUM_CLASSES,
-                                                                    use_display_name=True)
-        self.category_index = label_map_util.create_category_index(self.categories)
+        # self.PATH_TO_CKPT = os.path.join(self.CWD_PATH, self.MODEL_NAME, 'frozen_inference_graph.pb')
+        # self.PATH_TO_LABELS = os.path.join(self.CWD_PATH, 'training', 'labelmap.pbtxt')
+        # self.NUM_CLASSES = 5
+        # self.label_map = label_map_util.load_labelmap(self.PATH_TO_LABELS)
+        # self. categories = label_map_util.convert_label_map_to_categories(self.label_map, max_num_classes=self.NUM_CLASSES,
+        #                                                             use_display_name=True)
+        # self.category_index = label_map_util.create_category_index(self.categories)
 
     def __repr__(self):
         return "CCTV_{}".format(self.id)
@@ -112,6 +112,7 @@ print('Socket now listening')
 conn,addr=sock.accept()
 # Receive camera information
 cam_list = ['cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
+x=0
 while True:
     data = conn.recv(1024)
     decoded = data.decode('utf-8')
@@ -122,19 +123,11 @@ while True:
     else:
         conn.send("OK".encode("UTF-8"))
         print("Number of CCTV: {}".format(cam_num))
-    if decoded:
-        if x >= int(cam_num):
-            break
-        x += 1
-    else:
         for num in range(cam_num):
+            data = conn.recv(1024)
+            decoded = data.decode('utf-8')
             exec('{} =  Cam()'.format(cam_list[num]))
-            # data = conn.recv(1024)
-            # decoded = data.decode('utf-8')
             exec("{}.parse_data(decoded)".format(cam_list[num]))
-        continue
-
-cam.parse_data(cam_info)
 
 data = b""
 payload_size = struct.calcsize(">L")
