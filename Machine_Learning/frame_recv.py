@@ -19,26 +19,14 @@ from utils import visualization_utilsM as vis_util
 class Cam(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name='Cam({})'.format(id))
-        self.url = "http://127.0.0.1:8000/home/change_stat"
-        # self.colist = []
-        self.frame = None
         self.id = None
+        self.frame = None
+        self.data = {'cam_id': self.id, 'cam_status': 'safe', 'trash': False, 'intrusion': False, 'fallen': False}
+        self.url = "http://127.0.0.1:8000/home/change_stat"
         self.actrec = actRecognition()
-        # self.count_trash = 0
-        # self.count_fallen = 0
-        # self.count_tracking= 0
-        # self.is_trash = False
-        # self.is_fallen = False
-        # self.time = time.time()
-        # self.trash_timer = 0
         self.e_list = []
         self.fxy_list = []
         self.txy_list = []
-        self.data = {'cam_id': 0, 'cam_status': 'safe', 'trash': False,'instrusion': False,'fallen': False}
-        # self.label_map = label_map_util.load_labelmap(self.PATH_TO_LABELS)
-        # self. categories = label_map_util.convert_label_map_to_categories(self.label_map, max_num_classes=self.NUM_CLASSES,
-        #                                                             use_display_name=True)
-        # self.category_index = label_map_util.create_category_index(self.categories)
 
     def __repr__(self):
         return "CCTV_{}".format(self.id)
@@ -46,17 +34,17 @@ class Cam(threading.Thread):
     def parse_data(self,data):
         """
         :param data: Received data from streaming process, decoded.
-        :return: print id, instrusion info
+        :return: print id, intrusion info
         """
         print("Parsing the CAM INFO...")
-        self.id = int(data[data.find('cam_id') + 7:data.find('instrusion') - 2])
+        self.id = int(data[data.find('cam_id') + 7:data.find('intrusion') - 2])
         self.data['cam_id'] = self.id
         print("Cam_id: {}".format(self.id))
-        if (data[data.find('instrusion:') + 11:]) == 'True':
-            self.data['instrusion'] = True
+        if (data[data.find('intrusion:') + 10:]) == 'True':
+            self.data['intrusion'] = True
         else:
-            self.data['instrusion'] = False
-        print("instrusion: {}".format(self.data['instrusion']))
+            self.data['intrusion'] = False
+        print("intrusion: {}".format(self.data['intrusion']))
         print(("COMPLETE"))
 
 class actRecognition():
@@ -290,9 +278,9 @@ class actRecognition():
             self.fence_warning = f_stat
         if self.fence_warning:
             print("접근 제한 구역 침입이 감지되었습니다")
-            if cam.data['instrusion'] == False:
+            if cam.data['intrusion'] == False:
                 cam.data['cam_status'] = 'warning'
-                cam.data['instrusion'] = True
+                cam.data['intrusion'] = True
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -303,9 +291,9 @@ class actRecognition():
             self.fence_warning = False
         else:
             print("해당 구역은 안전합니다(가상 펜스)")
-            if cam.data['instrusion'] == True:
+            if cam.data['intrusion'] == True:
                 cam.data['cam_status'] = 'safe'
-                cam.data['instrusion'] = False
+                cam.data['intrusion'] = False
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -361,9 +349,9 @@ class actRecognition():
 
         if self.intr_warning:
             print("월담을 감지했습니다")
-            if cam.data['instrusion'] == False:
+            if cam.data['intrusion'] == False:
                 cam.data['cam_status'] = 'warning'
-                cam.data['instrusion'] = True
+                cam.data['intrusion'] = True
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -373,9 +361,9 @@ class actRecognition():
             self.intr_warning = False
         else:
             print("해당 구역은 안전합니다(월담)")
-            if cam.data['instrusion'] == True:
+            if cam.data['intrusion'] == True:
                 cam.data['cam_status'] = 'safe'
-                cam.data['instrusion'] = False
+                cam.data['intrusion'] = False
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -428,10 +416,8 @@ print('Socket created')
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind((HOST,PORT))
 print('Socket bind complete')
-# logging.INFO('Socket bind complete')
 sock.listen(10)
 print('Socket now listening')
-# logging.INFO('Socket now listening')
 conn,addr=sock.accept()
 
 # Receive camera information
@@ -458,7 +444,6 @@ while True:
             exec("cam_list[num] = {}".format(cam_list[num]))
         break
 # Initialize done
-
 
 # 2.Ready to start receiving data
 # data = conn.recv(1024)
@@ -519,7 +504,7 @@ while True:
     # End Obj detection
 
     # 4.Start Act detection
-    if cam_list[i].data["instrusion"]:
+    if cam_list[i].data["intrusion"]:
         cam_list[i].actrec.Intrusion_detect(cam_list[i])
         cam_list[i].actrec.fence_check(cam_list[i])
     else:
@@ -531,7 +516,7 @@ while True:
     # End Act detection
 
     # Show for debugging
-    if cam_list[i].data['instrusion']:
+    if cam_list[i].data['intrusion']:
         cv2.line(cam_list[i].frame, (cam_list[i].actrec.colist[0], cam_list[i].actrec.colist[1]),(cam_list[i].actrec.colist[2], cam_list[i].actrec.colist[3]),(255, 0, 0), 2)
 
     cv2.imshow('Object detector', cam_list[i].frame)
