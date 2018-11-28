@@ -400,7 +400,7 @@ conn,addr=sock.accept()
 # Receive camera information
 # Availabe Cameras
 cam_list = ['cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
-# First settings for each cameras
+
 while True:
     decoded = decode_data(conn)
     # data = conn.recv(1024)
@@ -421,6 +421,7 @@ while True:
             exec("cam_list[num] = {}".format(cam_list[num]))
         break
 # Initialize done
+
 
 # 2.Ready to start receiving data
 # data = conn.recv(1024)
