@@ -6,16 +6,13 @@ import sys
 import io
 import struct
 import pickle
+
 import zlib
 def cam_stream(id_list,virtual, client_socket,encode_param):
     video_capture_0 = cv2.VideoCapture(0)
     video_capture_1 = cv2.VideoCapture(1)
-    cam_count = 2
-    video_list = []
-    ret_list = []
-    frame_list = []
-    # for id in id_list:
-    #     send_info(len(id_list),id, virtual, client_socket)
+    cam_count = 2 # len(cam_list)
+
     while True:
         # Capture frame-by-frame
         ret0, frame0 = video_capture_0.read()

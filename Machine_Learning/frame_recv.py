@@ -113,7 +113,6 @@ conn,addr=sock.accept()
 # Receive camera information
 cam_list = ['cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
 
-x = 1
 
 while True:
     data = conn.recv(1024)
@@ -133,11 +132,17 @@ while True:
             exec("{}.parse_data(decoded)".format(cam_list[num]))
 
 
+
 data = b""
 payload_size = struct.calcsize(">L")
-index = 0
+
 while True:
     try:
+        cam= Cam()
+        cam_data = conn.recv(1024)
+        cam_num = cam_data.decode('UTF-8')
+        print("CAM_NUM##: ", cam_num)
+        conn.send(cam_num.encode('UTF-8'))
         while len(data) < payload_size:
             #print("Recv: {}".format(len(data)))
             data += conn.recv(4096)
