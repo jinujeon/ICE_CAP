@@ -7,14 +7,8 @@ import PIL.ImageColor as ImageColor
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
 import six
-import time
 import tensorflow as tf
-import json
-import urllib.request
 from object_detection.core import standard_fields as fields
-import urllib.request
-import intr_detect as intr
-import multitracker
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
@@ -542,22 +536,12 @@ def visualize_boxes_and_labels_on_image_array(
     skip_labels=False):
   cam.e_list = []
   cam.fxy_list= []
+  cam.txy_list = []
   box_to_display_str_map = collections.defaultdict(list)
   box_to_color_map = collections.defaultdict(str)
   box_to_instance_masks_map = {}
   box_to_instance_boundaries_map = {}
   box_to_keypoints_map = collections.defaultdict(list)
-  # data = {'cam_id': 1, 'alert': 'safe', 'trash': False}
-  # data = {'cam_id': 1, 'cam_status': 'safe', 'cam_location': 'Engineering_Univ.1st.right_corridor', 'trash': False, 'intrusion':False}
-  # for i, b in enumerate(boxes):
-  #     if scores[i] >= 0.6:
-  #         mid_x = (boxes[i][1] + boxes[i][3]) / 2
-  #         mid_y = (boxes[i][0] + boxes[i][2]) / 2
-  #         # cv2.putText(frame, 'M', (int(mid_x * 1280), int(mid_y * 720)),
-  #         #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-  #         print(mid_x)
-  #         print(mid_y)
-
   if not max_boxes_to_draw:
     max_boxes_to_draw = boxes.shape[0]
   for i in range(min(max_boxes_to_draw, boxes.shape[0])):
@@ -579,11 +563,16 @@ def visualize_boxes_and_labels_on_image_array(
             if classes[i] in category_index.keys():
               class_name = category_index[classes[i]]['name']
               if class_name == 'person':
-                  x, y = boxes[0][i][1], boxes[0][i][0]
-                  w, h = boxes[0][i][3] - boxes[0][i][1], boxes[0][i][2] - boxes[0][i][0]
+                  x, y = boxes[i][1], boxes[i][0]
+                  w, h = boxes[i][3] - boxes[i][1], boxes[i][2] - boxes[i][0]
                   coord = (x, y, w, h)
                   cam.fxy_list.append(coord)
               cam.e_list.append(class_name) # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
+              if ((class_name == 'trash') or (class_name == 'metal') or (class_name =='bottle')):
+                  x, y = boxes[i][1], boxes[i][0]
+                  w, h = boxes[i][3] - boxes[i][1], boxes[i][2] - boxes[i][0]
+                  coord = (x, y, w, h)
+                  cam.txy_list.append(coord)
             else:
               class_name = 'N/A' # 해당 화면에 인식된 객체의 이름이 존재하지 않는다면
             display_str = str(class_name) # 그 전까지 인식한 객체들만 표시
@@ -631,149 +620,160 @@ def visualize_boxes_and_labels_on_image_array(
           image,
           box_to_keypoints_map[box],
           color=color,
-          radius=line_thickness / 2,
+          radius=int(line_thickness / 2),
           use_normalized_coordinates=use_normalized_coordinates)
 
-  if cam.data['instrusion']:
-      if 'person' in cam.e_list:
-          fence = intr.fence()
-          trackers = multitracker.multitracker()
-          fence.fence_check(cam.fxy_list, cam.frame)
-          if (fence.fence_warning):
-              print("제한 구역 침입을 감지했습니다. 알림을 전송합니다.")
-              if cam.data['instrusion'] == False:
-                  cam.data['cam_status'] = 'warning'
-                  cam.data['instrusion'] = True
-                  params = json.dumps(cam.data).encode("utf-8")
-                  req = urllib.request.Request(cam.url, data=params,
-                                               headers={'content-type': 'application/json'})
-                  response = urllib.request.urlopen(req)
-                  print(response.read().decode('utf8'))
-              fence.fence_warning = False
-          else:
-              print("해당 구역은 안전합니다.")
-              if cam.data['instrusion'] == True:
-                  cam.data['cam_status'] = 'safe'
-                  cam.data['instrusion'] = False
-                  params = json.dumps(cam.data).encode("utf-8")
-                  req = urllib.request.Request(cam.url, data=params,
-                                               headers={'content-type': 'application/json'})
-                  response = urllib.request.urlopen(req)
-                  print(response.read().decode('utf8'))
 
-          if trackers.isFirst or (cam.count_tracking % 15 == 0):
-              try:
-                  trackers.settings(cam.fxy_list, cam.frame)
-                  # now = 0
-                  cam.count_tracking += 1
-              except Exception as e:
-                  print(str(e))
-                  pass
-          elif len(cam.fxy_list) != 0:
-              try:
-                  trackers.updatebox(cam.frame)
-                  cam.count_tracking += 1
-              except Exception as e:
-                  print(str(e))
-                  pass
-          else:
-              trackers.isFirst = True
-              cam.count_tracking = 0
-
-  # 쓰레기가 감지되었다면 감지된 시각을 초기화하고 그로부터 30분동안 지속적으로 감지 되었을때 쓰레기가 투기되었다고 생각하여 알림을 전송한다
-  # 이따금씩 감지가 안될 때를 대비하여 별도의 카운터 변수를 선언, 10초의 기간을 두어 쓰레기가 실제로 사라졌는지를 확인한다.
-  if 'trash' in cam.e_list or 'bottle' in cam.e_list: # 쓰레기를 감지했다면
-      cam.trash_timer = 0 # 간헐적인 오감지를 방지하기 위해 카운터를 초기화하고
-      trash_count(True,cam) # 10분동안 지속적으로 쓰레기가 감지되는지를 확인하기 위해 감지된 시각을 초기화합니다.
-      trash_check(cam) # 실시간으로 시간을 재어 10분동안 쓰레기가 감지되면 상태를 업데이트합니다.
-      if (int(time.time()) - cam.count_trash) % 10 == 0 and cam.count_trash != 0: # 10초에 한번씩 알림 발신
-        print("쓰레기가 발견되었습니다. {}초 경과". format(int(time.time()) - cam.count_trash))
-  else:
-      if cam.is_trash:
-          if cam.trash_timer == 0:
-              cam.trash_timer = int(time.time())
-          if int(time.time()) - cam.trash_timer > 10:
-            print("쓰레기가 없습니다.")
-            trash_count(False,cam)  # 없다면 카운터 초기화 및 현 상황 변동 확인
-            trash_check(cam) # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
-          else: print("사라진 쓰레기를 찾고있습니다. {}초 후 상태를 변경합니다.".format(10 - (int(time.time()) - cam.trash_timer)))
-
-  if 'warning' in cam.e_list: # 해당 화면에 인식된 개체의 이름을 저장한 리스트에서 위험한 상황에 처한 객체가 있는지 확인합니다.
-      emergency_count(True,cam)  # 있다면 카운터 증가
-      emergency_check(cam)
-      if (int(time.time()) - cam.count_fallen) < 10: # 10초의 시간을 기다린 후에도 위험한 상황이 인식된다면
-        print("위험 상황을 확인했습니다. {}초 후 알림을 전송합니다.".format(10 - (int(time.time()) - cam.count_fallen)))
-      else: # 알림 전송
-          print("알림을 전송합니다. 위험 상황 발생 {}초 경과".format(int(time.time()) - cam.count_fallen))
-      return image
-  else:
-      emergency_count(False,cam)  # 없다면 카운터 초기화 및 현 상황 변동 확인
-      emergency_check(cam) # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
-      print("확인된 위험이 없습니다. 위험상태: {}".format(cam.is_fallen))
-      return image
-
-def trash_count(stat,cam):
-    if stat:  # 쓰레기 감지
-        print("is_trash:{}".format(cam.is_trash))
-        if not cam.is_trash: # 처음으로 쓰레기를 감지하였을때의 시간을 저장하고 상태를 변경
-            cam.count_trash = int(time.time())
-            cam.is_trash = True
-    else: # 쓰레기가 없다고 판단
-        cam.count_trash = 0 # 카운터 변수 초기화
-        if cam.data['trash'] == True:
-            cam.data['cam_status'] = 'safe'
-            cam.data['trash'] = False  # 쓰레기가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
-            params = json.dumps(cam.data).encode("utf-8")
-            req = urllib.request.Request(cam.url, data=params,
-                                         headers={'content-type': 'application/json'})
-            response = urllib.request.urlopen(req)
-            print(response.read().decode('utf8'))
-        cam.is_trash = False  # CCTV의 상태 위험하지 않음으로 변경
-
-def trash_check(cam):
-    if cam.count_trash != 0:
-        timer = int(time.time()) # 현재 시각을 확인하여 최초 쓰레기가 발견된 시각과 비교
-    else: timer = 0
-    if ((timer - cam.count_trash) % 60) == 0:
-        print("알림을 전송합니다. 쓰레기 감지 {}분 경과".format(int((int(time.time()) - cam.count_trash) / 60)))
-    if timer - cam.count_trash >= 600: # 일정 시간(10분) 이후에도 지속적인 위험 상황 확인
-        if cam.data['trash'] == False:
-            cam.data['cam_status'] = 'warning'
-            cam.data['trash'] = True # 현재 CCTV 위치에 버려진 쓰레기가 감지되었으므로 상태를 변경합니다.
-            params = json.dumps(cam.data).encode("utf-8")
-            req = urllib.request.Request(cam.url, data=params,
-                                         headers={'content-type': 'application/json'})
-            response = urllib.request.urlopen(req)
-            print(response.read().decode('utf8'))
-            # 쓰레기가 CCTV에서 10분 이상 지속적으로 카운트 되었다.
-
-def emergency_count(stat,cam): # 위험한 상태 확인, 일정 시간을 대기하기 위해 카운트하는 함수
-    if stat: # 위험한 상황을 인식하였으므로 카운트 1 증가
-        if not cam.is_fallen:
-            cam.count_fallen = int(time.time())
-            cam.is_fallen = True
-    else:
-        cam.count_fallen = 0
-        if cam.data['fallen'] == True:
-            cam.data['cam_status'] = 'safe' # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
-            cam.data['fallen'] = False
-            params = json.dumps(cam.data).encode("utf-8")
-            req = urllib.request.Request(cam.url, data=params,
-                                         headers={'content-type': 'application/json'})
-            response = urllib.request.urlopen(req)
-            print(response.read().decode('utf8'))
-        cam.is_fallen = False # CCTV의 상태 안전으로 변경
-
-def emergency_check(cam):
-    if cam.count_fallen != 0:
-        timer = int(time.time())
-    else: timer = 0
-    if timer - cam.count_fallen > 10: # 일정 시간 이후에도 지속적인 위험 상황 확인
-        if cam.data['fallen'] == False:
-            cam.data['cam_status'] = 'warning' # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
-            cam.data['fallen'] = True
-            params = json.dumps(cam.data).encode("utf-8")
-            req = urllib.request.Request(cam.url, data=params,
-                                         headers={'content-type': 'application/json'})
-            response = urllib.request.urlopen(req)
-            print(response.read().decode('utf8'))
+#   if cam.data['instrusion']:
+#       if 'person' in cam.e_list:
+#           fence = intr.fence()
+#           trackers = multitracker.multitracker()
+#           fence.fence_check(cam.fxy_list, cam.frame)
+#           if (fence.fence_warning):
+#               print("제한 구역 침입을 감지했습니다. 알림을 전송합니다.")
+#               if cam.data['instrusion'] == False:
+#                   cam.data['cam_status'] = 'warning'
+#                   cam.data['instrusion'] = True
+#                   params = json.dumps(cam.data).encode("utf-8")
+#                   req = urllib.request.Request(cam.url, data=params,
+#                                                headers={'content-type': 'application/json'})
+#                   response = urllib.request.urlopen(req)
+#                   print(response.read().decode('utf8'))
+#               fence.fence_warning = False
+#           else:
+#               print("해당 구역은 안전합니다.")
+#               if cam.data['instrusion'] == True:
+#                   cam.data['cam_status'] = 'safe'
+#                   cam.data['instrusion'] = False
+#                   params = json.dumps(cam.data).encode("utf-8")
+#                   req = urllib.request.Request(cam.url, data=params,
+#                                                headers={'content-type': 'application/json'})
+#                   response = urllib.request.urlopen(req)
+#                   print(response.read().decode('utf8'))
+#
+#           if trackers.isFirst or (cam.count_tracking % 15 == 0):
+#               try:
+#                   trackers.settings(cam.fxy_list, cam.frame)
+#                   # now = 0
+#                   cam.count_tracking += 1
+#               except Exception as e:
+#                   print(str(e))
+#                   pass
+#           elif len(cam.fxy_list) != 0:
+#               try:
+#                   trackers.updatebox(cam.frame)
+#                   cam.count_tracking += 1
+#               except Exception as e:
+#                   print(str(e))
+#                   pass
+#           else:
+#               trackers.isFirst = True
+#               cam.count_tracking = 0
+#
+#   # 쓰레기가 감지되었다면 감지된 시각을 초기화하고 그로부터 30분동안 지속적으로 감지 되었을때 쓰레기가 투기되었다고 생각하여 알림을 전송한다
+#   # 이따금씩 감지가 안될 때를 대비하여 별도의 카운터 변수를 선언, 10초의 기간을 두어 쓰레기가 실제로 사라졌는지를 확인한다.
+#   if 'trash' in cam.e_list or 'bottle' in cam.e_list: # 쓰레기를 감지했다면
+#       cam.trash_timer = 0 # 간헐적인 오감지를 방지하기 위해 카운터를 초기화하고
+#       trash_count(True,cam) # 10분동안 지속적으로 쓰레기가 감지되는지를 확인하기 위해 감지된 시각을 초기화합니다.
+#       trash_check(cam) # 실시간으로 시간을 재어 10분동안 쓰레기가 감지되면 상태를 업데이트합니다.
+#       if (int(time.time()) - cam.count_trash) % 10 == 0 and cam.count_trash != 0: # 10초에 한번씩 알림 발신
+#         print("쓰레기가 발견되었습니다. {}초 경과". format(int(time.time()) - cam.count_trash))
+#   else:
+#       if cam.is_trash:
+#           if cam.trash_timer == 0:
+#               cam.trash_timer = int(time.time())
+#           if int(time.time()) - cam.trash_timer > 10:
+#             print("쓰레기가 없습니다.")
+#             trash_count(False,cam)  # 없다면 카운터 초기화 및 현 상황 변동 확인
+#             trash_check(cam) # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
+#           else: print("사라진 쓰레기를 찾고있습니다. {}초 후 상태를 변경합니다.".format(10 - (int(time.time()) - cam.trash_timer)))
+#
+#   if 'fallen' in cam.e_list: # 해당 화면에 인식된 개체의 이름을 저장한 리스트에서 위험한 상황에 처한 객체가 있는지 확인합니다.
+#       emergency_count(True,cam)  # 있다면 카운터 증가
+#       emergency_check(cam)
+#       if (int(time.time()) - cam.count_fallen) < 10: # 10초의 시간을 기다린 후에도 위험한 상황이 인식된다면
+#         print("위험 상황을 확인했습니다. {}초 후 알림을 전송합니다.".format(10 - (int(time.time()) - cam.count_fallen)))
+#       else: # 알림 전송
+#           print("알림을 전송합니다. 위험 상황 발생 {}초 경과".format(int(time.time()) - cam.count_fallen))
+#       return image
+#   else:
+#       emergency_count(False,cam)  # 없다면 카운터 초기화 및 현 상황 변동 확인
+#       emergency_check(cam) # 확인된 위험이 없으므로 현재 CCTV의 상태를 return 합니다.
+#       print("확인된 위험이 없습니다. 위험상태: {}".format(cam.is_fallen))
+#       return image
+#
+# def trash_count(stat,cam):
+#     if stat:  # 쓰레기 감지
+#         print("is_trash:{}".format(cam.is_trash))
+#         if not cam.is_trash: # 처음으로 쓰레기를 감지하였을때의 시간을 저장하고 상태를 변경
+#             cam.count_trash = int(time.time())
+#             cam.is_trash = True
+#     else: # 쓰레기가 없다고 판단
+#         cam.count_trash = 0 # 카운터 변수 초기화
+#         if cam.data['trash'] == True:
+#             cam.data['cam_status'] = 'safe'
+#             cam.data['trash'] = False  # 쓰레기가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
+#             params = json.dumps(cam.data).encode("utf-8")
+#             req = urllib.request.Request(cam.url, data=params,
+#                                          headers={'content-type': 'application/json'})
+#             response = urllib.request.urlopen(req)
+#             print(response.read().decode('utf8'))
+#         cam.is_trash = False  # CCTV의 상태 위험하지 않음으로 변경
+#
+# def trash_check(cam):
+#     if cam.count_trash != 0:
+#         timer = int(time.time()) # 현재 시각을 확인하여 최초 쓰레기가 발견된 시각과 비교
+#     else: timer = 0
+#     if ((timer - cam.count_trash) % 60) == 0:
+#         print("알림을 전송합니다. 쓰레기 감지 {}분 경과".format(int((int(time.time()) - cam.count_trash) / 60)))
+#     if timer - cam.count_trash >= 600: # 일정 시간(10분) 이후에도 지속적인 위험 상황 확인
+#         if cam.data['trash'] == False:
+#             cam.data['cam_status'] = 'warning'
+#             cam.data['trash'] = True # 현재 CCTV 위치에 버려진 쓰레기가 감지되었으므로 상태를 변경합니다.
+#             params = json.dumps(cam.data).encode("utf-8")
+#             req = urllib.request.Request(cam.url, data=params,
+#                                          headers={'content-type': 'application/json'})
+#             response = urllib.request.urlopen(req)
+#             print(response.read().decode('utf8'))
+#             # 쓰레기가 CCTV에서 10분 이상 지속적으로 카운트 되었다.
+#
+# def emergency_count(stat,cam): # 위험한 상태 확인, 일정 시간을 대기하기 위해 카운트하는 함수
+#     if stat: # 위험한 상황을 인식하였으므로 카운트 1 증가
+#         if not cam.is_fallen:
+#             cam.count_fallen = int(time.time())
+#             cam.is_fallen = True
+#     else:
+#         cam.count_fallen = 0
+#         if cam.data['fallen'] == True:
+#             cam.data['cam_status'] = 'safe' # 위험 상태가 없다고 판단하여 CCTV의 위험 상태를 safe로 바꿉니다
+#             cam.data['fallen'] = False
+#             params = json.dumps(cam.data).encode("utf-8")
+#             req = urllib.request.Request(cam.url, data=params,
+#                                          headers={'content-type': 'application/json'})
+#             response = urllib.request.urlopen(req)
+#             print(response.read().decode('utf8'))
+#         cam.is_fallen = False # CCTV의 상태 안전으로 변경
+#
+# def emergency_check(cam):
+#     if cam.count_fallen != 0:
+#         timer = int(time.time())
+#     else: timer = 0
+#     if timer - cam.count_fallen > 10: # 일정 시간 이후에도 지속적인 위험 상황 확인
+#         if cam.data['fallen'] == False:
+#             cam.data['cam_status'] = 'warning' # 현재 위치에 있는 CCTV의 위험 상태를 위험으로 바꿉니다.
+#             cam.data['fallen'] = True
+#             params = json.dumps(cam.data).encode("utf-8")
+#             req = urllib.request.Request(cam.url, data=params,
+#                                          headers={'content-type': 'application/json'})
+#             response = urllib.request.urlopen(req)
+#             print(response.read().decode('utf8'))
+#
+# def is_fallen(cam):
+#     if 'fallen' in cam.e_list:
+#         if cam.data['fallen'] == False:
+#             cam.data['fallen'] = True
+#             print("쓰러진 사람 발견")
+#     else:
+#         if cam.data['fallen'] == True:
+#             cam.data['fallen'] = False
+#             print("쓰러진 사람 없음")
