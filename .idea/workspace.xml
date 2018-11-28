@@ -3,6 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="1d22078b-86de-465f-a668-7b9b2ec37ba5" name="Default" comment="">
 <<<<<<< HEAD
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Django_channels/Filter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Django_channels/Filter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Django_channels/manage_frames_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/Django_channels/manage_frames_test.py" afterDir="false" />
+=======
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/.idea/ICE_CAP.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ICE_CAP.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -17,6 +22,7 @@
       <change beforePath="$PROJECT_DIR$/Machine_Learning/frame_recv.py" beforeDir="false" afterPath="$PROJECT_DIR$/Machine_Learning/frame_recv.py" afterDir="false" />
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
 >>>>>>> bc70084ee18dee1a27d8db73fe7d0a376daa573d
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -155,9 +161,14 @@
       <file leaf-file-name="multi_cam_test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Django_channels/multi_cam_test.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+            <state relative-caret-position="699">
+              <caret line="66" column="13" selection-start-line="66" selection-start-column="13" selection-end-line="66" selection-end-column="13" />
+=======
             <state relative-caret-position="570">
               <caret line="39" column="21" lean-forward="true" selection-start-line="39" selection-start-column="21" selection-end-line="39" selection-end-column="21" />
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
 >>>>>>> bc70084ee18dee1a27d8db73fe7d0a376daa573d
@@ -184,8 +195,8 @@
       <file leaf-file-name="Stream_MP.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Machine_Learning/OOP/Stream_MP.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3686">
-              <caret line="254" column="95" selection-start-line="254" selection-start-column="95" selection-end-line="254" selection-end-column="95" />
+            <state relative-caret-position="1491">
+              <caret line="255" column="95" selection-start-line="255" selection-start-column="95" selection-end-line="255" selection-end-column="95" />
               <folding>
                 <element signature="e#0#35#0" expanded="true" />
               </folding>
@@ -193,15 +204,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Filter.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Filter.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Django_channels/Filter.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+            <state relative-caret-position="1045">
+              <caret line="55" column="38" lean-forward="true" selection-start-line="55" selection-start-column="38" selection-end-line="55" selection-end-column="38" />
+              <folding>
+                <element signature="e#1#15#0" expanded="true" />
+                <marker date="1543444736341" expanded="true" signature="775:781" ph="..." />
+=======
             <state relative-caret-position="926">
               <caret line="51" column="29" lean-forward="true" selection-start-line="51" selection-start-column="29" selection-end-line="51" selection-end-column="29" />
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
 >>>>>>> bc70084ee18dee1a27d8db73fe7d0a376daa573d
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
               </folding>
             </state>
           </provider>
@@ -211,6 +230,10 @@
         <entry file="file://$PROJECT_DIR$/Django_channels/manage_frames_test.py">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
+            <state relative-caret-position="218">
+              <caret line="13" column="41" selection-start-line="13" selection-start-column="41" selection-end-line="13" selection-end-column="41" />
+=======
+<<<<<<< HEAD
             <state relative-caret-position="95">
 =======
             <state relative-caret-position="114">
@@ -219,6 +242,7 @@
 =======
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
               <caret line="6" column="42" selection-start-line="6" selection-start-column="42" selection-end-line="6" selection-end-column="42" />
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -231,12 +255,17 @@
         <entry file="file://$PROJECT_DIR$/Django_channels/frame_recv_test.py">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
+            <state relative-caret-position="194">
+              <caret line="41" column="24" selection-start-line="41" selection-start-column="24" selection-end-line="41" selection-end-column="24" />
+=======
+<<<<<<< HEAD
             <state relative-caret-position="528">
               <caret line="71" column="20" selection-start-line="71" selection-start-column="20" selection-end-line="71" selection-end-column="20" />
 =======
             <state relative-caret-position="299">
               <caret line="66" column="34" selection-start-line="66" selection-start-column="34" selection-end-line="66" selection-end-column="34" />
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
               <folding>
                 <element signature="e#1#14#0" expanded="true" />
               </folding>
@@ -244,6 +273,9 @@
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
+      <file leaf-file-name="frame_recv.py" pinned="false" current-in-tab="false">
+=======
 <<<<<<< HEAD
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Machine_Learning/frame_recv.py">
@@ -260,15 +292,21 @@
                 <element signature="e#14906#14960#0" />
 =======
       <file leaf-file-name="frame_recv.py" pinned="false" current-in-tab="true">
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
         <entry file="file://$PROJECT_DIR$/Machine_Learning/frame_recv.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-566">
-              <caret line="147" column="35" lean-forward="true" selection-start-line="147" selection-start-column="35" selection-end-line="147" selection-end-column="35" />
+            <state relative-caret-position="186">
+              <caret line="56" column="28" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="28" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
+<<<<<<< HEAD
+                <element signature="e#2118#14877#0" />
+                <element signature="e#14906#14960#0" />
+=======
                 <element signature="e#329#2740#0" />
                 <element signature="e#2773#3001#0" />
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
               </folding>
 >>>>>>> bc70084ee18dee1a27d8db73fe7d0a376daa573d
             </state>
@@ -321,8 +359,12 @@
       <find>listen</find>
       <find>send_info</find>
       <find>time.time</find>
+<<<<<<< HEAD
+      <find>instr</find>
+=======
       <find>category</find>
       <find>category_index</find>
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -361,15 +403,18 @@
 =======
         <option value="$PROJECT_DIR$/Django_channels/mysite/notifier/templates/home/home.html" />
         <option value="$PROJECT_DIR$/Machine_Learning/OOP/Stream_MP.py" />
-        <option value="$PROJECT_DIR$/Django_channels/manage_frames_test.py" />
         <option value="$PROJECT_DIR$/Django_channels/mysite/Cam_filter.py" />
         <option value="$PROJECT_DIR$/Django_channels/frame_recv_test.py" />
         <option value="$PROJECT_DIR$/Machine_Learning/frame_recv.py" />
-        <option value="$PROJECT_DIR$/Django_channels/Filter.py" />
         <option value="$PROJECT_DIR$/Django_channels/multi_cam_test.py" />
+<<<<<<< HEAD
+        <option value="$PROJECT_DIR$/Django_channels/manage_frames_test.py" />
+        <option value="$PROJECT_DIR$/Django_channels/Filter.py" />
+=======
         <option value="$PROJECT_DIR$/Machine_Learning/frame_recv.py" />
         <option value="$PROJECT_DIR$/Machine_Learning/utils/visualization_utilsM.py" />
 >>>>>>> bc70084ee18dee1a27d8db73fe7d0a376daa573d
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
       </list>
     </option>
   </component>
@@ -420,10 +465,14 @@
     </option>
   </component>
 <<<<<<< HEAD
+  <component name="RunManager" selected="Python.Filter">
+=======
+<<<<<<< HEAD
   <component name="RunManager" selected="Python.frame_recv">
     <configuration name="Stream_MP" type="PythonConfigurationType" factoryName="Python" temporary="true">
 =======
   <component name="RunManager" selected="Python.multi_cam_test">
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
     <configuration name="Filter" type="PythonConfigurationType" factoryName="Python" temporary="true">
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
       <module name="ICE_CAP" />
@@ -590,8 +639,17 @@
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
+<<<<<<< HEAD
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18125" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.5005208" side_tool="true" weight="0.3287234" />
+      <window_info anchor="bottom" id="Version Control" order="9" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.3287234" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49947917" visible="true" weight="0.32021275" />
+=======
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18124342" />
 >>>>>>> bc70084ee18dee1a27d8db73fe7d0a376daa573d
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -901,20 +959,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Django_channels/manage_frames_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="6" column="42" selection-start-line="6" selection-start-column="42" selection-end-line="6" selection-end-column="42" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Machine_Learning/OOP/Stream_MP.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3686">
-          <caret line="254" column="95" selection-start-line="254" selection-start-column="95" selection-end-line="254" selection-end-column="95" />
+        <state relative-caret-position="1491">
+          <caret line="255" column="95" selection-start-line="255" selection-start-column="95" selection-end-line="255" selection-end-column="95" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
           </folding>
@@ -923,15 +971,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Django_channels/multi_cam_test.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="699">
+          <caret line="66" column="13" selection-start-line="66" selection-start-column="13" selection-end-line="66" selection-end-column="13" />
+=======
         <state relative-caret-position="570">
           <caret line="39" column="21" lean-forward="true" selection-start-line="39" selection-start-column="21" selection-end-line="39" selection-end-column="21" />
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
+    <entry file="file://$PROJECT_DIR$/Django_channels/manage_frames_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="218">
+          <caret line="13" column="41" selection-start-line="13" selection-start-column="41" selection-end-line="13" selection-end-column="41" />
+=======
 <<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/Machine_Learning/frame_recv.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -943,6 +1002,7 @@
         <state relative-caret-position="926">
           <caret line="51" column="29" lean-forward="true" selection-start-line="51" selection-start-column="29" selection-end-line="51" selection-end-column="29" />
 >>>>>>> 96181a693916e246907b9c1e5bb214edba418c80
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
           <folding>
             <element signature="e#0#21#0" expanded="true" />
             <element signature="e#2118#14877#0" />
@@ -953,8 +1013,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Django_channels/frame_recv_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="66" column="34" selection-start-line="66" selection-start-column="34" selection-end-line="66" selection-end-column="34" />
+        <state relative-caret-position="194">
+          <caret line="41" column="24" selection-start-line="41" selection-start-column="24" selection-end-line="41" selection-end-column="24" />
           <folding>
             <element signature="e#1#14#0" expanded="true" />
 >>>>>>> bc70084ee18dee1a27d8db73fe7d0a376daa573d
@@ -964,6 +1024,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Machine_Learning/frame_recv.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="186">
+          <caret line="56" column="28" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+            <element signature="e#2118#14877#0" />
+            <element signature="e#14906#14960#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Django_channels/Filter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1045">
+          <caret line="55" column="38" lean-forward="true" selection-start-line="55" selection-start-column="38" selection-end-line="55" selection-end-column="38" />
+          <folding>
+            <element signature="e#1#15#0" expanded="true" />
+            <marker date="1543444736341" expanded="true" signature="775:781" ph="..." />
+=======
 <<<<<<< HEAD
         <state relative-caret-position="278">
           <caret line="128" column="26" lean-forward="true" selection-start-line="128" selection-start-column="26" selection-end-line="128" selection-end-column="26" />
@@ -977,6 +1056,7 @@
             <element signature="e#329#2740#0" />
             <element signature="e#2773#3001#0" />
 >>>>>>> bc70084ee18dee1a27d8db73fe7d0a376daa573d
+>>>>>>> 8cb63234aebd3c86aedf905d93586920036c9f19
           </folding>
         </state>
       </provider>
