@@ -19,14 +19,18 @@ class VideoCamera(object):
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
-        self.out = cv2.VideoWriter('output'+self.now+'.avi', fourcc, 30.0, (640, 480))
+        self.out = cv2.VideoWriter('output'+self.now+'.avi', fourcc, 15, (640, 480))
+
 
     def getframe(self):
         self.time += 1
         (self.grabbed, self.frame) = self.video.read()
+        # self.ret, self.frame_encode = cv2.imencode('.png', self.frame, [(cv2.IMWRITE_PNG_COMPRESSION), 0])
+        # self.frame = cv2.imdecode(self.frame_encode, 1)
+
 
     def storeframe(self):
-        self.out.write(store.frame)
+        self.out.write(self.frame)
 
 store = VideoCamera() # 영상 저장을 위한 객체 생성
 store.write() # 영상저장함수실행
@@ -40,7 +44,8 @@ while True:
         break;
 
     # 이미지를 파일에 저장, VideoWriter 객체에 연속적으로 저장하면 동영상이 됨.
-    store.storeframe()
+    if store.time % 4 == 0:
+        store.storeframe()
 
     print(store.time) # 저장시간
 
