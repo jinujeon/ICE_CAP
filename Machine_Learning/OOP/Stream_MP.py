@@ -129,7 +129,8 @@ def cam_stream1(location,id,virtual, client_socket,encode_param):
             break;
 
         # 이미지를 파일에 저장, VideoWriter 객체에 연속적으로 저장하면 동영상이 됨.
-        store.storeframe()
+        if store.time % 4 == 0:
+            store.storeframe()
 
         if store.time == 8000:
             store.__del__()  # 현재까지 영상 저장
