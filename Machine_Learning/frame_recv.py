@@ -64,10 +64,10 @@ class Cam(threading.Thread):
         :return: print id, instrusion info
         """
         print("Parsing the CAM INFO...")
-        self.id = int(data[data.find('cam_id') + 7:data.find('virtual') - 2])
+        self.id = int(data[data.find('cam_id') + 7:data.find('instrusion') - 2])
         self.data['cam_id'] = self.id
         print("Cam_id: {}".format(self.id))
-        if (data[data.find('virtual:') + 8:]) == 'True':
+        if (data[data.find('instrusion:') + 11:]) == 'True':
             self.data['instrusion'] = True
         else:
             self.data['instrusion'] = False
@@ -112,6 +112,7 @@ print('Socket now listening')
 conn,addr=sock.accept()
 # Receive camera information
 cam_list = ['cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
+x = 1
 while True:
     data = conn.recv(1024)
     decoded = data.decode('utf-8')
@@ -129,12 +130,10 @@ while True:
     else:
         for num in range(cam_num):
             exec('{} =  Cam()'.format(cam_list[num]))
-            # data = conn.recv(1024)
-            # decoded = data.decode('utf-8')
+            data = conn.recv(1024)
+            decoded = data.decode('utf-8')
             exec("{}.parse_data(decoded)".format(cam_list[num]))
         continue
-
-cam.parse_data(cam_info)
 
 data = b""
 payload_size = struct.calcsize(">L")
