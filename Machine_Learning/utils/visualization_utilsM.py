@@ -7,12 +7,8 @@ import PIL.ImageColor as ImageColor
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
 import six
-import time
 import tensorflow as tf
-import json
-import urllib.request
 from object_detection.core import standard_fields as fields
-import urllib.request
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
@@ -567,14 +563,14 @@ def visualize_boxes_and_labels_on_image_array(
             if classes[i] in category_index.keys():
               class_name = category_index[classes[i]]['name']
               if class_name == 'person':
-                  x, y = boxes[0][i][1], boxes[0][i][0]
-                  w, h = boxes[0][i][3] - boxes[0][i][1], boxes[0][i][2] - boxes[0][i][0]
+                  x, y = boxes[i][1], boxes[i][0]
+                  w, h = boxes[i][3] - boxes[i][1], boxes[i][2] - boxes[i][0]
                   coord = (x, y, w, h)
                   cam.fxy_list.append(coord)
               cam.e_list.append(class_name) # 해당 화면에서 인식된 개체의 이름을 리스트에 저장합니다
               if ((class_name == 'trash') or (class_name == 'metal') or (class_name =='bottle')):
-                  x, y = boxes[0][i][1], boxes[0][i][0]
-                  w, h = boxes[0][i][3] - boxes[0][i][1], boxes[0][i][2] - boxes[0][i][0]
+                  x, y = boxes[i][1], boxes[i][0]
+                  w, h = boxes[i][3] - boxes[i][1], boxes[i][2] - boxes[i][0]
                   coord = (x, y, w, h)
                   cam.txy_list.append(coord)
             else:
