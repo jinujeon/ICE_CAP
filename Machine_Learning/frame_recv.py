@@ -112,7 +112,7 @@ print('Socket now listening')
 conn,addr=sock.accept()
 # Receive camera information
 cam_list = ['cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
-x=0
+x=1
 while True:
     data = conn.recv(1024)
     decoded = data.decode('utf-8')
