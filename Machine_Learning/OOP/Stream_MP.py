@@ -11,6 +11,36 @@ import pickle
 import zlib
 import time
 
+
+class VideoCamera(object):
+    def __init__(self):
+        self.time = 0
+        self.clock = time.gmtime(time.time()) #동영상 이름 -> 현재시간
+        self.now = str(self.clock.tm_year) +'.'+ str(self.clock.tm_mon) +'.'+ str(self.clock.tm_mday) +'.'+ str(self.clock.tm_hour + 9) +'.'+ str(self.clock.tm_min) +'.'+ str(self.clock.tm_sec)
+        # 카메라에 접근하기 위해 VideoCapture 객체를 생성
+        self.video = cv2.VideoCapture(0)
+        (self.grabbed, self.frame) = self.video.read()
+        self.out = 0
+
+    def __del__(self):
+        self.video.release()
+        self.out.release()
+        cv2.destroyAllWindows()
+
+    def write(self):
+        # 코덱 설정
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        # 파일에 저장하기 위해 VideoWriter 객체를 생성
+        self.out = cv2.VideoWriter('output'+self.now+'.avi', fourcc, 30.0, (640, 480))
+
+    def getframe(self):
+        self.time += 1
+        (self.grabbed, self.frame) = self.video.read()
+
+    def storeframe(self):
+        self.out.write(self.frame)
+
+
 # a = 1
 
 # def capture(frame,index):
@@ -87,23 +117,27 @@ import time
 
 def cam_stream1(location,id,virtual, client_socket,encode_param):
     send_info(location, id, virtual, client_socket)
-    video = cv2.VideoCapture(id)
 
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    # 파일에 저장하기 위해 VideoWriter 객체를 생성
-    out = cv2.VideoWriter('C:/Users/ice/Documents/GitHub/ICE_CAP/Django_channels/mysite/notifier/statics/output.avi', fourcc, 30.0, (640, 480))
+    store = VideoCamera()  # 영상 저장을 위한 객체 생성
+    store.write()  # 영상저장함수실행
 
-    ret = video.set(3, 640)
-    ret = video.set(4, 480)
-    index = 0
     while True:
-        ret, frame = video.read()
-        out.write(frame)
+        store.getframe()
+
+        # 캡쳐하는데 문제가 있으면 루프 중단
+        if store.grabbed == False:
+            break;
+
+        # 이미지를 파일에 저장, VideoWriter 객체에 연속적으로 저장하면 동영상이 됨.
+        store.storeframe()
+
+        if store.time == 8000:
+            store.__del__()  # 현재까지 영상 저장
+            store = VideoCamera()  # 영상 저장을 위한 객체 재생성
+            store.write()  # 영상저장함수실행
+
         #capture(frame, index)
-        index += 1
-        if index == 5:
-            index = 0
-        ret, frame_encode = cv2.imencode('.jpg', frame, encode_param)
+        ret, frame_encode = cv2.imencode('.jpg', store.frame, encode_param)
         data = pickle.dumps(frame_encode, 0)
         size = len(data)
 
@@ -115,7 +149,7 @@ def cam_stream1(location,id,virtual, client_socket,encode_param):
         except ConnectionAbortedError:
             logging.error('ConnectionAbortedError')
             break
-        cv2.imshow('Object detector(cam_{})'.format(id), frame)
+        cv2.imshow('Object detector(cam_{})'.format(id), store.frame)
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
             print("Process[{}]: Socket closed".format(os.getpid()))
@@ -193,7 +227,7 @@ def main():
     cam_info = (['1st_Floor', 0], ['2nd_Floor', 1], ['3rd_Floor', 2])
     id_list = [0,1]
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
-    ADDRESS = 'localhost'
+    ADDRESS = '192.168.0.25'
     PORT = 8485
     client_socket = connect_server(ADDRESS,PORT)
 
