@@ -38,10 +38,8 @@ class VideoCamera(object):
         (self.grabbed, self.frame) = self.video.read()
 
     def storeframe(self):
-        self.out.write(store.frame)
+        self.out.write(self.frame)
 
-store = VideoCamera() # 영상 저장을 위한 객체 생성
-store.write() # 영상저장함수실행
 
 # a = 1
 
@@ -120,7 +118,9 @@ store.write() # 영상저장함수실행
 def cam_stream1(location,id,virtual, client_socket,encode_param):
     send_info(location, id, virtual, client_socket)
 
-    index = 0
+    store = VideoCamera()  # 영상 저장을 위한 객체 생성
+    store.write()  # 영상저장함수실행
+
     while True:
         store.getframe()
 
@@ -227,7 +227,7 @@ def main():
     cam_info = (['1st_Floor', 0], ['2nd_Floor', 1], ['3rd_Floor', 2])
     id_list = [0,1]
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
-    ADDRESS = 'localhost'
+    ADDRESS = '192.168.0.25'
     PORT = 8485
     client_socket = connect_server(ADDRESS,PORT)
 
