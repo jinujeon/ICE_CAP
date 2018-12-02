@@ -12,15 +12,15 @@ import zlib
 import time
 
 
-class VideoCamera(object):
+class StoreVideo(object):
     def __init__(self):
         self.time = 0
         self.clock = time.gmtime(time.time()) #동영상 이름 -> 현재시간
-        self.now = str(self.clock.tm_year) +'.'+ str(self.clock.tm_mon) +'.'+ str(self.clock.tm_mday) +'.'+ str(self.clock.tm_hour + 9) +'.'+ str(self.clock.tm_min) +'.'+ str(self.clock.tm_sec)
+        self.name = str(self.clock.tm_year) +'.'+ str(self.clock.tm_mon) +'.'+ str(self.clock.tm_mday) +'.'+ str(self.clock.tm_hour + 9) +'.'+ str(self.clock.tm_min) +'.'+ str(self.clock.tm_sec)
         # 카메라에 접근하기 위해 VideoCapture 객체를 생성
         self.video = cv2.VideoCapture(0)
         (self.grabbed, self.frame) = self.video.read()
-        self.out = 0
+        self.videooutput = 0
 
     def __del__(self):
         self.video.release()
@@ -31,14 +31,14 @@ class VideoCamera(object):
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
-        self.out = cv2.VideoWriter('output'+self.now+'.avi', fourcc, 30.0, (640, 480))
+        self.videooutput = cv2.VideoWriter('output'+self.name+'.avi', fourcc, 30.0, (640, 480))
 
     def getframe(self):
         self.time += 1
         (self.grabbed, self.frame) = self.video.read()
 
     def storeframe(self):
-        self.out.write(self.frame)
+        self.videooutput.write(self.frame)
 
 
 # a = 1
@@ -118,7 +118,7 @@ class VideoCamera(object):
 def cam_stream1(location,id,virtual, client_socket,encode_param):
     send_info(location, id, virtual, client_socket)
 
-    store = VideoCamera()  # 영상 저장을 위한 객체 생성
+    store = StoreVideo()  # 영상 저장을 위한 객체 생성
     store.write()  # 영상저장함수실행
 
     while True:
@@ -134,7 +134,7 @@ def cam_stream1(location,id,virtual, client_socket,encode_param):
 
         if store.time == 8000:
             store.__del__()  # 현재까지 영상 저장
-            store = VideoCamera()  # 영상 저장을 위한 객체 재생성
+            store = StoreVideo()  # 영상 저장을 위한 객체 재생성
             store.write()  # 영상저장함수실행
 
         #capture(frame, index)

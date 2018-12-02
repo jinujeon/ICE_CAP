@@ -66,7 +66,7 @@ def change_stat(request):
 
     return HttpResponse("OK")
 
-class VideoCamera(object):
+class StreamingVideo(object):
     def __init__(self):
         self.k = True
         self.index = 0
@@ -102,10 +102,10 @@ class VideoCamera(object):
     #     while True:
     #         (self.grabbed, self.frame) = self.video.read()
 
-cam = VideoCamera() #서버 실행시 최초 1회만 실행
+cam = StreamingVideo() #서버 실행시 최초 1회만 실행
 
 def gen(camera):
-    # cam = VideoCamera()
+    # cam = StreamingVideo()
     if cam.k == False:
         cam.__init__()
     while True:
