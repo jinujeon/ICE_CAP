@@ -6,10 +6,10 @@ import struct
 import pickle
 
 class Frame_scheduler:
-    def __init__(self,detection_result,id_list):
+    def __init__(self,detection_result,cam_count):
         self.detection_result = detection_result
-        self.cam_count = len(id_list)
-        self.cam_stat_dict = dict([(id, None) for id in range(self.cam_count)])
+        self.cam_stat_dict = dict([(id, None) for id in range(cam_count)])
+        self.cam_count = cam_count
 
     def __setitem__(self, index, item):
         self._check_key(index)
@@ -25,19 +25,11 @@ class Frame_scheduler:
         if index not in range(self.cam_count):
             raise IndexError('index out of range')
 
-    def get_priority(self,id):
-        priority = None
-        if self.cam_stat_dict[id] == 'fallen':
-            priority = 2
-        if self.cam_stat_dict[id] == 'trash':
-            priority = 1
-        if self.cam_stat_dict[id] == 'intrusion':
-            priority = 3
-        return priority
+    def get_priority(self):
+        pass
 
-    def set_cam_frame_order(self):
-        for id in range(self.cam_count):
-            self.get_priority(id)
+    def set_cam_frame_order(self,cam_id):
+        self.get_priority()
 
 
 class Frame_sender:
