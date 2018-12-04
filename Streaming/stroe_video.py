@@ -44,8 +44,8 @@ while True:
     # 카메라로부터 이미지를 가져옴
     store.sizecon()
     # 캡쳐하는데 문제가 있으면 루프 중단
-    if store.grabbed == False:
-        break;
+    # if store.grabbed == False:
+    #     break;
 
     # 이미지를 파일에 저장, VideoWriter 객체에 연속적으로 저장하면 동영상이 됨.
     if store.sizecontrol % 4 == 0:

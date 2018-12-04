@@ -111,6 +111,9 @@ class Frame_sender:
         return print("Send Complete")
 
     def send_frame(self,idx):
+        exec('store{}.sizecon()'.format(idx))
+        exec('if store{}.sizecontrol % 4 == 0: store{}.storeframe(store{}.frame)'.format(idx, idx, idx))
+        
         if self.ret_list[idx]:
             ret0, frame_encode0 = cv2.imencode('.jpg', self.frame_list[idx], self.encode_param)
             data0 = pickle.dumps(frame_encode0, 0)
