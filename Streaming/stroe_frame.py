@@ -3,7 +3,7 @@ import cv2
 
 CAM_ID = 0
 
-def capture(camid=CAM_ID):
+def capture(camid):
     cam = cv2.VideoCapture(camid)
     if cam.isOpened() == False:
         print('cant open the cam (%d)' % camid)
@@ -25,4 +25,4 @@ def capture(camid=CAM_ID):
             index = 0
 
 if __name__ == '__main__':
-    capture()
+    capture(CAM_ID)
