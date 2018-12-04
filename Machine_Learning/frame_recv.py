@@ -104,7 +104,7 @@ class Cam(threading.Thread):
         self.id = None
         self.frame = None
         self.data = {'cam_id': self.id, 'trash': False, 'intrusion': False, 'fallen': False,'restricted':False,'fence':False}
-        self.url = "http://127.0.0.1:8000/home/change_stat"
+        self.url = "http://220.67.124.197:8000/home/change_stat"
         self.actrec = actRecognition()
         self.e_list = []
         self.fxy_list = []
@@ -337,10 +337,12 @@ class actRecognition():
             print("쓰레기 무단 투기가 감지 되었습니다.")
             if cam.data['trash'] == False:
                 cam.data['trash'] = True
+                cam.actrec.send_post(cam)
             self.trash_warning = False
         else:
             if cam.data['trash'] == True:
                 cam.data['trash'] = False
+                cam.actrec.send_post(cam)
 
     def intr_check(self, cam):
         '''
@@ -362,14 +364,15 @@ class actRecognition():
         if self.intr_warning:
             print("접근 제한 구역 침입이 감지되었습니다")
             if cam.data['intrusion'] == False:
-                cam.data['cam_status'] = 'warning'
                 cam.data['intrusion'] = True
+                cam.actrec.send_post(cam)
 
             self.intr_warning = False
         else:
             if cam.data['intrusion'] == True:
                 print("해당 구역은 안전합니다(가상 펜스)")
                 cam.data['intrusion'] = False
+                cam.actrec.send_post(cam)
 
     def fallen_check(self,cam):
         '''
@@ -382,11 +385,13 @@ class actRecognition():
             if time.time() - self.fallen_time >= 10:
                 if cam.data['fallen'] == False:
                     cam.data['fallen'] = True
+                    cam.actrec.send_post(cam)
                     print("쓰러진 사람 발견")
         else:
             self.fallen_time = 0
             if cam.data['fallen'] == True:
                 cam.data['fallen'] = False
+                cam.actrec.send_post(cam)
                 print("쓰러진 사람 없음")
 
     def fence_detect(self, cam):
@@ -407,18 +412,20 @@ class actRecognition():
             if cam.data['fence'] == False:
                 print("월담을 감지했습니다")
                 cam.data['fence'] = True
+                cam.actrec.send_post(cam)
             self.fence_warning = False
         else:
             if cam.data['fence'] == True:
                 print("해당 구역은 안전합니다(월담)")
                 cam.data['fence'] = False
+                cam.actrec.send_post(cam)
 
     def send_post(self,cam):
         params = json.dumps(cam.data).encode("utf-8")
         req = urllib.request.Request(cam.url, data=params,
                                      headers={'content-type': 'application/json'})
         response = urllib.request.urlopen(req)
-        print(response.read().decode('utf8'))
+        print(cam.id)
 
     def draw_line(self,cam):
         if cam.data['restricted']:
@@ -430,8 +437,7 @@ class actRecognition():
             cam.actrec.intr_check(cam)
         cam.actrec.fence_detect(cam)
         cam.actrec.fallen_check(cam)
-        cam.actrec.Trash_detect(cam)
-        # cam.actrec.send_post(cam)
+        # cam.actrec.Trash_detect(cam)
 
 class Obj_detection():
     def __init__(self,sess,detection_boxes, detection_scores, detection_classes, num_detections,image_tensor,frame_expanded,cam):
@@ -459,7 +465,6 @@ class Obj_detection():
             min_score_thresh=0.60)
 
 if __name__ == '__main__':
-
     # 1.Start Initialize
     HOST = '192.168.0.66'
     # # HOST= 'localhost'
@@ -495,9 +500,7 @@ if __name__ == '__main__':
     frecv.conn_init()
     # Connection complete
     # Until connection is closed
-
     while frecv.is_conn:
-
         # 2. Start receiving frame
         frecv.run()
         # Frame receive complete
@@ -517,11 +520,11 @@ if __name__ == '__main__':
         #         index = frecv.cam_list[i]
         # End Act detection
 
-
         # Show for debugging
         # If restricted area, draw alert line
         frecv.cam_list[frecv.index].actrec.draw_line(frecv.cam_list[frecv.index])
         cv2.imshow('Object detector', frecv.cam_list[frecv.index].frame)
+        print("CAM_ID: {}".format(frecv.cam_list[frecv.index].id))
 
             # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
