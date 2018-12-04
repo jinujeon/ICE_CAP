@@ -4,7 +4,7 @@ import socket
 import time, cv2
 import struct
 import pickle
-
+# from . import Scheduler
 class VideoCamera(object):
     def __init__(self, idx):
         self.time = time.time()     #동영상 촬영시간 측정
@@ -47,41 +47,6 @@ class VideoCamera(object):
         # 동영상 프레임 실제 저장
         self.videooutput.write(frame)
 
-class Frame_scheduler:
-    def __init__(self,detection_result,id_list):
-        self.detection_result = detection_result
-        self.cam_count = len(id_list)
-        self.cam_stat_dict = dict([(id, None) for id in range(self.cam_count)])
-
-    def __setitem__(self, index, item):
-        self._check_key(index)
-        self.cam_stat_dict[index] = item
-
-    def __getitem__(self, index):
-        self._check_key(index)
-        return self.cam_stat_dict[index]
-
-    def _check_key(self,index):
-        if not isinstance(index, int):
-            raise TypeError('not Integer type')
-        if index not in range(self.cam_count):
-            raise IndexError('index out of range')
-
-    def get_priority(self,id):
-        priority = None
-        if self.cam_stat_dict[id] == 'fallen':
-            priority = 2
-        if self.cam_stat_dict[id] == 'trash':
-            priority = 1
-        if self.cam_stat_dict[id] == 'intrusion':
-            priority = 3
-        return priority
-
-    def set_cam_frame_order(self):
-        for id in range(self.cam_count):
-            self.get_priority(id)
-
-
 class Frame_sender:
     def __init__(self,id_list,virtual,address,port,encode_param):
         self.id_list = id_list
@@ -116,11 +81,11 @@ class Frame_sender:
                 logging.error('TimeoutError')
 
     def send_info(self,id, virtual, sock):
-        req = "cam_id:" + str(id) + "\r\nintrusion:" + str(virtual)
+        req = "cam_id:" + str(id) + "\r\nrestricted:" + str(virtual)
         sock.send(req.encode('UTF-8'))  # send message to server
         return print("Send Complete")
 
-    def send_frame(self,cam_id,idx):
+    def send_frame(self,cam_id,idx,schedule):
         self.video_list[cam_id].sizecon()
         if self.video_list[cam_id].sizecontrol % 4 == 0:
             self.video_list[cam_id].storeframe(self.video_list[cam_id].frame)
@@ -131,7 +96,6 @@ class Frame_sender:
             ret0, frame_encode0 = cv2.imencode('.jpg', self.frame_list[cam_id], self.encode_param)
             data0 = pickle.dumps(frame_encode0, 0)
             size = len(data0)
-            schedule = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1]  # should be replaced by frame_scheduler instance
             print("##SIZE{}##: ".format(cam_id), size)
             try:
                 if schedule[idx] == cam_id:
@@ -150,6 +114,7 @@ class Frame_sender:
     def run(self):
         self.initialize_server()
         idx = 0
+        schedule = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1]  # should be replaced by frame_scheduler instance
         while True:
             # Capture frame-by-frame
             id = 0
@@ -162,7 +127,7 @@ class Frame_sender:
                 id += 1
             cv2.waitKey(1000 // self.max_fps)
             for cam_id in range(len(self.ret_list)):
-                self.send_frame(cam_id, idx)
+                self.send_frame(cam_id, idx,schedule)
             self.frame_list = []
             self.ret_list = []
             idx += 1
@@ -177,7 +142,7 @@ class Frame_sender:
 def main():
     id_list = [0,1] #설치되어 있는 카메라 id
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
-    ADDRESS = 'localhost'
+    ADDRESS = '220.67.124.193'
     PORT = 8485
     # client_socket = initialize_server(ADDRESS,PORT,id_list)
     fs1 = Frame_sender(id_list, False,ADDRESS,PORT, encode_param)
