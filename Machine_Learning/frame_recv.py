@@ -389,7 +389,7 @@ PORT=8485
 # cam = Cam()
 # Load to memory
 MODEL_NAME = 'inference_graph'
-CWD_PATH = "C:/models/research/object_detection"
+CWD_PATH = "C:/tensorflow1/models/research/object_detection"
 # CWD_PATH = 'C:/tensorflow1/models/research/object_detection'
 PATH_TO_CKPT = os.path.join(CWD_PATH, MODEL_NAME, 'frozen_inference_graph.pb')
 PATH_TO_LABELS = os.path.join(CWD_PATH, 'training', 'labelmap.pbtxt')
