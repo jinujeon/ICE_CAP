@@ -18,11 +18,11 @@ class VideoCamera(object):
         self.videooutput.release()
         cv2.destroyAllWindows()
 
-    def write(self):
+    def write(self, idx):
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
-        self.videooutput = cv2.VideoWriter('output'+self.name+'.avi', fourcc, 10, (640, 480))
+        self.videooutput = cv2.VideoWriter('output'+str(idx)+self.name+'.avi', fourcc, 10, (640, 480))
 
     def sizecon(self):
         # 동영상 용량 조정
@@ -35,7 +35,7 @@ class VideoCamera(object):
         self.videooutput.write(frame)
 
 store = VideoCamera(0) # 영상 저장을 위한 객체 생성
-store.write() # 영상저장함수실행
+store.write(0) # 영상저장함수실행
 
 while True:
 
@@ -55,8 +55,8 @@ while True:
 
     if (time.time() - store.time) > 10:
         store.__del__() # 현재까지 영상 저장
-        store = VideoCamera(0)  # 영상 저장을 위한 객체 재생성
-        store.write() # 영상저장함수실행
+        store = VideoCamera([])  # 영상 저장을 위한 객체 재생성
+        store.write(0) # 영상저장함수실행
 
     # 화면에 이미지를 출력, 연속적으로 화면에 출력하면 동영상이 됨.
     cv2.imshow('frame', store.frame)

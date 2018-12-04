@@ -24,8 +24,8 @@ class VideoCamera(object):
 
     def __del__(self):
         # 현재까지의 녹화를 멈춘다.
-        #self.video.release()
-        #self.videooutput.release()
+        self.video.release()
+        self.videooutput.release()
         cv2.destroyAllWindows()
 
     def write(self, idx):
@@ -121,7 +121,10 @@ class Frame_sender:
         self.video_list[cam_id].sizecon()
         if self.video_list[cam_id].sizecontrol % 4 == 0:
             self.video_list[cam_id].storeframe(self.video_list[cam_id].frame)
-
+        if (time.time() - self.video_list[cam_id].time) > 10:
+            self.video_list[cam_id].__del__()  # 현재까지 영상 저장
+            self.video_list[cam_id] = VideoCamera(cam_id)  # 영상 저장을 위한 객체 재생성
+            self.video_list[cam_id].write(cam_id)  # 영상저장함수실행
         if self.ret_list[cam_id]:
             ret0, frame_encode0 = cv2.imencode('.jpg', self.frame_list[cam_id], self.encode_param)
             data0 = pickle.dumps(frame_encode0, 0)
