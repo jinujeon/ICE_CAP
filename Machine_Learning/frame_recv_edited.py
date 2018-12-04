@@ -16,94 +16,12 @@ import time, threading
 from utils import label_map_util
 from utils import visualization_utilsM as vis_util
 
-class Frame_recv():
-    def __init__(self,HOST,PORT):
-        self.host = HOST
-        self.port = PORT
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.conn = None
-        self.addr = None
-        self.is_cam = False
-        self.is_conn = True
-        self.cam_no = None
-        self.data = b""
-        self.frame = None
-        self.index = 0
-        self.payload_size = struct.calcsize(">L")
-        self.cam_list = ['cam0','cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
-
-    def __repr__(self):
-        return 'Frame_recv'
-
-    def conn_init(self):
-        print('Socket bind complete')
-        self.sock.bind((self.host,self.port))
-        self.sock.listen(10)
-        print('Socket now listening')
-        self.conn, self.addr = self.sock.accept()
-        self.is_cam = False
-
-    def decode_data(self):
-        data = self.conn.recv(1024)
-        decoded = data.decode('utf-8')
-        return decoded
-
-    def make_cam(self): # 무한 루프문에서 돌게 하기
-        decoded = self.decode_data()
-        try:
-            cam_num = int(decoded)  # Number of cameras
-        except:
-            self.is_cam = False
-        else:  # Create objects for each camera
-            self.conn.send("OK".encode("UTF-8"))
-            print("Number of CCTV: {}".format(cam_num))
-            for num in range(cam_num):
-                decoded = self.decode_data()
-                exec('{} =  Cam()'.format(self.cam_list[num]))
-                exec("{}.parse_data(decoded)".format(self.cam_list[num]))
-                exec("self.cam_list[num] = {}".format(self.cam_list[num]))
-            self.cam_list = self.cam_list[:cam_num]
-            self.is_cam = True
-
-    def recv_frame(self):
-        try:
-            decoded = self.decode_data()
-            self.conn.send(decoded.encode('utf-8'))
-            self.index = int(decoded)
-            # Receive Frame SIZE from CCTV using TCP
-            while len(self.data) < self.payload_size:
-                self.data += self.conn.recv(4096)
-        except ConnectionResetError:
-            print("ConnectionResetError")
-            self.conn.close()
-            self.is_conn = False
-        else:
-            packed_msg_size = self.data[:self.payload_size]
-            self.data = self.data[self.payload_size:]
-            msg_size = struct.unpack(">L", packed_msg_size)[0]
-            # print("msg_size: {}".format(msg_size))
-            while len(self.data) < msg_size:
-                self.data += self.conn.recv(4096)
-            frame_data = self.data[:msg_size]
-            self.data = self.data[msg_size:]
-            # Decode encoded Frame
-            frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
-            frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-            self.frame = frame
-
-    def run(self):
-        if not frecv.is_cam:
-            frecv.make_cam()
-        frecv.recv_frame()
-        frecv.cam_list[self.index].frame = frecv.frame
-        return self.index
-
 class Cam(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name='Cam({})'.format(id))
         self.id = None
         self.frame = None
-        self.data = {'cam_id': self.id, 'trash': False, 'intrusion': False, 'fallen': False,'restricted':False,'fence':False}
+        self.data = {'cam_id': self.id, 'cam_status': 'safe', 'trash': False, 'intrusion': False, 'fallen': False}
         self.url = "http://127.0.0.1:8000/home/change_stat"
         self.actrec = actRecognition()
         self.e_list = []
@@ -116,17 +34,17 @@ class Cam(threading.Thread):
     def parse_data(self,data):
         """
         :param data: Received data from streaming process, decoded.
-        :return: print id, restricted info
+        :return: print id, intrusion info
         """
         print("Parsing the CAM INFO...")
-        self.id = int(data[data.find('cam_id') + 7:data.find('restricted') - 2])
+        self.id = int(data[data.find('cam_id') + 7:data.find('intrusion') - 2])
         self.data['cam_id'] = self.id
         print("Cam_id: {}".format(self.id))
-        if (data[data.find('restricted') + 11:]) == 'True':
-            self.data['restricted'] = True
+        if (data[data.find('intrusion:') + 10:]) == 'True':
+            self.data['intrusion'] = True
         else:
-            self.data['restricted'] = False
-        print("restricted: {}".format(self.data['restricted']))
+            self.data['intrusion'] = False
+        print("intrusion: {}".format(self.data['intrusion']))
         print(("COMPLETE"))
 
 class actRecognition():
@@ -336,11 +254,27 @@ class actRecognition():
         if self.trash_warning:
             print("쓰레기 무단 투기가 감지 되었습니다.")
             if cam.data['trash'] == False:
+                cam.data['cam_status'] = 'warning'
                 cam.data['trash'] = True
+                # params = json.dumps(cam.data).encode("utf-8")
+                # req = urllib.request.Request(cam.url, data=params,
+                #                              headers={'content-type': 'application/json'})
+                # response = urllib.request.urlopen(req)
+                # print(response.read().decode('utf8'))
+                # self.send_post(cam)
+
             self.trash_warning = False
         else:
             if cam.data['trash'] == True:
+                cam.data['cam_status'] = 'safe'
                 cam.data['trash'] = False
+                # params = json.dumps(cam.data).encode("utf-8")
+                # req = urllib.request.Request(cam.url, data=params,
+                #                              headers={'content-type': 'application/json'})
+                # response = urllib.request.urlopen(req)
+                # print(response.read().decode('utf8'))
+                # self.send_post(cam)
+
 
     def intr_check(self, cam):
         '''
@@ -364,30 +298,53 @@ class actRecognition():
             if cam.data['intrusion'] == False:
                 cam.data['cam_status'] = 'warning'
                 cam.data['intrusion'] = True
+                # params = json.dumps(cam.data).encode("utf-8")
+                # req = urllib.request.Request(cam.url, data=params,
+                #                              headers={'content-type': 'application/json'})
+                # response = urllib.request.urlopen(req)
+                # print(response.read().decode('utf8'))
+                # self.send_post(cam)
 
             self.intr_warning = False
         else:
+            print("해당 구역은 안전합니다(가상 펜스)")
             if cam.data['intrusion'] == True:
-                print("해당 구역은 안전합니다(가상 펜스)")
+                cam.data['cam_status'] = 'safe'
                 cam.data['intrusion'] = False
+                # params = json.dumps(cam.data).encode("utf-8")
+                # req = urllib.request.Request(cam.url, data=params,
+                #                              headers={'content-type': 'application/json'})
+                # response = urllib.request.urlopen(req)
+                # print(response.read().decode('utf8'))
+                # self.send_post(cam)
 
     def fallen_check(self,cam):
         '''
-        쓰러진 사람 인식 시 DB 업데이트
+        쓰러진 사람 인식 시 바로 DB 업데이트
         :return:
         '''
         if 'fallen' in cam.e_list:
-            if self.fallen_time == 0:
-                self.fallen_time = time.time()
-            if time.time() - self.fallen_time >= 10:
-                if cam.data['fallen'] == False:
-                    cam.data['fallen'] = True
-                    print("쓰러진 사람 발견")
+            if cam.data['fallen'] == False:
+                cam.data['cam_status'] = 'warning'
+                cam.data['fallen'] = True
+                print("쓰러진 사람 발견")
+                # params = json.dumps(cam.data).encode("utf-8")
+                # req = urllib.request.Request(cam.url, data=params,
+                #                              headers={'content-type': 'application/json'})
+                # response = urllib.request.urlopen(req)
+                # print(response.read().decode('utf8'))
+                # self.send_post(cam)
         else:
-            self.fallen_time = 0
             if cam.data['fallen'] == True:
+                cam.data['cam_status'] = 'safe'
                 cam.data['fallen'] = False
                 print("쓰러진 사람 없음")
+                # params = json.dumps(cam.data).encode("utf-8")
+                # req = urllib.request.Request(cam.url, data=params,
+                #                              headers={'content-type': 'application/json'})
+                # response = urllib.request.urlopen(req)
+                # print(response.read().decode('utf8'))
+                # self.send_post(cam)
 
     def fence_detect(self, cam):
         '''
@@ -404,14 +361,28 @@ class actRecognition():
             pass
 
         if self.fence_warning:
-            if cam.data['fence'] == False:
-                print("월담을 감지했습니다")
-                cam.data['fence'] = True
+            print("월담을 감지했습니다")
+            if cam.data['intrusion'] == False:
+                cam.data['cam_status'] = 'warning'
+                cam.data['intrusion'] = True
+                # params = json.dumps(cam.data).encode("utf-8")
+                # req = urllib.request.Request(cam.url, data=params,
+                #                              headers={'content-type': 'application/json'})
+                # response = urllib.request.urlopen(req)
+                # print(response.read().decode('utf8'))
+                # self.send_post(cam)
             self.fence_warning = False
         else:
-            if cam.data['fence'] == True:
-                print("해당 구역은 안전합니다(월담)")
-                cam.data['fence'] = False
+            print("해당 구역은 안전합니다(월담)")
+            if cam.data['intrusion'] == True:
+                cam.data['cam_status'] = 'safe'
+                cam.data['intrusion'] = False
+                # params = json.dumps(cam.data).encode("utf-8")
+                # req = urllib.request.Request(cam.url, data=params,
+                #                              headers={'content-type': 'application/json'})
+                # response = urllib.request.urlopen(req)
+                # print(response.read().decode('utf8'))
+                # self.send_post(cam)
 
     def send_post(self,cam):
         params = json.dumps(cam.data).encode("utf-8")
@@ -420,110 +391,150 @@ class actRecognition():
         response = urllib.request.urlopen(req)
         print(response.read().decode('utf8'))
 
-    def draw_line(self,cam):
-        if cam.data['restricted']:
-            cv2.line(cam.frame, (self.colist1[0], self.colist1[1]), (self.colist1[2],self.colist1[3]),(255,0,0),2)
-            cv2.line(cam.frame, (self.colist2[0], self.colist2[1]), (self.colist2[2],self.colist2[3]),(255,0,0),2)
+def decode_data(conn):
+    data = conn.recv(1024)
+    decoded = data.decode('utf-8')
+    return decoded
 
-    def run(self,cam):
-        if cam.data["restricted"]:
-            cam.actrec.intr_check(cam)
-        cam.actrec.fence_detect(cam)
-        cam.actrec.fallen_check(cam)
-        cam.actrec.Trash_detect(cam)
-        # cam.actrec.send_post(cam)
+# 1.Start Initialize
+HOST='192.168.0.66'
+PORT=8485
+# cam = Cam()
+# Load to memory
+MODEL_NAME = 'inference_graph'
+CWD_PATH = "C:/tensorflow1/models/research/object_detection"
+# CWD_PATH = 'C:/tensorflow1/models/research/object_detection'
+PATH_TO_CKPT = os.path.join(CWD_PATH, MODEL_NAME, 'frozen_inference_graph.pb')
+PATH_TO_LABELS = os.path.join(CWD_PATH, 'training', 'labelmap.pbtxt')
+NUM_CLASSES = 5
+label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
+categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES,use_display_name=True)
+category_index = label_map_util.create_category_index(categories)
+detection_graph = tf.Graph()
+with detection_graph.as_default():
+    od_graph_def = tf.GraphDef()
+    with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
+        serialized_graph = fid.read()
+        od_graph_def.ParseFromString(serialized_graph)
+        tf.import_graph_def(od_graph_def, name='')
+    sess = tf.Session(graph=detection_graph)
+image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
+detection_boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
+detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
+detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
+num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
-class Obj_detection():
-    def __init__(self,sess,detection_boxes, detection_scores, detection_classes, num_detections,image_tensor,frame_expanded,cam):
-        self.sess = sess
-        self.detection_boxes = detection_boxes
-        self.detection_scores = detection_scores
-        self.detection_classes = detection_classes
-        self.num_detections = num_detections
-        self.image_tensor = image_tensor
-        self.frame_expanded = frame_expanded
-        self.cam = cam
+# Socket conection
+print('Socket created')
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((HOST,PORT))
+print('Socket bind complete')
+sock.listen(10)
+print('Socket now listening')
+conn,addr=sock.accept()
 
-    def run(self):
-        (boxes, scores, classes, num) = self.sess.run(
-            [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
-            feed_dict={self.image_tensor: self.frame_expanded})
-        vis_util.visualize_boxes_and_labels_on_image_array(
-            self.cam.frame,
-            np.squeeze(boxes),
-            np.squeeze(classes).astype(np.int32),
-            np.squeeze(scores),
-            category_index,
-            self.cam,
-            use_normalized_coordinates=True,
-            min_score_thresh=0.60)
+# Receive camera information
+# Availabe Cameras
+cam_list = ['cam0','cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
 
-if __name__ == '__main__':
+while True:
+    decoded = decode_data(conn)
+    # data = conn.recv(1024)
+    # decoded = data.decode('utf-8')
+    try:
+        cam_num = int(decoded) # Number of cameras
+    except:
+        continue
+    else: # Create objects for each camera
+        conn.send("OK".encode("UTF-8"))
+        print("Number of CCTV: {}".format(cam_num))
+        for num in range(cam_num):
+            decoded = decode_data(conn)
+            # data = conn.recv(1024)
+            # decoded = data.decode('utf-8')
+            exec('{} =  Cam()'.format(cam_list[num]))
+            exec("{}.parse_data(decoded)".format(cam_list[num]))
+            exec("cam_list[num] = {}".format(cam_list[num]))
+        break
+# Initialize done
 
-    # 1.Start Initialize
-    HOST = '192.168.0.66'
-    # # HOST= 'localhost'
-    PORT = 8485
-    # Ready to start machine learning
-    # Load to memory
-    # # MODEL_NAME = 'inference_graph'
-    MODEL_NAME = 'inference_graph_trashplus'
-    CWD_PATH = "C:/tensorflow1/models/research/object_detection"
-    PATH_TO_CKPT = os.path.join(CWD_PATH, MODEL_NAME, 'frozen_inference_graph.pb')
-    PATH_TO_LABELS = os.path.join(CWD_PATH, 'training', 'labelmap.pbtxt')
-    NUM_CLASSES = 5
-    label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
-    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES,
-                                                                use_display_name=True)
-    category_index = label_map_util.create_category_index(categories)
-    detection_graph = tf.Graph()
-    with detection_graph.as_default():
-        od_graph_def = tf.GraphDef()
-        with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
-            serialized_graph = fid.read()
-            od_graph_def.ParseFromString(serialized_graph)
-            tf.import_graph_def(od_graph_def, name='')
-        sess = tf.Session(graph=detection_graph)
-    image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
-    detection_boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
-    detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
-    detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
-    num_detections = detection_graph.get_tensor_by_name('num_detections:0')
-    # Load complete
-    # Start connection
-    frecv = Frame_recv(HOST,PORT)
-    frecv.conn_init()
-    # Connection complete
-    # Until connection is closed
+# 2.Ready to start receiving data
+# data = conn.recv(1024)
+# decoded = data.decode('utf-8')
+cam_list = cam_list[:cam_num]
+data = b""
+payload_size = struct.calcsize(">L")
+# Done
+# Start receiving frame
+while True:
+    i = 0
+    try:
+        decoded = decode_data(conn)
+        conn.send(decoded.encode('utf-8'))
+        for index in range(len(cam_list)):
+            if cam_list[index].id == decoded:
+                i = index
+        # Receive Frame SIZE from CCTV using TCP
+        while len(data) < payload_size:
+            #print("Recv: {}".format(len(data)))
+            data += conn.recv(4096)
+    except ConnectionResetError:
+        print("ConnectionResetError")
+        conn.close()
+        break
 
-    while frecv.is_conn:
+    # Set SIZE of data
+    # Receive Frame
+    packed_msg_size = data[:payload_size]
+    data = data[payload_size:]
+    msg_size = struct.unpack(">L", packed_msg_size)[0]
+    #print("msg_size: {}".format(msg_size))
+    while len(data) < msg_size:
+        data += conn.recv(4096)
+    frame_data = data[:msg_size]
+    data = data[msg_size:]
+    # Decode encoded Frame
+    frame=pickle.loads(frame_data, fix_imports=True, encoding="bytes")
+    frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+    cam_list[i].frame = frame
+    # Finish receiving frame
 
-        # 2. Start receiving frame
-        frecv.run()
-        # Frame receive complete
+    # 3.Ready to start Obj detection
+    frame_expanded = np.expand_dims(cam_list[i].frame, axis=0)
+    # Start Obj detection
+    (boxes, scores, classes, num) = sess.run(
+        [detection_boxes, detection_scores, detection_classes, num_detections],
+        feed_dict={image_tensor: frame_expanded})
+    vis_util.visualize_boxes_and_labels_on_image_array(
+        cam_list[i].frame,
+        np.squeeze(boxes),
+        np.squeeze(classes).astype(np.int32),
+        np.squeeze(scores),
+        category_index,
+        cam_list[i],
+        use_normalized_coordinates=True,
+        min_score_thresh=0.60)
+    # End Obj detection
 
-        # 3.Ready to start Obj detection
-        frame_expanded = np.expand_dims(frecv.cam_list[frecv.index].frame, axis=0)
-        obj_dt = Obj_detection(sess, detection_boxes, detection_scores, detection_classes, num_detections, image_tensor,
-                               frame_expanded,frecv.cam_list[frecv.index])
-        # Start Obj detection
-        obj_dt.run()
-        # Obj detection complete. Frame is stored at object's attribute
+    # 4.Start Act detection
+    if cam_list[i].data["intrusion"]:
+        cam_list[i].actrec.fence_detect(cam_list[i])
+        cam_list[i].actrec.intr_check(cam_list[i])
+    else:
+        cam_list[i].actrec.fallen_check(cam_list[i])
+        cam_list[i].actrec.Trash_detect(cam_list[i])
+    for index in cam_list:
+        if index.id == cam_list[i].id:
+            index = cam_list[i]
+    # End Act detection
 
-        # 4.Start Act detection
-        frecv.cam_list[frecv.index].actrec.run(frecv.cam_list[frecv.index])
-        # for index in frecv.cam_list:
-        #     if index.id == frecv.cam_list[i].id:
-        #         index = frecv.cam_list[i]
-        # End Act detection
+    # Show for debugging
+    if cam_list[i].data['intrusion']:
+        cv2.line(cam_list[i].frame, (cam_list[i].actrec.colist[0], cam_list[i].actrec.colist[1]),(cam_list[i].actrec.colist[2], cam_list[i].actrec.colist[3]),(255, 0, 0), 2)
 
+    cv2.imshow('Object detector', cam_list[i].frame)
 
-        # Show for debugging
-        # If restricted area, draw alert line
-        frecv.cam_list[frecv.index].actrec.draw_line(frecv.cam_list[frecv.index])
-        cv2.imshow('Object detector', frecv.cam_list[frecv.index].frame)
-
-            # Press 'q' to quit
-        if cv2.waitKey(1) == ord('q'):
-            frecv.conn.close()
-            break
+    # Press 'q' to quit
+    if cv2.waitKey(1) == ord('q'):
+        conn.close()
+        break

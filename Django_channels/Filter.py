@@ -4,7 +4,33 @@ import socket
 import time, cv2
 import struct
 import pickle
+
 from . import Scheduler
+
+# from . import Scheduler
+
+def capture(camid):
+    cam = cv2.VideoCapture(camid)
+    if cam.isOpened() == False:
+        print('cant open the cam (%d)' % camid)
+        return None
+
+    index = 0
+    while True:
+        ret, frame = cam.read()
+        if frame is None:
+            print('frame is not exist')
+            return None
+
+        # png로 압축 없이 영상 저장
+        name = '/img_{}.png'.format(index)
+        index += 1
+        cv2.imwrite('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics/'+camid + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
+        print(index)
+        if index == 5:
+            index = 0
+
+
 class VideoCamera(object):
     def __init__(self, idx):
         self.time = time.time()     #동영상 촬영시간 측정
@@ -127,6 +153,7 @@ class Frame_sender:
                 id += 1
             cv2.waitKey(1000 // self.max_fps)
             for cam_id in range(len(self.ret_list)):
+                capture(cam_id)
                 self.send_frame(cam_id, idx,schedule)
             self.frame_list = []
             self.ret_list = []

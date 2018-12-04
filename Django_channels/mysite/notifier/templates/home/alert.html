@@ -13,15 +13,25 @@
   {% if cam.cam_status == 'warning' %}
   <h1>camera {{cam.cam_id}}: {{cam.cam_location}}</h1>
   {% else %}
+
   {% endif %}
   {% endfor %}
   <br>
-    <img src="{% url 'livefe' %}">
   <br>
+ <script>
+  changefunction =  setInterval(function() {
+            document.body.style.backgroundColor = "#EEEEEE";
+        },750)
+    changefunction =  setInterval(function() {
+
+        document.body.style.backgroundColor = "#DD0000";
+     },1500)
+  </script>
  </body>
   <script>
         //var alert_audio = new Audio('audios/note.mp3');
         //alert_audio.volume = (10);
 	//alert_audio.play();
+
   </script>
 </html>

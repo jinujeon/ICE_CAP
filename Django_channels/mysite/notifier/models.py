@@ -11,10 +11,11 @@ class Camera(models.Model):
 	instrusion = models.BooleanField(default=False)
 	fallen = models.BooleanField(default=False)
 	cam_location = models.CharField(max_length=50)
+	fence = models.BooleanField(default=False)
+	weight = models.IntegerField(default=1)
 
-
-class Trash(models.Model):
-	trash = models.BooleanField(default=False)
+# class Trash(models.Model):
+# 	trash = models.BooleanField(default=False)
 
 #class Detections(models.Model):
 #	trashes = models.BooleanField(default=False)
@@ -23,6 +24,7 @@ class Trash(models.Model):
 class Profile(models.Model):  
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=12)
+    loginchk = models.BooleanField(default=False)
 
 
 @receiver(post_save, sender=User)
