@@ -5,6 +5,40 @@ import time, cv2
 import struct
 import pickle
 
+class VideoCamera(object):
+    def __init__(self, idx):
+        self.time = time.time()     #동영상 촬영시간 측정
+        self.sizecontrol = 0        #동영상 용량 조절
+        self.clock = time.gmtime(time.time()) #동영상 이름 -> 현재시간
+        self.name = str(self.clock.tm_year) +'.'+ str(self.clock.tm_mon) +'.'+ str(self.clock.tm_mday) +'.'+ str(self.clock.tm_hour + 9) +'.'+ str(self.clock.tm_min) +'.'+ str(self.clock.tm_sec)
+        self.videooutput = 0        #동영상 녹화 변수 정의
+        # 카메라에 접근하기 위해 VideoCapture 객체를 생성
+        self.video = cv2.VideoCapture(idx)
+        # exec('self.video{} = cv2.VideoCapture(idx)'.format(idx, idx))
+        (self.grabbed, self.frame) = self.video.read()
+
+    def __del__(self):
+        # 현재까지의 녹화를 멈춘다.
+        self.video.release()
+        self.videooutput.release()
+        cv2.destroyAllWindows()
+
+    def write(self):
+        # 코덱 설정
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        # 파일에 저장하기 위해 VideoWriter 객체를 생성
+        self.videooutput = cv2.VideoWriter('output'+self.name+'.avi', fourcc, 10, (640, 480))
+
+    def sizecon(self):
+        # 동영상 용량 조정
+        self.sizecontrol += 1
+        if self.sizecontrol == 8000:
+            self.sizecontrol = 0
+
+    def storeframe(self, frame):
+        # 동영상 프레임 실제 저장
+        self.videooutput.write(frame)
+
 class Frame_scheduler:
     def __init__(self,detection_result,id_list):
         self.detection_result = detection_result
@@ -49,7 +83,7 @@ class Frame_sender:
         self.virtual_fence = virtual
         ##입력받은 카메라 수 만큼 video_capture object를 생성##
         for id in id_list:
-            exec('self.video_capture_{} =  cv2.VideoCapture({})'.format(id,id))
+            exec('self.video_capture_{} =  store{}.frame'.format(id,id))
             exec('self.video_list.append(self.video_capture_{})'.format(id)) #exec로 생성한 videocapture객체에 접근하기 위해 리스트에 저장
         self.cam_count = len(id_list)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -124,6 +158,9 @@ def main():
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
     ADDRESS = 'localhost'
     PORT = 8485
+    for i in range(len(id_list)):
+        exec('store{} = VideoCamera({})'.format(id_list[i], id_list[i]))    # 영상 저장을 위한 객체 생성
+        exec('store{}.write()'.format(id_list[i]))  # 영상저장함수실행
     # client_socket = initialize_server(ADDRESS,PORT,id_list)
     fs1 = Frame_sender(id_list, False,ADDRESS,PORT, encode_param)
     fs1.run()
