@@ -4,6 +4,9 @@ import socket
 import time, cv2
 import struct
 import pickle
+
+from . import Scheduler
+
 # from . import Scheduler
 
 def capture(camid):
@@ -26,6 +29,7 @@ def capture(camid):
         print(index)
         if index == 5:
             index = 0
+
 
 class VideoCamera(object):
     def __init__(self, idx):
@@ -85,9 +89,9 @@ class Frame_sender:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((address, port))
         self.encode_param = encode_param
-        self.detect_info = ''
+        self.detect_weight = []
         self.max_fps = 10  # maximum frame per second
-
+        self.scheduler = Scheduler.Frame_scheduler(self.detect_weight,self.id_list,self.max_fps)
     def initialize_server(self):
         while True:
             try:
@@ -136,11 +140,11 @@ class Frame_sender:
     def run(self):
         self.initialize_server()
         idx = 0
-        schedule = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1]  # should be replaced by frame_scheduler instance
+        schedule = [0,1,0,1,1,1,1]  # should be replaced by frame_scheduler instance
         while True:
             # Capture frame-by-frame
             id = 0
-            if idx == 10:
+            if idx == len(schedule):
                 idx = 0
             for video in self.video_list:
                 exec('self.ret{}, self.frame{} = video.read()'.format(id,id))
