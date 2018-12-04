@@ -1,7 +1,6 @@
 class fence():
     def __init__(self):
-        self.colist = [38, 660, 1174, 374]
-
+        self.colist = [10, 350, 630, 190]
     #check fence warning
     def fence_check(self, fxy_list, frame):
         self.fence_warning = False

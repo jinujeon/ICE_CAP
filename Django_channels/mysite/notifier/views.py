@@ -95,10 +95,11 @@ def change_stat(request):
 
     return HttpResponse("OK")
 
-class VideoCamera(object):
+class StreamingVideo(object):
     def __init__(self):
         self.k = True
         self.index = 0
+        self.slep = 0
         # self.video = cv2.VideoCapture(0)
         # (self.grabbed, self.frame) = self.video.read()
         # threading.Thread(target=self.update, args=()).start()
@@ -131,16 +132,20 @@ class VideoCamera(object):
     #     while True:
     #         (self.grabbed, self.frame) = self.video.read()
 
-cam = VideoCamera() #서버 실행시 최초 1회만 실행
+cam = StreamingVideo() #서버 실행시 최초 1회만 실행
 
 def gen(camera):
-    # cam = VideoCamera()
+    # cam = StreamingVideo()
     if cam.k == False:
         cam.__init__()
     while True:
-        frame = cam.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        cam.slep +=1
+        if cam.slep %10 == 0:
+            frame = cam.get_frame()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        else :
+            pass
 
 
 #@gzip.gzip_page
