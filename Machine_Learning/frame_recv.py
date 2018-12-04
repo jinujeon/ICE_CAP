@@ -131,10 +131,10 @@ class Cam(threading.Thread):
 
 class actRecognition():
     def __init__(self):
-        self.intr_warning = False  # 월담 감지
+        self.intr_warning = False  # 접근 제한 구역 침입 감지
         self.trash_warning = False  # 쓰레기 투기 감지
-        self.fence_warning = False  # 접근 제한 구역 침입 감지
-        self.intr_prev = []  # 월담 구역에서 사람 경계 박스의 이전 위치 저장 list
+        self.fence_warning = False  # 월담 감지
+        self.fence_prev = []  # 월담 구역에서 사람 경계 박스의 이전 위치 저장 list
         self.t_prev = []  # 쓰레기 투기 감지 시 쓰레기와 사람 경계 박스의 이전 위치 저장 list
         self.IntrFirst = True  # 월담 감지 초기화 구분
         self.trFirst = True  # 쓰레기 감지 초기화 구분
@@ -143,10 +143,11 @@ class actRecognition():
         self.trDistance = 0  # 쓰레기와 사람 상자 중점 간 거리
         self.midTr = []  # 쓰레기의 중점 좌표
         self.midP = []  # 쓰레기를 들고 있는 사람의 중점 좌표
-        self.intrMulti = cv2.MultiTracker_create()  # 월담 감지 추적기
         self.trashMulti = cv2.MultiTracker_create()  # 쓰레기 감지 추적기
         self.colist = [10, 330, 630, 330]  # 가상 펜스 직선을 그릴 좌표
         self.trash_time = 0
+        self.trashnum = 0
+        self.fence_tracker = cv2.MultiTracker_create()  # 월담 감지 추적기
 
     def IntrSettings(self, cam):
         '''
@@ -323,24 +324,11 @@ class actRecognition():
                 cam.data['cam_status'] = 'warning'
                 cam.data['trash'] = True
                 print("쓰레기 무단 투기가 감지 되었습니다.")
-                # params = json.dumps(cam.data).encode("utf-8")
-                # req = urllib.request.Request(cam.url, data=params,
-                #                              headers={'content-type': 'application/json'})
-                # response = urllib.request.urlopen(req)
-                # print(response.read().decode('utf8'))
-                # self.send_post(cam)
-
             self.trash_warning = False
         else:
             if cam.data['trash'] == True:
                 cam.data['cam_status'] = 'safe'
                 cam.data['trash'] = False
-                # params = json.dumps(cam.data).encode("utf-8")
-                # req = urllib.request.Request(cam.url, data=params,
-                #                              headers={'content-type': 'application/json'})
-                # response = urllib.request.urlopen(req)
-                # print(response.read().decode('utf8'))
-                # self.send_post(cam)
 
     def fence_check(self, cam):
         '''
@@ -364,25 +352,12 @@ class actRecognition():
                 cam.data['cam_status'] = 'warning'
                 cam.data['intrusion'] = True
                 print("접근 제한 구역 침입이 감지되었습니다")
-                # params = json.dumps(cam.data).encode("utf-8")
-                # req = urllib.request.Request(cam.url, data=params,
-                #                              headers={'content-type': 'application/json'})
-                # response = urllib.request.urlopen(req)
-                # print(response.read().decode('utf8'))
-                # self.send_post(cam)
-
             self.fence_warning = False
         else:
             if cam.data['intrusion'] == True:
                 cam.data['cam_status'] = 'safe'
                 cam.data['intrusion'] = False
                 print("해당 구역은 안전합니다(가상 펜스)")
-                # params = json.dumps(cam.data).encode("utf-8")
-                # req = urllib.request.Request(cam.url, data=params,
-                #                              headers={'content-type': 'application/json'})
-                # response = urllib.request.urlopen(req)
-                # print(response.read().decode('utf8'))
-                # self.send_post(cam)
 
     def fallen_check(self,cam):
         '''
@@ -394,23 +369,11 @@ class actRecognition():
                 cam.data['cam_status'] = 'warning'
                 cam.data['fallen'] = True
                 print("쓰러진 사람 발견")
-                # params = json.dumps(cam.data).encode("utf-8")
-                # req = urllib.request.Request(cam.url, data=params,
-                #                              headers={'content-type': 'application/json'})
-                # response = urllib.request.urlopen(req)
-                # print(response.read().decode('utf8'))
-                # self.send_post(cam)
         else:
             if cam.data['fallen'] == True:
                 cam.data['cam_status'] = 'safe'
                 cam.data['fallen'] = False
                 print("쓰러진 사람 없음")
-                # params = json.dumps(cam.data).encode("utf-8")
-                # req = urllib.request.Request(cam.url, data=params,
-                #                              headers={'content-type': 'application/json'})
-                # response = urllib.request.urlopen(req)
-                # print(response.read().decode('utf8'))
-                # self.send_post(cam)
 
     def Intrusion_detect(self, cam):
         '''
@@ -435,24 +398,12 @@ class actRecognition():
                 cam.data['cam_status'] = 'warning'
                 cam.data['intrusion'] = True
                 print("월담을 감지했습니다")
-                # params = json.dumps(cam.data).encode("utf-8")
-                # req = urllib.request.Request(cam.url, data=params,
-                #                              headers={'content-type': 'application/json'})
-                # response = urllib.request.urlopen(req)
-                # print(response.read().decode('utf8'))
-                # self.send_post(cam)
             self.intr_warning = False
         else:
             if cam.data['intrusion'] == True:
                 cam.data['cam_status'] = 'safe'
                 cam.data['intrusion'] = False
                 print("해당 구역은 안전합니다(월담)")
-                # params = json.dumps(cam.data).encode("utf-8")
-                # req = urllib.request.Request(cam.url, data=params,
-                #                              headers={'content-type': 'application/json'})
-                # response = urllib.request.urlopen(req)
-                # print(response.read().decode('utf8'))
-                # self.send_post(cam)
 
     def send_post(self,cam):
         params = json.dumps(cam.data).encode("utf-8")
@@ -471,6 +422,7 @@ class actRecognition():
         cam.actrec.fence_check(cam)
         cam.actrec.fallen_check(cam)
         cam.actrec.Trash_detect(cam)
+        cam.actrec.send_post(cam)
 
 class Obj_detection():
     def __init__(self,sess,detection_boxes, detection_scores, detection_classes, num_detections,image_tensor,frame_expanded,cam):
