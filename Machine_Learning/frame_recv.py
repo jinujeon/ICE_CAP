@@ -28,6 +28,7 @@ class Frame_recv():
         self.cam_no = None
         self.data = b""
         self.frame = None
+        self.index = 0
         self.payload_size = struct.calcsize(">L")
         self.cam_list = ['cam0','cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
 
@@ -64,13 +65,11 @@ class Frame_recv():
             self.cam_list = self.cam_list[:cam_num]
             self.is_cam = True
 
-    def recv_frame(self,i):
+    def recv_frame(self):
         try:
             decoded = self.decode_data()
             self.conn.send(decoded.encode('utf-8'))
-            for index in range(len(self.cam_list)):
-                if self.cam_list[index].id == decoded:
-                    i = index
+            self.index = int(decoded)
             # Receive Frame SIZE from CCTV using TCP
             while len(self.data) < self.payload_size:
                 self.data += self.conn.recv(4096)
@@ -91,22 +90,20 @@ class Frame_recv():
             frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
             frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
             self.frame = frame
-            return i
 
     def run(self):
         if not frecv.is_cam:
             frecv.make_cam()
-        index = 0
-        i = frecv.recv_frame(index)
-        frecv.cam_list[i].frame = frecv.frame
-        return i
+        frecv.recv_frame()
+        frecv.cam_list[self.index].frame = frecv.frame
+        return self.index
 
 class Cam(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name='Cam({})'.format(id))
         self.id = None
         self.frame = None
-        self.data = {'cam_id': self.id, 'cam_status': 'safe', 'trash': False, 'intrusion': False, 'fallen': False}
+        self.data = {'cam_id': self.id, 'cam_status': 'safe', 'trash': False, 'intrusion': False, 'fallen': False,'restricted':False}
         self.url = "http://127.0.0.1:8000/home/change_stat"
         self.actrec = actRecognition()
         self.e_list = []
@@ -119,17 +116,17 @@ class Cam(threading.Thread):
     def parse_data(self,data):
         """
         :param data: Received data from streaming process, decoded.
-        :return: print id, intrusion info
+        :return: print id, restricted info
         """
         print("Parsing the CAM INFO...")
-        self.id = int(data[data.find('cam_id') + 7:data.find('intrusion') - 2])
+        self.id = int(data[data.find('cam_id') + 7:data.find('restricted') - 2])
         self.data['cam_id'] = self.id
         print("Cam_id: {}".format(self.id))
-        if (data[data.find('intrusion') + 10:]) == 'True':
-            self.data['intrusion'] = True
+        if (data[data.find('restricted') + 11:]) == 'True':
+            self.data['restricted'] = True
         else:
-            self.data['intrusion'] = False
-        print("intrusion: {}".format(self.data['intrusion']))
+            self.data['restricted'] = False
+        print("restricted: {}".format(self.data['restricted']))
         print(("COMPLETE"))
 
 class actRecognition():
@@ -164,7 +161,7 @@ class actRecognition():
             i0, i2 = abs(int(i[0] * 640)), abs(int(i[2] * 640))
             i1, i3 = abs(int(i[1] * 480)), abs(int(i[3] * 480))
             window = (i0, i1, i2, i3)
-            print(window)
+            # print(window)
             self.intr_prev.append(window)
             try:
                 csrt = cv2.TrackerCSRT_create()
@@ -187,14 +184,14 @@ class actRecognition():
                 [x, y, w, h] = [abs(int(v)) for v in box]
                 temp.append([x, y, w, h])
                 if self.id < len(self.intr_prev):
-                    print("차이", self.intr_prev[self.id][1] - y)
+                    # print("차이", self.intr_prev[self.id][1] - y)
                     if self.intr_prev[self.id][1] - y > 30:  # y축 변화가 위로 수직일 때만
                         print("******침입 감지 ! ! ! ! !*******")
                         self.intr_warning = True
                 self.id += 1
                 cv2.rectangle(cam.frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
             self.intr_prev = temp
-            print("prev= ", self.intr_prev)
+            # print("prev= ", self.intr_prev)
         except cv2.error:
             pass
 
@@ -234,9 +231,9 @@ class actRecognition():
                 # 쓰레기와 사람 경계 박스의 중점 간 거리를 계산
                 self.trDistance = math.sqrt(
                     math.pow(self.midTr[0] - self.midP[0], 2) + math.pow(self.midTr[1] - self.midP[1], 2))
-                print("처음 거리:", self.trDistance)
+                # print("처음 거리:", self.trDistance)
             try:
-                print("사람 좌표 추가")
+                # print("사람 좌표 추가")
                 self.trashMulti.add(csrt, cam.frame, window)  # 객체 추적기에 사람 좌표 추가
             except cv2.error:
                 pass
@@ -257,12 +254,14 @@ class actRecognition():
 
                 cv2.rectangle(cam.frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
             if len(temp) == 0:
-                print("추적기에 아무것도 없음")
+                # print("추적기에 아무것도 없음")
+                pass
             else:
-                print(temp)
+                # print(temp)
+                pass
             self.midTr = [(temp[0][0] * 2 + temp[0][2]) / 2, (temp[0][1] * 2 + temp[0][3]) / 2]
             if self.pID < len(temp):
-                print("중점 계산")
+                # print("중점 계산")
                 self.midP = [(temp[self.pID][0] * 2 + temp[self.pID][2]) / 2,
                              (temp[self.pID][1] * 2 + temp[self.pID][3]) / 2]
             # 쓰레기를 들고 있던 사람 경계 박스의 중점과 쓰레기 경계 박스 중점 간 거리를 계산
@@ -320,10 +319,10 @@ class actRecognition():
 
         # 상황 판단 DB 업데이트
         if self.trash_warning:
-            print("쓰레기 무단 투기가 감지 되었습니다.")
             if cam.data['trash'] == False:
                 cam.data['cam_status'] = 'warning'
                 cam.data['trash'] = True
+                print("쓰레기 무단 투기가 감지 되었습니다.")
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -343,7 +342,6 @@ class actRecognition():
                 # print(response.read().decode('utf8'))
                 # self.send_post(cam)
 
-
     def fence_check(self, cam):
         '''
         가상 펜스 경계를 넘었는지 확인하는 함수
@@ -362,10 +360,10 @@ class actRecognition():
                 f_stat = f_stat and k
             self.fence_warning = f_stat
         if self.fence_warning:
-            print("접근 제한 구역 침입이 감지되었습니다")
             if cam.data['intrusion'] == False:
                 cam.data['cam_status'] = 'warning'
                 cam.data['intrusion'] = True
+                print("접근 제한 구역 침입이 감지되었습니다")
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -375,10 +373,10 @@ class actRecognition():
 
             self.fence_warning = False
         else:
-            print("해당 구역은 안전합니다(가상 펜스)")
             if cam.data['intrusion'] == True:
                 cam.data['cam_status'] = 'safe'
                 cam.data['intrusion'] = False
+                print("해당 구역은 안전합니다(가상 펜스)")
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -433,10 +431,10 @@ class actRecognition():
             self.IntrFirst = True  # 첫 인식 변수 초기화
 
         if self.intr_warning:
-            print("월담을 감지했습니다")
             if cam.data['intrusion'] == False:
                 cam.data['cam_status'] = 'warning'
                 cam.data['intrusion'] = True
+                print("월담을 감지했습니다")
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -445,10 +443,10 @@ class actRecognition():
                 # self.send_post(cam)
             self.intr_warning = False
         else:
-            print("해당 구역은 안전합니다(월담)")
             if cam.data['intrusion'] == True:
                 cam.data['cam_status'] = 'safe'
                 cam.data['intrusion'] = False
+                print("해당 구역은 안전합니다(월담)")
                 # params = json.dumps(cam.data).encode("utf-8")
                 # req = urllib.request.Request(cam.url, data=params,
                 #                              headers={'content-type': 'application/json'})
@@ -464,18 +462,15 @@ class actRecognition():
         print(response.read().decode('utf8'))
 
     def draw_line(self,cam):
-        if cam.data['intrusion']:
-            print(cam.fxy_list)
-            cv2.line(cam.frame, (cam.actrec.colist[0], cam.actrec.colist[1]),
-                     (cam.actrec.colist[2], cam.actrec.colist[3]), (255, 0, 0), 2)
+        if cam.data['restricted']:
+            cv2.line(cam.frame, (self.colist[0], self.colist[1]), (self.colist[2],self.colist[3]),(255,0,0),2)
 
     def run(self,cam):
-        if cam.data["intrusion"]:
+        if cam.data["restricted"]:
             cam.actrec.Intrusion_detect(cam)
-            cam.actrec.fence_check(cam)
-        else:
-            cam.actrec.fallen_check(cam)
-            cam.actrec.Trash_detect(cam)
+        cam.actrec.fence_check(cam)
+        cam.actrec.fallen_check(cam)
+        cam.actrec.Trash_detect(cam)
 
 class Obj_detection():
     def __init__(self,sess,detection_boxes, detection_scores, detection_classes, num_detections,image_tensor,frame_expanded,cam):
@@ -543,19 +538,19 @@ if __name__ == '__main__':
     while frecv.is_conn:
 
         # 2. Start receiving frame
-        i = frecv.run()
+        frecv.run()
         # Frame receive complete
 
         # 3.Ready to start Obj detection
-        frame_expanded = np.expand_dims(frecv.cam_list[i].frame, axis=0)
+        frame_expanded = np.expand_dims(frecv.cam_list[frecv.index].frame, axis=0)
         obj_dt = Obj_detection(sess, detection_boxes, detection_scores, detection_classes, num_detections, image_tensor,
-                               frame_expanded,frecv.cam_list[i])
+                               frame_expanded,frecv.cam_list[frecv.index])
         # Start Obj detection
         obj_dt.run()
         # Obj detection complete. Frame is stored at object's attribute
 
         # 4.Start Act detection
-        frecv.cam_list[i].actrec.run(frecv.cam_list[i])
+        frecv.cam_list[frecv.index].actrec.run(frecv.cam_list[frecv.index])
         # for index in frecv.cam_list:
         #     if index.id == frecv.cam_list[i].id:
         #         index = frecv.cam_list[i]
@@ -563,9 +558,9 @@ if __name__ == '__main__':
 
 
         # Show for debugging
-        # If intrusion area, draw alert line
-        frecv.cam_list[i].actrec.draw_line(frecv.cam_list[i])
-        cv2.imshow('Object detector', frecv.cam_list[i].frame)
+        # If restricted area, draw alert line
+        frecv.cam_list[frecv.index].actrec.draw_line(frecv.cam_list[frecv.index])
+        cv2.imshow('Object detector', frecv.cam_list[frecv.index].frame)
 
             # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
