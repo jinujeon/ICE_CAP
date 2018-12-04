@@ -24,15 +24,18 @@ class VideoCamera(object):
 
     def __del__(self):
         # 현재까지의 녹화를 멈춘다.
-        self.video.release()
+        # self.video.release()
         self.videooutput.release()
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
 
     def write(self, idx):
+        self.time = time.time()     #동영상 촬영시간 측정
+        self.clock = time.gmtime(time.time())  # 동영상 이름 -> 현재시간
+        self.name = str(self.clock.tm_year) + '.' + str(self.clock.tm_mon) + '.' + str(self.clock.tm_mday) + '.' + str(self.clock.tm_hour + 9) + '.' + str(self.clock.tm_min) + '.' + str(self.clock.tm_sec)
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
-        self.videooutput = cv2.VideoWriter('output'+str(idx) +'.' +self.name+'.avi', fourcc, 10, (640, 480))
+        self.videooutput = cv2.VideoWriter(str(idx) + '-' +'output'+self.name+'.avi', fourcc, 2, (640, 480))
 
     def sizecon(self):
         # 동영상 용량 조정
@@ -121,9 +124,8 @@ class Frame_sender:
         self.video_list[cam_id].sizecon()
         if self.video_list[cam_id].sizecontrol % 4 == 0:
             self.video_list[cam_id].storeframe(self.video_list[cam_id].frame)
-        if (time.time() - self.video_list[cam_id].time) > 10:
+        if (time.time() - self.video_list[cam_id].time) > 5:
             self.video_list[cam_id].__del__()  # 현재까지 영상 저장
-            self.video_list[cam_id] = VideoCamera(cam_id)  # 영상 저장을 위한 객체 재생성
             self.video_list[cam_id].write(cam_id)  # 영상저장함수실행
         if self.ret_list[cam_id]:
             ret0, frame_encode0 = cv2.imencode('.jpg', self.frame_list[cam_id], self.encode_param)
