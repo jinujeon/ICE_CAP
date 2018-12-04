@@ -23,11 +23,11 @@ class VideoCamera(object):
         self.videooutput.release()
         cv2.destroyAllWindows()
 
-    def write(self):
+    def write(self, idx):
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
-        self.videooutput = cv2.VideoWriter('output'+self.name+'.avi', fourcc, 10, (640, 480))
+        self.videooutput = cv2.VideoWriter('output'+idx +'.' +self.name+'.avi', fourcc, 10, (640, 480))
 
     def sizecon(self):
         # 동영상 용량 조정
@@ -113,7 +113,7 @@ class Frame_sender:
     def send_frame(self,idx):
         exec('store{}.sizecon()'.format(idx))
         exec('if store{}.sizecontrol % 4 == 0: store{}.storeframe(store{}.frame)'.format(idx, idx, idx))
-        
+
         if self.ret_list[idx]:
             ret0, frame_encode0 = cv2.imencode('.jpg', self.frame_list[idx], self.encode_param)
             data0 = pickle.dumps(frame_encode0, 0)
@@ -163,7 +163,7 @@ def main():
     PORT = 8485
     for i in range(len(id_list)):
         exec('store{} = VideoCamera({})'.format(id_list[i], id_list[i]))    # 영상 저장을 위한 객체 생성
-        exec('store{}.write()'.format(id_list[i]))  # 영상저장함수실행
+        exec('store{}.write({})'.format(id_list[i],id_list[i]))  # 영상저장함수실행
     # client_socket = initialize_server(ADDRESS,PORT,id_list)
     fs1 = Frame_sender(id_list, False,ADDRESS,PORT, encode_param)
     fs1.run()
