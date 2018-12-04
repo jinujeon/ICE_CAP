@@ -10,6 +10,6 @@ urlpatterns = [
     #path('audios/note.mp3',views.AlertView),
     path('edum/',auth_views.LoginView.as_view(), name='login'),
    # path('monitor/sms',views.run, name='run'),
-    url(r'streamtest/', views.livefe, name='livefe'),
+   #  url(r'streamtest/', views.livefe, name='livefe'),
     url(r'loginteste/', views.profile, name='profile'),
 ]
