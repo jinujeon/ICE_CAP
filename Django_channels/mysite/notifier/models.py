@@ -23,6 +23,7 @@ class Trash(models.Model):
 class Profile(models.Model):  
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=12)
+    loginchk = models.BooleanField(default=False)
 
 
 @receiver(post_save, sender=User)

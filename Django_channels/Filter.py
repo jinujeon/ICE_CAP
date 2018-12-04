@@ -4,6 +4,28 @@ import socket
 import time, cv2
 import struct
 import pickle
+# from . import Scheduler
+
+def capture(camid):
+    cam = cv2.VideoCapture(camid)
+    if cam.isOpened() == False:
+        print('cant open the cam (%d)' % camid)
+        return None
+
+    index = 0
+    while True:
+        ret, frame = cam.read()
+        if frame is None:
+            print('frame is not exist')
+            return None
+
+        # png로 압축 없이 영상 저장
+        name = '/img_{}.png'.format(index)
+        index += 1
+        cv2.imwrite('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics/'+camid + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
+        print(index)
+        if index == 5:
+            index = 0
 
 class VideoCamera(object):
     def __init__(self, idx):
@@ -24,15 +46,18 @@ class VideoCamera(object):
 
     def __del__(self):
         # 현재까지의 녹화를 멈춘다.
-        self.video.release()
+        # self.video.release()
         self.videooutput.release()
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
 
     def write(self, idx):
+        self.time = time.time()     #동영상 촬영시간 측정
+        self.clock = time.gmtime(time.time())  # 동영상 이름 -> 현재시간
+        self.name = str(self.clock.tm_year) + '.' + str(self.clock.tm_mon) + '.' + str(self.clock.tm_mday) + '.' + str(self.clock.tm_hour + 9) + '.' + str(self.clock.tm_min) + '.' + str(self.clock.tm_sec)
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
-        self.videooutput = cv2.VideoWriter('output'+str(idx) +'.' +self.name+'.avi', fourcc, 10, (640, 480))
+        self.videooutput = cv2.VideoWriter(str(idx) + '-' +'output'+self.name+'.avi', fourcc, 2, (640, 480))
 
     def sizecon(self):
         # 동영상 용량 조정
@@ -43,41 +68,6 @@ class VideoCamera(object):
     def storeframe(self, frame):
         # 동영상 프레임 실제 저장
         self.videooutput.write(frame)
-
-class Frame_scheduler:
-    def __init__(self,detection_result,id_list):
-        self.detection_result = detection_result
-        self.cam_count = len(id_list)
-        self.cam_stat_dict = dict([(id, None) for id in range(self.cam_count)])
-
-    def __setitem__(self, index, item):
-        self._check_key(index)
-        self.cam_stat_dict[index] = item
-
-    def __getitem__(self, index):
-        self._check_key(index)
-        return self.cam_stat_dict[index]
-
-    def _check_key(self,index):
-        if not isinstance(index, int):
-            raise TypeError('not Integer type')
-        if index not in range(self.cam_count):
-            raise IndexError('index out of range')
-
-    def get_priority(self,id):
-        priority = None
-        if self.cam_stat_dict[id] == 'fallen':
-            priority = 2
-        if self.cam_stat_dict[id] == 'trash':
-            priority = 1
-        if self.cam_stat_dict[id] == 'intrusion':
-            priority = 3
-        return priority
-
-    def set_cam_frame_order(self):
-        for id in range(self.cam_count):
-            self.get_priority(id)
-
 
 class Frame_sender:
     def __init__(self,id_list,virtual,address,port,encode_param):
@@ -113,23 +103,21 @@ class Frame_sender:
                 logging.error('TimeoutError')
 
     def send_info(self,id, virtual, sock):
-        req = "cam_id:" + str(id) + "\r\nintrusion:" + str(virtual)
+        req = "cam_id:" + str(id) + "\r\nrestricted:" + str(virtual)
         sock.send(req.encode('UTF-8'))  # send message to server
         return print("Send Complete")
 
-    def send_frame(self,cam_id,idx):
+    def send_frame(self,cam_id,idx,schedule):
         self.video_list[cam_id].sizecon()
         if self.video_list[cam_id].sizecontrol % 4 == 0:
             self.video_list[cam_id].storeframe(self.video_list[cam_id].frame)
-        if (time.time() - self.video_list[cam_id].time) > 10:
+        if (time.time() - self.video_list[cam_id].time) > 5:
             self.video_list[cam_id].__del__()  # 현재까지 영상 저장
-            self.video_list[cam_id] = VideoCamera(cam_id)  # 영상 저장을 위한 객체 재생성
             self.video_list[cam_id].write(cam_id)  # 영상저장함수실행
         if self.ret_list[cam_id]:
             ret0, frame_encode0 = cv2.imencode('.jpg', self.frame_list[cam_id], self.encode_param)
             data0 = pickle.dumps(frame_encode0, 0)
             size = len(data0)
-            schedule = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1]  # should be replaced by frame_scheduler instance
             print("##SIZE{}##: ".format(cam_id), size)
             try:
                 if schedule[idx] == cam_id:
@@ -148,6 +136,7 @@ class Frame_sender:
     def run(self):
         self.initialize_server()
         idx = 0
+        schedule = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1]  # should be replaced by frame_scheduler instance
         while True:
             # Capture frame-by-frame
             id = 0
@@ -160,7 +149,8 @@ class Frame_sender:
                 id += 1
             cv2.waitKey(1000 // self.max_fps)
             for cam_id in range(len(self.ret_list)):
-                self.send_frame(cam_id, idx)
+                capture(cam_id)
+                self.send_frame(cam_id, idx,schedule)
             self.frame_list = []
             self.ret_list = []
             idx += 1
@@ -175,7 +165,7 @@ class Frame_sender:
 def main():
     id_list = [0,1] #설치되어 있는 카메라 id
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
-    ADDRESS = 'localhost'
+    ADDRESS = '220.67.124.193'
     PORT = 8485
     # client_socket = initialize_server(ADDRESS,PORT,id_list)
     fs1 = Frame_sender(id_list, False,ADDRESS,PORT, encode_param)

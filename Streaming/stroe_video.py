@@ -10,15 +10,18 @@ class VideoCamera(object):
         # 카메라에 접근하기 위해 VideoCapture 객체를 생성
         self.video = cv2.VideoCapture(idx)
         # exec('self.video{} = cv2.VideoCapture(idx)'.format(idx, idx))
-        (self.grabbed, self.frame) = self.video.read()
+        self.grabbed, self.frame = self.video.read()
 
     def __del__(self):
         # 현재까지의 녹화를 멈춘다.
-        self.video.release()
+        # self.video.release()
         self.videooutput.release()
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
 
     def write(self, idx):
+        self.time = time.time()     #동영상 촬영시간 측정
+        self.clock = time.gmtime(time.time())  # 동영상 이름 -> 현재시간
+        self.name = str(self.clock.tm_year) + '.' + str(self.clock.tm_mon) + '.' + str(self.clock.tm_mday) + '.' + str(self.clock.tm_hour + 9) + '.' + str(self.clock.tm_min) + '.' + str(self.clock.tm_sec)
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
@@ -53,10 +56,9 @@ while True:
 
     print(store.time) # 저장시간
 
-    if (time.time() - store.time) > 10:
+    if (time.time() - store.time) > 5:
         store.__del__() # 현재까지 영상 저장
-        store = VideoCamera([])  # 영상 저장을 위한 객체 재생성
-        store.write(0) # 영상저장함수실행
+        store.write(0)  # 영상저장함수실행
 
     # 화면에 이미지를 출력, 연속적으로 화면에 출력하면 동영상이 됨.
     cv2.imshow('frame', store.frame)

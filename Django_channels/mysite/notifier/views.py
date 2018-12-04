@@ -16,13 +16,31 @@ import gzip
 
 
 class HomeView(TemplateView):
-   template_name = "home/home.html"
+    template_name = "home/home.html"
+
+
+def profile(request):
+    if request.method == "GET":
+        name = request.user.get_username()
+    profile = Profile.objects.all()
+    for pro in profile:
+        if str(pro.user) == name:
+            pro.loginchk = True
+            pro.save()
+        else:
+            pro.loginchk = False
+            pro.save()
+
+    return HttpResponse("%s is login", name)
+
 
 
 
 
 # def homeview(request):
 #     # profile = Profile.objects.all()
+#         profile.loginchk = True
+#         profile.save()
 #     return render(request, 'home/home.html')
 
 
@@ -54,6 +72,7 @@ def change_stat(request):
         cam_instrusion = dict_data['instrusion']
         print("----values=====:", cam_id, cam_status, cam_location, cam_trash, cam_instrusion,cam_fallen)
         print("#################value types:",type(cam_trash))
+
         for cam in cams:
             if (cam.cam_id == cam_id):
                 print("Camera table has been changed!#!@#@!#")
@@ -63,6 +82,16 @@ def change_stat(request):
                 cam.trash = cam_trash
                 cam.instrusion = cam_instrusion
             cam.save()
+
+        if cam_status == 'warning':
+            phone = ''
+            profile = Profile.objects.all()
+            for pro in profile:
+                if (pro.loginchk):
+                    phone = pro.phone_number
+            print("Let's check PHONE : ", pro.loginchk, pro.phone_number, phone)
+            send = Sendsms(phone, cam_location, cam_status)
+            send.sendSms()
 
     return HttpResponse("OK")
 
@@ -76,7 +105,8 @@ class StreamingVideo(object):
         # threading.Thread(target=self.update, args=()).start()
 
     def __del__(self):
-        self.video.release()
+        # self.video.release()
+        pass
 
     def get_frame(self):
         # image = self.frame
@@ -170,6 +200,3 @@ class Sendsms:
 
         sys.exit()
 
-def run(phone_number, cam_location, s_type):
-    use = Sendsms(phone_number, cam_location, s_type)
-    use.sendSms()
