@@ -151,14 +151,10 @@ class StreamingVideo(object):
 
 cam = StreamingVideo() #서버 실행시 최초 1회만 실행
 
+camid = [0]
 def gen(camera):
-    camid = 0
-    camera = Camera.objects.all()
-    for c in camera:
-        if c.cam_status == 'warning':
-            camid = c.cam_id
     while True:
-        frame = cam.get_frame(camid)
+        frame = cam.get_frame(0)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
@@ -171,7 +167,7 @@ def livefe(request):
 
 def gen1(camera):
     while True:
-        frame = cam.get_frame(0)
+        frame = cam.get_frame(1)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
