@@ -148,8 +148,8 @@ class actRecognition():
         self.midTr = []  # 쓰레기의 중점 좌표
         self.midP = []  # 쓰레기를 들고 있는 사람의 중점 좌표
         self.trashMulti = cv2.MultiTracker_create()  # 쓰레기 감지 추적기
-        self.colist1 = [10, 280, 630, 280]  # 가상 펜스 직선을 그릴 좌표 - 위 직선
-        self.colist2 = [10, 330, 630, 330]  # 가상 펜스 직선을 그릴 좌표 - 아래 직선
+        self.colist1 = [10, 300, 630, 300]  # 가상 펜스 직선을 그릴 좌표 - 위 직선
+        self.colist2 = [10, 350, 630, 350]  # 가상 펜스 직선을 그릴 좌표 - 아래 직선
         self.trash_time = 0
         self.trashnum = 0
         self.fence_tracker = cv2.MultiTracker_create() # 월담 감지 추적기
@@ -175,6 +175,7 @@ class actRecognition():
             # 담 앞의 사람이고 상하체가 모두 인식되었을 때 마지막 원소 값 = 2
             else:
                 self.fence_prev.append([x, y, w, h, 2])
+        self.peopleNum = len(cam.fxy_list)
         print("init = ", self.fence_prev)
 
     def fence_updates(self, cam):
@@ -185,13 +186,13 @@ class actRecognition():
             [x, y, w, h] = [abs(int(v)) for v in box]
             cv2.rectangle(cam.frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
             if (y + h) < self.colist1[1] and y < self.colist1[1]:  # 담 너머의 사람일 때 마지막 원소 값 = 0
-                self.fence_prev.append([x, y, w, h, 0])
+                temp.append([x, y, w, h, 0])
             # 담 앞의 사람이고 상체만 인식되었을 때 마지막 원소 값 = 1
             elif self.colist1[1] < (y + h) < self.colist2[1] and y < self.colist1[1]:
-                self.fence_prev.append([x, y, w, h, 1])
+                temp.append([x, y, w, h, 1])
             # 담 앞의 사람이고 상하체가 모두 인식되었을 때 마지막 원소 값 = 2
             else:
-                self.fence_prev.append([x, y, w, h, 2])
+                temp.append([x, y, w, h, 2])
         for index, i in enumerate(temp):
             if index < len(self.fence_prev):
                 # 담 뒤에 있던 사람이 앞으로 간 것으로 위치가 바뀐 경우 월담 감지
@@ -405,7 +406,7 @@ class actRecognition():
         elif len(cam.fxy_list) != 0:  # 사람 수의 변경이 없고 사람이 있을 때
             self.fence_updates(cam)  # 객체 추적기 update
         else:  # 사람이 없을 때
-            pass
+            self.peopleNum = 0
 
         if self.fence_warning:
             if cam.data['fence'] == False:
@@ -523,7 +524,7 @@ if __name__ == '__main__':
         # If restricted area, draw alert line
         frecv.cam_list[frecv.index].actrec.draw_line(frecv.cam_list[frecv.index])
         cv2.imshow('Object detector', frecv.cam_list[frecv.index].frame)
-        print("CAM_ID: {}".format(frecv.cam_list[frecv.index].id))
+        # print("CAM_ID: {}".format(frecv.cam_list[frecv.index].id))
 
             # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):
