@@ -14,6 +14,7 @@ import threading
 from django.views.decorators.gzip import gzip_page
 import gzip
 from django.http import JsonResponse
+from time import sleep
 
 class HomeView(TemplateView):
     template_name = "home/home.html"
@@ -76,6 +77,7 @@ def database_handler(request):
         cam_trash = dict_data['trash']
         cam_instrusion = dict_data['intrusion']
         cam_fence = dict_data['fence']
+
         print("----values=====:", cam_id, cam_trash, cam_instrusion,cam_fallen,cam_fence)
         print("#################value types:",type(cam_trash))
 
@@ -127,53 +129,38 @@ class StreamingVideo(object):
         self.k = True
         self.index = 0
         self.slep = 0
-        # self.video = cv2.VideoCapture(0)
-        # (self.grabbed, self.frame) = self.video.read()
-        # threading.Thread(target=self.update, args=()).start()
 
-    def __del__(self):
-        # self.video.release()
-        pass
-
-    def get_frame(self):
-        # image = self.frame
+    def get_frame(self, camid):
+        sleep(0.25)
         try :
             name = '/img_{}.png'.format(cam.index)
-            image = cv2.imread('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics' + name)
+            image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name)
             ret, jpeg = cv2.imencode('.jpg', image)
-        except:
+        except :
             if cam.index == 0:
-                cam.index = 4
+                cam.index = 3
             else: cam.index -= 1
             name = '/img_{}.png'.format(cam.index)
-            image = cv2.imread('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics' + name)
+            image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name)
             ret, jpeg = cv2.imencode('.jpg', image)
         else:
             cam.index += 1
-
-        if cam.index % 5 == 0:
+        if cam.index % 4 == 0:
             cam.index = 0
         return jpeg.tobytes()
-
-    # def update(self):
-    #     while True:
-    #         (self.grabbed, self.frame) = self.video.read()
 
 cam = StreamingVideo() #서버 실행시 최초 1회만 실행
 
 def gen(camera):
-    # cam = StreamingVideo()
-    if cam.k == False:
-        cam.__init__()
+    camid = 0
+    camera = Camera.objects.all()
+    for c in camera:
+        if c.cam_status == 'warning':
+            camid = c.cam_id
     while True:
-        cam.slep +=1
-        if cam.slep %10 == 0:
-            frame = cam.get_frame()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-        else :
-            pass
-
+        frame = cam.get_frame(camid)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 #@gzip.gzip_page
 def livefe(request):
@@ -181,6 +168,20 @@ def livefe(request):
         return StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")
     except ConnectionAbortedError as e:
         print(e)
+
+def gen1(camera):
+    while True:
+        frame = cam.get_frame(0)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+#@gzip.gzip_page
+def livefe2(request):
+    try:
+        return StreamingHttpResponse(gen1(cam), content_type="multipart/x-mixed-replace;boundary=frame")
+    except ConnectionAbortedError as e:
+        print(e)
+
 # def update_profile(request, user_id):
 #    user = User.objects.get(pk=user_id)
 #    user.save()

@@ -8,28 +8,6 @@ import Scheduler
 
 # from . import Scheduler
 
-# def capture(camid):
-#     cam = cv2.VideoCapture(camid)
-#     if cam.isOpened() == False:
-#         print('cant open the cam (%d)' % camid)
-#         return None
-#
-#     index = 0
-#     while True:
-#         ret, frame = cam.read()
-#         if frame is None:
-#             print('frame is not exist')
-#             return None
-#
-#         # png로 압축 없이 영상 저장
-#         name = '/img_{}.png'.format(index)
-#         index += 1
-#         cv2.imwrite('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics'+camid + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
-#         print(index)
-#         if index == 5:
-#             index = 0
-
-
 class VideoCamera(object):
     def __init__(self, idx):
         self.time = time.time()     #동영상 촬영시간 측정
@@ -60,7 +38,7 @@ class VideoCamera(object):
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
-        self.videooutput = cv2.VideoWriter(str(idx) + '-' +'output'+self.name+'.avi', fourcc, 2, (640, 480))
+        self.videooutput = cv2.VideoWriter('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/camera/' + str(idx) + '-' +'output'+self.name+'.avi', fourcc, 6, (640, 480))
 
     def sizecon(self):
         # 동영상 용량 조정
@@ -73,7 +51,7 @@ class VideoCamera(object):
         self.videooutput.write(frame)
 
 class Frame_sender:
-    def __init__(self,id_list,virtual,address,port,encode_param):
+    def __init__(self,id_list,virtual,wall,address,port,encode_param):
         self.id_list = id_list
         self.video_list = []
         self.frame_list = []
@@ -91,7 +69,8 @@ class Frame_sender:
         self.max_fps = 10  # maximum frame per second
         self.scheduler = Scheduler.Frame_scheduler(self.id_list,self.max_fps)
         self.last_change_schedule_time = time.time()
-
+        self.index = [0, 0]
+        self.wall = wall
     def initialize_server(self):
         while True:
             try:
@@ -100,20 +79,20 @@ class Frame_sender:
                 print(data)
                 # send_info(0,False,client_socket)
                 for id in self.id_list:
-                    self.send_info(id, False, self.socket)
+                    self.send_info(id, self.virtual_fence[id], self.wall[id], self.socket)
                 print('Connect Succes')
                 return self.socket
             except TimeoutError:
                 logging.error('TimeoutError')
 
-    def send_info(self,id, virtual, sock):
-        req = "cam_id:" + str(id) + "\r\nrestricted:" + str(virtual)
+    def send_info(self,id, virtual, wall,sock):
+        req = "cam_id:" + str(id) + "\r\nrestricted:" + str(virtual) + "\r\nwall:" +str(wall)
         sock.send(req.encode('UTF-8'))  # send message to server
         return print("Send Complete")
 
     def send_frame(self,cam_id,idx,schedule):
         self.video_list[cam_id].sizecon()
-        if self.video_list[cam_id].sizecontrol % 4 == 0:
+        if self.video_list[cam_id].sizecontrol % 1 == 0:
             self.video_list[cam_id].storeframe(self.video_list[cam_id].frame)
         if (time.time() - self.video_list[cam_id].time) > 10:
             self.video_list[cam_id].__del__()  # 현재까지 영상 저장
@@ -158,7 +137,7 @@ class Frame_sender:
                 id += 1
             cv2.waitKey(1000 // self.max_fps)
             for cam_id in range(len(self.ret_list)):
-                #capture(cam_id)
+                self.capture(cam_id)
                 self.send_frame(cam_id, idx,schedule)
             self.frame_list = []
             self.ret_list = []
@@ -169,6 +148,16 @@ class Frame_sender:
         data = self.socket.recv(1024)
         self.detect_info = data.decode('UTF-8')
 
+    def capture(self, camid):
+        # png로 압축 없이 영상 저장
+        name = '/img_{}.png'.format(self.index[camid])
+        self.index[camid] += 1
+        cv2.imwrite(
+            'C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name,
+            self.video_list[camid].frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 0])
+        if self.index[camid] == 4:
+            self.index[camid] = 0
+
 
 
 def main():
@@ -178,7 +167,7 @@ def main():
     ADDRESS = 'localhost'
     PORT = 8485
     # client_socket = initialize_server(ADDRESS,PORT,id_list)
-    fs1 = Frame_sender(id_list, False,ADDRESS,PORT, encode_param)
+    fs1 = Frame_sender(id_list, [False,False],[False,False],ADDRESS,PORT, encode_param)
     fs1.run()
 
 if __name__ == "__main__":
