@@ -5,7 +5,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     #url(r'^$', views.change_stat),
-    path("home/change_stat", views.change_stat),
+    path("home/change_stat", views.database_handler),
+    path("home/send_weight", views.send_weight),
     path('monitor/home/alert.html',views.AlertView.as_view(), name = 'alert'),
     #path('audios/note.mp3',views.AlertView),
     path('edum/',auth_views.LoginView.as_view(), name='login'),

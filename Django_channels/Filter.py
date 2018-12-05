@@ -4,31 +4,30 @@ import socket
 import time, cv2
 import struct
 import pickle
-
-from . import Scheduler
+import Scheduler
 
 # from . import Scheduler
 
-def capture(camid):
-    cam = cv2.VideoCapture(camid)
-    if cam.isOpened() == False:
-        print('cant open the cam (%d)' % camid)
-        return None
-
-    index = 0
-    while True:
-        ret, frame = cam.read()
-        if frame is None:
-            print('frame is not exist')
-            return None
-
-        # png로 압축 없이 영상 저장
-        name = '/img_{}.png'.format(index)
-        index += 1
-        cv2.imwrite('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics'+camid + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
-        print(index)
-        if index == 5:
-            index = 0
+# def capture(camid):
+#     cam = cv2.VideoCapture(camid)
+#     if cam.isOpened() == False:
+#         print('cant open the cam (%d)' % camid)
+#         return None
+#
+#     index = 0
+#     while True:
+#         ret, frame = cam.read()
+#         if frame is None:
+#             print('frame is not exist')
+#             return None
+#
+#         # png로 압축 없이 영상 저장
+#         name = '/img_{}.png'.format(index)
+#         index += 1
+#         cv2.imwrite('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics'+camid + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
+#         print(index)
+#         if index == 5:
+#             index = 0
 
 
 class VideoCamera(object):
@@ -89,9 +88,10 @@ class Frame_sender:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((address, port))
         self.encode_param = encode_param
-        self.detect_weight = []
         self.max_fps = 10  # maximum frame per second
-        self.scheduler = Scheduler.Frame_scheduler(self.detect_weight,self.id_list,self.max_fps)
+        self.scheduler = Scheduler.Frame_scheduler(self.id_list,self.max_fps)
+        self.last_change_schedule_time = time.time()
+
     def initialize_server(self):
         while True:
             try:
@@ -115,7 +115,7 @@ class Frame_sender:
         self.video_list[cam_id].sizecon()
         if self.video_list[cam_id].sizecontrol % 4 == 0:
             self.video_list[cam_id].storeframe(self.video_list[cam_id].frame)
-        if (time.time() - self.video_list[cam_id].time) > 5:
+        if (time.time() - self.video_list[cam_id].time) > 10:
             self.video_list[cam_id].__del__()  # 현재까지 영상 저장
             self.video_list[cam_id].write(cam_id)  # 영상저장함수실행
         if self.ret_list[cam_id]:
@@ -140,9 +140,14 @@ class Frame_sender:
     def run(self):
         self.initialize_server()
         idx = 0
-        schedule = [0,1,0,1,1,1,1]  # should be replaced by frame_scheduler instance
+        self.scheduler.set_cam_frame_order(1)
         while True:
             # Capture frame-by-frame
+            if((time.time() - self.last_change_schedule_time) > 5):
+                self.scheduler.set_cam_frame_order(1)
+                self.last_change_schedule_time = time.time()
+            schedule = self.scheduler.schedule
+            print(schedule)
             id = 0
             if idx == len(schedule):
                 idx = 0
@@ -153,7 +158,7 @@ class Frame_sender:
                 id += 1
             cv2.waitKey(1000 // self.max_fps)
             for cam_id in range(len(self.ret_list)):
-                capture(cam_id)
+                #capture(cam_id)
                 self.send_frame(cam_id, idx,schedule)
             self.frame_list = []
             self.ret_list = []
