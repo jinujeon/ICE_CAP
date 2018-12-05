@@ -472,7 +472,7 @@ if __name__ == '__main__':
     # Ready to start machine learning
     # Load to memory
     # MODEL_NAME = 'inference_graph'
-    MODEL_NAME = 'inference_graph_trashplus'
+    MODEL_NAME = 'inference_graph'
     CWD_PATH = "C:/tensorflow1/models/research/object_detection"
     PATH_TO_CKPT = os.path.join(CWD_PATH, MODEL_NAME, 'frozen_inference_graph.pb')
     PATH_TO_LABELS = os.path.join(CWD_PATH, 'training', 'labelmap.pbtxt')
