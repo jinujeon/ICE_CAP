@@ -148,15 +148,16 @@ class actRecognition():
         self.midTr = []  # 쓰레기의 중점 좌표
         self.midP = []  # 쓰레기를 들고 있는 사람의 중점 좌표
         self.trashMulti = cv2.MultiTracker_create()  # 쓰레기 감지 추적기
-        self.colist1 = [10, 300, 630, 300]  # 가상 펜스 직선을 그릴 좌표 - 위 직선
-        self.colist2 = [10, 350, 630, 350]  # 가상 펜스 직선을 그릴 좌표 - 아래 직선
+        self.colist1 = [10, 350, 630, 350]  # 가상 펜스 직선을 그릴 좌표 - 위 직선
+        self.colist2 = [10, 400, 630, 400]  # 가상 펜스 직선을 그릴 좌표 - 아래 직선
         self.trash_time = 0
         self.trashnum = 0
         self.fence_tracker = cv2.MultiTracker_create() # 월담 감지 추적기
         self.fallen_time = 0
+        self.fence_people = []
 
     def fence_settings(self, cam):
-        self.fence_prev = []
+        self.fence_prev, self.fence_people = [], []
         self.fence_tracker = cv2.MultiTracker_create()
         self.peopleNum = len(cam.fxy_list)
         for i in cam.fxy_list:
@@ -169,10 +170,10 @@ class actRecognition():
                 self.fence_tracker.add(csrt, cam.frame, window)
             except cv2.error:
                 pass
-            if (y - h) < self.colist1[1] and y < self.colist1[1] and h < 40:  # 담 너머의 사람일 때 마지막 원소 값 = 0
+            if (y + h) < self.colist1[1] and y < self.colist1[1]:  # 담 너머의 사람일 때 마지막 원소 값 = 0
                 self.fence_prev.append([x, y, w, h, 0, False])
             # 담 앞의 사람이고 상체만 인식되었을 때 마지막 원소 값 = 1
-            elif self.colist1[1] < (y - h) < self.colist2[1] and y < self.colist1[1]:
+            elif self.colist2[1] < (y + h) < self.colist1[1] and y < self.colist1[1]:
                 self.fence_prev.append([x, y, w, h, 1, False])
             # 담 앞의 사람이고 상하체가 모두 인식되었을 때 마지막 원소 값 = 2
             else:
@@ -186,38 +187,48 @@ class actRecognition():
         for box in boxes:
             [x, y, w, h] = [abs(int(v)) for v in box]
             cv2.rectangle(cam.frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-            if (y - h) < self.colist1[1] and y < self.colist1[1]:  # 담 너머의 사람일 때 마지막 원소 값 = 0
+            if (y + h) < self.colist1[1] and y < self.colist1[1]:  # 담 너머의 사람일 때 마지막 원소 값 = 0
                 temp.append([x, y, w, h, 0, False])
             # 담 앞의 사람이고 상체만 인식되었을 때 마지막 원소 값 = 1
-            elif self.colist1[1] < (y - h) < self.colist2[1] and y < self.colist1[1]:
+            elif self.colist2[1] < (y + h) < self.colist1[1] and y < self.colist1[1]:
                 temp.append([x, y, w, h, 1, False])
             # 담 앞의 사람이고 상하체가 모두 인식되었을 때 마지막 원소 값 = 2
             else:
                 temp.append([x, y, w, h, 2, False])
+        if len(self.fence_people) != 0 and len(self.fence_people) <= len(temp):
+            for index in self.fence_people:
+                temp[index][5] = True
         for index, i in enumerate(temp):
             if index < len(self.fence_prev):
-                print("y - h", y - h)
+                print("y + h", y + h)
                 # 담 뒤에 있던 사람이 앞으로 간 것으로 위치가 바뀐 경우 월담 감지
-                if self.fence_prev[index][4] == 0 and self.fence_prev[index][4] != i[4] and not self.fence_prev[index][5]:
+                if self.fence_prev[index][4] == 0 and self.fence_prev[index][4] != i[4] and not self.fence_prev[index][
+                    5]:
+                    self.fence_people.append(index)
                     self.fence_warning = True
-                    i[5] = True
-                    print("y - h", y - h)
+                    print("y + h", y + h)
                     print("뒤 -> 앞 월담 감지")
+                    i[5] = True
                     i[4] = 2
                 # 담 앞에 있던 사람이 뒤로 간 것으로 위치가 바뀐 경우 월담 감지
-                elif self.fence_prev[index][4] != i[4] and self.fence_prev[index][4] == 1 and not self.fence_prev[index][5]:
+                elif self.fence_prev[index][4] != i[4] and self.fence_prev[index][4] == 1 and not \
+                self.fence_prev[index][5]:
+                    self.fence_people.append(index)
                     self.fence_warning = True
-                    i[5] = True
                     print("앞 -> 뒤 월담 감지 (상체 부분 인식)")
-                    i[4] = 0
-                elif self.fence_prev[index][4] == 2 and self.fence_prev[index][4] != i[4] and not self.fence_prev[index][5]:
-                    print("y - h", y - h)
-                    self.fence_warning = True
                     i[5] = True
+                    i[4] = 0
+                elif self.fence_prev[index][4] == 2 and self.fence_prev[index][4] != i[4] and not \
+                self.fence_prev[index][5]:
+                    self.fence_people.append(index)
+                    print("y + h", y + h)
+                    self.fence_warning = True
                     print("앞 -> 뒤 월담 감지 (전신 인식)")
+                    i[5] = True
                     i[4] = 0
         self.fence_prev = temp
         print("now = ", self.fence_prev)
+        print("fence people = ", self.fence_people)
 
     def trSettings(self, cam):
         '''
@@ -277,6 +288,7 @@ class actRecognition():
             print("추적기에 아무것도 없음")
         else:
             print(temp)
+            newDistance = 0
             if self.pID < len(temp):
                 print("중점 계산")
                 self.midTr = [(temp[0][0] * 2 + temp[0][2]) / 2, (temp[0][1] * 2 + temp[0][3]) / 2]
