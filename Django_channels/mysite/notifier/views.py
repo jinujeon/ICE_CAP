@@ -13,7 +13,7 @@ from django.http import StreamingHttpResponse
 import threading
 from django.views.decorators.gzip import gzip_page
 import gzip
-
+from django.http import JsonResponse
 
 class HomeView(TemplateView):
     template_name = "home/home.html"
@@ -54,10 +54,15 @@ class AlertView(TemplateView):
         context = {'cams': cams}
         return render(request, 'home/alert.html', context)
 
-
+def send_weight(request):
+    cams = Camera.objects.all()
+    weight = dict([(i, None) for i in range(len(cams))])
+    for cam in cams:
+        weight[cam.cam_id] = cam.weight
+    return JsonResponse(weight)
 
 @csrf_exempt
-def change_stat(request):
+def database_handler(request):
     cams = Camera.objects.all()
     if request.method == "POST":
         decoded_data = request.read().decode('utf-8')
@@ -108,7 +113,8 @@ def evnet_hadler(cam):
         if cam.fence:
             cam.weight += 3
         cam.cam_status = 'warning'
-    elif not (cam.fallen or cam.trash or cam.fence or cam.instrusion):
+    # elif not (cam.fallen or cam.trash or cam.fence or cam.instrusion):
+    else:
         cam.cam_status = 'safe'
         cam.weight = 1  # default weight per camera
 
