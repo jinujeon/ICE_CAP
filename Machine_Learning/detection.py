@@ -228,33 +228,35 @@ class actRecognition():
         print("쓰레기 초기화")
         self.t_prev = []
         self.trashMulti = cv2.MultiTracker_create()
-        csrt = cv2.TrackerCSRT_create()
         window = ()
         i0, i1, i2, i3, self.trDistance = 0, 0, 0, 0, 0
         self.midTr, self.midP = [], []
         list = cam.txy_list + cam.fxy_list
+        print("list =", list)
         self.trashnum = len(cam.txy_list)
-        for i in list:
+        for index, i in enumerate(list):
             i0, i2 = abs(int(i[0] * 640)), abs(int(i[2] * 640))
             i1, i3 = abs(int(i[1] * 480)), abs(int(i[3] * 480))
             window = (i0, i1, i2, i3)
-            if i >= self.trashnum and ((i0 <= self.t_prev[0][0] <= (i0 + i2)) or
-                                       (i0 <= (self.t_prev[0][2] + self.t_prev[0][0]) <= (i0 + i2))):
-                    if len(self.t_prev) > 1:
-                        self.pID = len(self.t_prev) - 1  # 쓰레기를 들고 있는 사람
-                    self.midTr = [(self.t_prev[0][0] * 2 + self.t_prev[0][2]) / 2,
-                                  (self.t_prev[0][1] * 2 + self.t_prev[0][3]) / 2]
-                    self.midP = [(i0 * 2 + i2) / 2, (i1 * 2 + i3) / 2]
-                    # 쓰레기와 사람 경계 박스의 중점 간 거리를 계산
-                    self.trDistance = math.sqrt(
-                        math.pow(self.midTr[0] - self.midP[0], 2) + math.pow(self.midTr[1] - self.midP[1], 2))
-                    print("처음 거리:", self.trDistance)
             self.t_prev.append(window)
             try:
+                csrt = cv2.TrackerCSRT_create()
                 self.trashMulti.add(csrt, cam.frame, window)  # 객체 추적기에 쓰레기 좌표 추가
                 cv2.rectangle(cam.frame, (i0, i1), (i0 + i2, i1 + i3), (255, 0, 0), 2)
             except cv2.error:
                 pass
+            # 사람과 쓰레기 객체 경계 박스가 겹칠 때
+            if index >= self.trashnum and ((i0 <= self.t_prev[0][0] <= (i0 + i2)) or
+                                           (i0 <= (self.t_prev[0][2] + self.t_prev[0][0]) <= (i0 + i2))):
+                if len(self.t_prev) > 1:
+                    self.pID = len(self.t_prev) - 1  # 쓰레기를 들고 있는 사람
+                self.midTr = [(self.t_prev[0][0] * 2 + self.t_prev[0][2]) / 2,
+                              (self.t_prev[0][1] * 2 + self.t_prev[0][3]) / 2]
+                self.midP = [(i0 * 2 + i2) / 2, (i1 * 2 + i3) / 2]
+                # 쓰레기와 사람 경계 박스의 중점 간 거리를 계산
+                self.trDistance = math.sqrt(
+                    math.pow(self.midTr[0] - self.midP[0], 2) + math.pow(self.midTr[1] - self.midP[1], 2))
+                print("처음 거리:", self.trDistance)
 
     def trUpdates(self, cam):
         '''
@@ -263,32 +265,34 @@ class actRecognition():
         :param cam:
         :return:
         '''
-        try:
-            (success, boxes) = self.trashMulti.update(cam.frame)  # 객체 추적기 안의 박스들을 업데이트
-            temp = []
-            for box in boxes:
-                [x, y, w, h] = [abs(int(v)) for v in box]
-                temp.append([x, y, w, h])
-
-                cv2.rectangle(cam.frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-            if len(temp) == 0:
-                print("추적기에 아무것도 없음")
-            else:
-                print(temp)
-            self.midTr = [(temp[0][0] * 2 + temp[0][2]) / 2, (temp[0][1] * 2 + temp[0][3]) / 2]
+        (success, boxes) = self.trashMulti.update(cam.frame)  # 객체 추적기 안의 박스들을 업데이트
+        temp = []
+        for box in boxes:
+            [x, y, w, h] = [abs(int(v)) for v in box]
+            cv2.rectangle(cam.frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            temp.append([x, y, w, h])
+        if len(temp) == 0:
+            print("추적기에 아무것도 없음")
+        else:
+            print(temp)
             if self.pID < len(temp):
                 print("중점 계산")
+                self.midTr = [(temp[0][0] * 2 + temp[0][2]) / 2, (temp[0][1] * 2 + temp[0][3]) / 2]
                 self.midP = [(temp[self.pID][0] * 2 + temp[self.pID][2]) / 2,
                              (temp[self.pID][1] * 2 + temp[self.pID][3]) / 2]
-            # 쓰레기를 들고 있던 사람 경계 박스의 중점과 쓰레기 경계 박스 중점 간 거리를 계산
+                p1 = (int((temp[0][0] * 2 + temp[0][2]) / 2), int((temp[0][1] * 2 + temp[0][3]) / 2))
+                p2 = (int((temp[self.pID][0] * 2 + temp[self.pID][2]) / 2),
+                      int((temp[self.pID][1] * 2 + temp[self.pID][3]) / 2))
+                # 쓰레기를 들고 있던 사람 경계 박스의 중점과 쓰레기 경계 박스 중점 간 거리를 계산
                 newDistance = math.sqrt(
-                math.pow(self.midTr[0] - self.midP[0], 2) + math.pow(self.midTr[1] - self.midP[1], 2))
-            # 두 중점 간 거리가 처음보다 50 픽셀 이상 차이 나면
-                if newDistance - self.trDistance >= 10:
-                    self.trash_warning = True
+                    math.pow(self.midTr[0] - self.midP[0], 2) + math.pow(self.midTr[1] - self.midP[1], 2))
+                cv2.line(cam.frame, p1, p2, (255, 255, 255), 4)
+                print("newDistance = ", newDistance)
+                # 두 중점 간 거리가 처음보다 50 픽셀 이상 차이 나면
+            if newDistance - self.trDistance >= 50:
+                self.trash_warning = True
+                print("쓰레기 투기 - 거리 멀어짐")
             self.t_prev = temp
-        except cv2.error:
-            pass
 
     def intr_compute(self, x, y):
         '''
@@ -312,7 +316,7 @@ class actRecognition():
         :return:
         '''
         if ((('trash' in cam.e_list) or ('metal' in cam.e_list) or (
-                'bottle' in cam.e_list)) or self.trFirst):  # 쓰레기가 처음 감지되었을 때
+                'bottle' in cam.e_list)) and self.trFirst):  # 쓰레기가 처음 감지되었을 때
             self.trash_time = 0
             self.trSettings(cam)
             self.trFirst = False
@@ -324,7 +328,7 @@ class actRecognition():
             if self.trash_time == 0:
                 self.trash_time = time.time()
             if time.time() - self.trash_time >= 10:
-                print("투기된 쓰레기가 감지되었습니다.")
+                print("투기된 쓰레기가 감지되었습니다. - 10초 이상")
                 self.trash_warning = True
         else:  # 사람만 감지될 때
             if self.trash_time == 0:
