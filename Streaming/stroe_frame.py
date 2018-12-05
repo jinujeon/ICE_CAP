@@ -19,7 +19,7 @@ def capture(camid):
         # png로 압축 없이 영상 저장
         name = 'img_{}.png'.format(index)
         index += 1
-        cv2.imwrite('C:/Users/ruldy/Roaming/' + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
+        cv2.imwrite('C:/Users/ruldy/Roaming/2/' + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
         print(index)
         if index == 5:
             index = 0

@@ -3,14 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>관리자 로그인</title>
+    <style>
+        .gr div{
+            padding: 10px;
+			border: 10px solid #2db400;
+			background-color: #e3ffe0;
+        }
+        body {
+            background-image: url("backg2.jpg");
+        }
+    </style>
 </head>
 <body>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="submit">
-    <input type="reset" value="reset">
-</form>
+    <div class="gr">
+        <div  style="background-color:white; position: absolute; left: 1200px; top: 500px;" >
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+            <input type="submit" value="submit">
+            <input type="reset" value="reset">
+            </form>
+        </div>
+    </div>
+
 </body>
 <script>
 

@@ -25,7 +25,7 @@ class VideoCamera(object):
         # 코덱 설정
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         # 파일에 저장하기 위해 VideoWriter 객체를 생성
-        self.videooutput = cv2.VideoWriter('output'+str(idx)+self.name+'.avi', fourcc, 10, (640, 480))
+        self.videooutput = cv2.VideoWriter('C:/Users/ruldy/Roaming/2/output'+str(idx)+self.name+'.avi', fourcc, 10, (640, 480))
 
     def sizecon(self):
         # 동영상 용량 조정
