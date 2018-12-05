@@ -288,6 +288,7 @@ class actRecognition():
             print("추적기에 아무것도 없음")
         else:
             print(temp)
+            newDistance = 0
             if self.pID < len(temp):
                 print("중점 계산")
                 self.midTr = [(temp[0][0] * 2 + temp[0][2]) / 2, (temp[0][1] * 2 + temp[0][3]) / 2]
