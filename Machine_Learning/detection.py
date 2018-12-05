@@ -70,7 +70,7 @@ class Frame_recv():
             decoded = self.decode_data()
             self.conn.send(decoded.encode('utf-8'))
             self.index = int(decoded)
-            print("Cam({})'s Frame will be received".format(self.index))
+            # print("Cam({})'s Frame will be received".format(self.index))
             # Receive Frame SIZE from CCTV using TCP
             while len(self.data) < self.payload_size:
                 self.data += self.conn.recv(4096)
@@ -123,10 +123,14 @@ class Cam(threading.Thread):
         self.id = int(data[data.find('cam_id') + 7:data.find('restricted') - 2])
         self.data['cam_id'] = self.id
         print("Cam_id: {}".format(self.id))
-        if (data[data.find('restricted') + 11:]) == 'True':
+        if (data[data.find('restricted') + 11:data.find('wall') - 2]) == 'True':
             self.data['restricted'] = True
         else:
             self.data['restricted'] = False
+        if (data[data.find('wall') + 5:]) == 'True':
+            self.data['wall'] = True
+        else:
+            self.data['wall'] = False
         print("restricted: {}".format(self.data['restricted']))
         print(("COMPLETE"))
 
