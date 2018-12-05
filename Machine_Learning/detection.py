@@ -70,6 +70,7 @@ class Frame_recv():
             decoded = self.decode_data()
             self.conn.send(decoded.encode('utf-8'))
             self.index = int(decoded)
+            print("Cam({})'s Frame will be received".format(self.index))
             # Receive Frame SIZE from CCTV using TCP
             while len(self.data) < self.payload_size:
                 self.data += self.conn.recv(4096)
@@ -467,11 +468,11 @@ class Obj_detection():
 if __name__ == '__main__':
     # 1.Start Initialize
     HOST = '192.168.0.66'
-    # # HOST= 'localhost'
+    # HOST= 'localhost'
     PORT = 8485
     # Ready to start machine learning
     # Load to memory
-    # # MODEL_NAME = 'inference_graph'
+    # MODEL_NAME = 'inference_graph'
     MODEL_NAME = 'inference_graph_trashplus'
     CWD_PATH = "C:/tensorflow1/models/research/object_detection"
     PATH_TO_CKPT = os.path.join(CWD_PATH, MODEL_NAME, 'frozen_inference_graph.pb')
@@ -504,7 +505,6 @@ if __name__ == '__main__':
         # 2. Start receiving frame
         frecv.run()
         # Frame receive complete
-
         # 3.Ready to start Obj detection
         frame_expanded = np.expand_dims(frecv.cam_list[frecv.index].frame, axis=0)
         obj_dt = Obj_detection(sess, detection_boxes, detection_scores, detection_classes, num_detections, image_tensor,
