@@ -17,7 +17,7 @@ class Frame_scheduler:
                 self.schedule.append(self.id_list[(i % self.cam_count)])
         else:
             self.detection_weight = self.get_cam_weight()
-            print(self.detection_weight)
+            print("CAMS WEIGHT: ",self.detection_weight)
             self.schedule = []#initialize
             sum = 0
             for i in self.detection_weight:

@@ -98,7 +98,7 @@ def database_handler(request):
                     if (pro.loginchk):
                         phone = pro.phone_number
                 print("Let's check PHONE : ", pro.loginchk, pro.phone_number, phone)
-                send = Sendsms(phone, cam.cam_location, cam.cam_status)
+                send = Sendsms(phone, cam.cam_location, cam.fallen, cam.trash,cam.instrusion,cam.fence)
                 send.sendSms()
             cam.save()
     return HttpResponse("OK")
@@ -191,10 +191,18 @@ from sdk.exceptions import CoolsmsException
 
 
 class Sendsms:
-    def __init__(self, phone_number, place, text):
+    def __init__(self, phone_number, place, fallen,trash,intrusion,fence):
         self.phone_number = phone_number
         self.place = place
-        self.text = text
+        self.text = ''
+        if fallen:
+            self.text += '쓰러진 사람감지 '
+        if trash:
+            self.text += "쓰레기 감지 "
+        if intrusion:
+            self.text += "접근 제한 구역 침입 감지 "
+        if fence:
+            self.text += "월담 행위 감지 "
 
     def sendSms(self):
         # set api key, api secret
@@ -205,7 +213,7 @@ class Sendsms:
         params['type'] = 'sms'  # Message type ( sms, lms, mms, ata )
         params['to'] = self.phone_number # Recipients Number '01000000000,01000000001'
         params['from'] = '01035419130'  # Sender number
-        params['text'] = self.place + ' 카메라에 ' + self.text + '한 상황이 발생하였습니다.' # Message
+        params['text'] = self.place + ' 카메라에 ' + self.text + '가 발생하였습니다.' # Message
 
         cool = Message(api_key, api_secret)
 
