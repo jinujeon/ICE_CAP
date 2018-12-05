@@ -9,10 +9,17 @@
   {% endfor %}
    </head>
   <body>
+
  {% for cam in cams %}
   {% if cam.cam_status == 'warning' %}
-  <h1>camera {{cam.cam_id}}: {{cam.cam_location}}</h1>
-  <img src="{% url 'livefe'%}">
+    {% if cam.cam_id == 0 %}
+ <h1>camera {{cam.cam_id}}: {{cam.cam_location}}</h1>
+ <img src="{% url 'livefe'%}">
+    {% elif cam.cam_id == 1%}
+ <h1>camera {{cam.cam_id}}: {{cam.cam_location}}</h1>
+ <img src="{% url 'livefe2'%}">
+  {% endif %}
+
   {% else %}
 
   {% endif %}
