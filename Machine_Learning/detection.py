@@ -104,7 +104,7 @@ class Cam(threading.Thread):
         threading.Thread.__init__(self, name='Cam({})'.format(id))
         self.id = None
         self.frame = None
-        self.data = {'cam_id': self.id, 'trash': False, 'intrusion': False, 'fallen': False,'restricted':False,'fence':False}
+        self.data = {'cam_id': self.id, 'trash': False, 'intrusion': False, 'fallen': False,'restricted':False,'fence':False,'wall':False}
         self.url = "http://220.67.124.197:8000/home/change_stat"
         self.actrec = actRecognition()
         self.e_list = []
@@ -433,16 +433,17 @@ class actRecognition():
         print(cam.id)
 
     def draw_line(self,cam):
-        if cam.data['restricted']:
+        if cam.data['wall']:
             cv2.line(cam.frame, (self.colist1[0], self.colist1[1]), (self.colist1[2],self.colist1[3]),(255,0,0),2)
             cv2.line(cam.frame, (self.colist2[0], self.colist2[1]), (self.colist2[2],self.colist2[3]),(255,0,0),2)
 
     def run(self,cam):
         if cam.data["restricted"]:
             cam.actrec.intr_check(cam)
-        cam.actrec.fence_detect(cam)
+        if cam.data['wall']:
+            cam.actrec.fence_detect(cam)
         cam.actrec.fallen_check(cam)
-        # cam.actrec.Trash_detect(cam)
+        cam.actrec.Trash_detect(cam)
 
 class Obj_detection():
     def __init__(self,sess,detection_boxes, detection_scores, detection_classes, num_detections,image_tensor,frame_expanded,cam):
