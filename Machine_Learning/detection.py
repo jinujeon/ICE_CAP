@@ -104,7 +104,7 @@ class Cam(threading.Thread):
         threading.Thread.__init__(self, name='Cam({})'.format(id))
         self.id = None
         self.frame = None
-        self.data = {'cam_id': self.id, 'trash': False, 'intrusion': False, 'fallen': False,'restricted':False,'fence':False}
+        self.data = {'cam_id': self.id, 'trash': False, 'intrusion': False, 'fallen': False,'restricted':False,'fence':False,'wall':False}
         self.url = "http://220.67.124.197:8000/home/change_stat"
         self.actrec = actRecognition()
         self.e_list = []
@@ -250,6 +250,7 @@ class actRecognition():
                                            (i0 <= (self.t_prev[0][2] + self.t_prev[0][0]) <= (i0 + i2))):
                 if len(self.t_prev) > 1:
                     self.pID = len(self.t_prev) - 1  # 쓰레기를 들고 있는 사람
+                ''''
                 self.midTr = [(self.t_prev[0][0] * 2 + self.t_prev[0][2]) / 2,
                               (self.t_prev[0][1] * 2 + self.t_prev[0][3]) / 2]
                 self.midP = [(i0 * 2 + i2) / 2, (i1 * 2 + i3) / 2]
@@ -257,6 +258,7 @@ class actRecognition():
                 self.trDistance = math.sqrt(
                     math.pow(self.midTr[0] - self.midP[0], 2) + math.pow(self.midTr[1] - self.midP[1], 2))
                 print("처음 거리:", self.trDistance)
+                '''
 
     def trUpdates(self, cam):
         '''
@@ -288,8 +290,8 @@ class actRecognition():
                     math.pow(self.midTr[0] - self.midP[0], 2) + math.pow(self.midTr[1] - self.midP[1], 2))
                 cv2.line(cam.frame, p1, p2, (255, 255, 255), 4)
                 print("newDistance = ", newDistance)
-                # 두 중점 간 거리가 처음보다 50 픽셀 이상 차이 나면
-            if newDistance - self.trDistance >= 50:
+                # 두 중점 간 거리가 처음보다 200 픽셀 이상 차이 나면
+            if newDistance >= 200:
                 self.trash_warning = True
                 print("쓰레기 투기 - 거리 멀어짐")
             self.t_prev = temp
@@ -433,16 +435,17 @@ class actRecognition():
         print(cam.id)
 
     def draw_line(self,cam):
-        if cam.data['restricted']:
+        if cam.data['wall']:
             cv2.line(cam.frame, (self.colist1[0], self.colist1[1]), (self.colist1[2],self.colist1[3]),(255,0,0),2)
             cv2.line(cam.frame, (self.colist2[0], self.colist2[1]), (self.colist2[2],self.colist2[3]),(255,0,0),2)
 
     def run(self,cam):
         if cam.data["restricted"]:
             cam.actrec.intr_check(cam)
-        cam.actrec.fence_detect(cam)
+        if cam.data['wall']:
+            cam.actrec.fence_detect(cam)
         cam.actrec.fallen_check(cam)
-        # cam.actrec.Trash_detect(cam)
+        cam.actrec.Trash_detect(cam)
 
 class Obj_detection():
     def __init__(self,sess,detection_boxes, detection_scores, detection_classes, num_detections,image_tensor,frame_expanded,cam):
