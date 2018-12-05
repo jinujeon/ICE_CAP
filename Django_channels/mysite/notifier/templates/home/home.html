@@ -30,7 +30,7 @@
       const nl = document.querySelector("#notifylist");
       var alert_audio = new Audio('audios/note.mp3');
       alert_audio.volume = (1.0);
-      
+      var winHandle;
 
       webSocketBridge.connect('/notifications/');
       webSocketBridge.listen(function(action, stream) {
@@ -39,24 +39,30 @@
 		var url= "home/alert.html";    
 		var winWidth = 1080;
 	    var winHeight = 1080;
-	    var popupOption= "width="+winWidth+", height="+winHeight;    
-		window.open(url,"",popupOption);
+	    var popupOption= "width="+winWidth+", height="+winHeight;
+	    if(winHandle) {winHandle.close();}
+		winHandle = window.open(url,"",popupOption);
 	}
         if(action.event == "warning") {
           var el = document.createElement("li");
           var e2 = document.createElement("li");
           var e3 = document.createElement("li");
+          var e4 = document.createElement("li");
           if(action.trash){
             el.innerHTML = `Trash on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
             nl.appendChild(el);
           }
           if(action.instrusion){
-            e2.innerHTML = `Trepassing on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
+            e2.innerHTML = `Intrusion on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
             nl.appendChild(e2);
           }
           if(action.fallen){
             e3.innerHTML = `Fallen person on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
             nl.appendChild(e3);
+          }
+          if(action.fence){
+            e4.innerHTML = `Trepassing on camera<b>${action.cam_id}</b>!(location:${action.cam_location})`;
+            nl.appendChild(e4);
           }
 	  alert_audio.play();
 	  popupOpen();

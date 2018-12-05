@@ -25,7 +25,7 @@ def capture(camid):
         # png로 압축 없이 영상 저장
         name = '/img_{}.png'.format(index)
         index += 1
-        cv2.imwrite('C:/Users/Jun-Young/Desktop/Jun/I/ICE_CAP/Django_channels/mysite/notifier/statics/'+camid + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
+        cv2.imwrite('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics'+camid + name, frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 3])
         print(index)
         if index == 5:
             index = 0
@@ -169,7 +169,8 @@ class Frame_sender:
 def main():
     id_list = [0,1] #설치되어 있는 카메라 id
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
-    ADDRESS = '220.67.124.193'
+    # ADDRESS = '220.67.124.193'
+    ADDRESS = 'localhost'
     PORT = 8485
     # client_socket = initialize_server(ADDRESS,PORT,id_list)
     fs1 = Frame_sender(id_list, False,ADDRESS,PORT, encode_param)

@@ -66,25 +66,24 @@ def change_stat(request):
         print("#####Dict######:", dict_data)
         cam_id = dict_data['cam_id']
         # cam_status = dict_data['cam_status']
-        cam_location = dict_data['cam_location']
+        # cam_location = dict_data['cam_location']
         cam_fallen = dict_data['fallen']
         cam_trash = dict_data['trash']
         cam_instrusion = dict_data['intrusion']
         cam_fence = dict_data['fence']
-        print("----values=====:", cam_id, cam_location, cam_trash, cam_instrusion,cam_fallen,cam_fence)
+        print("----values=====:", cam_id, cam_trash, cam_instrusion,cam_fallen,cam_fence)
         print("#################value types:",type(cam_trash))
 
         for cam in cams:
             if (cam.cam_id == cam_id):
                 print("Camera table has been changed!#!@#@!#")
-                #cam.cam_status = cam_status
-                cam.cam_location = cam_location
+                # cam.cam_status = cam_status
+                # cam.cam_location = cam_location
                 cam.fallen = cam_fallen
                 cam.trash = cam_trash
                 cam.instrusion = cam_instrusion
                 cam.fence = cam_fence
-            cam.save()
-
+                evnet_hadler(cam)
             if cam.cam_status == 'warning':
                 phone = ''
                 profile = Profile.objects.all()
@@ -92,10 +91,30 @@ def change_stat(request):
                     if (pro.loginchk):
                         phone = pro.phone_number
                 print("Let's check PHONE : ", pro.loginchk, pro.phone_number, phone)
-                send = Sendsms(phone, cam_location, cam.cam_status)
+                send = Sendsms(phone, cam.cam_location, cam.cam_status)
                 send.sendSms()
             cam.save()
     return HttpResponse("OK")
+
+def evnet_hadler(cam):
+    if (cam.fallen or cam.trash or cam.fence or cam.instrusion):
+        cam.weight = 1  # defalut priority of camera
+        if cam.fallen:
+            cam.weight += 2
+        if cam.trash:
+            cam.weight += 1
+        if cam.instrusion:
+            cam.weight += 3
+        if cam.fence:
+            cam.weight += 3
+        cam.cam_status = 'warning'
+    elif not (cam.fallen or cam.trash or cam.fence or cam.instrusion):
+        cam.cam_status = 'safe'
+        cam.weight = 1  # default weight per camera
+
+
+
+
 
 class StreamingVideo(object):
     def __init__(self):

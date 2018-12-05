@@ -18,6 +18,7 @@ def popup_handler(sender, instance, created, **kwargs):
 			"cam_location": instance.cam_location,
                         "trash": instance.trash,
                         "instrusion": instance.instrusion,
+                        "fence" : instance.fence,
                         "fallen": instance.fallen
                         })
     elif instance.cam_status == 'warning':
@@ -29,26 +30,27 @@ def popup_handler(sender, instance, created, **kwargs):
                         "cam_location": instance.cam_location,
                         "trash": instance.trash,
                         "instrusion": instance.instrusion,
+                        "fence" : instance.fence,
                         "fallen": instance.fallen})
-    event_handler(sender, instance)
-
-def event_handler(sender, instance,**kwargs):
-    if instance.fallen == True:
-        print("Fallen_detect")
-        instance.cam_status = 'warning'
-        instance.weight += 2
-
-    if instance.trash == True:
-        print("trash_detect")
-        instance.cam_status = 'warning'
-        instance.weight += 1
-
-    if instance.fence == True:
-        print("fence_pass")
-        instance.cam_status = 'warning'
-        instance.weight += 3
-
-    if instance.instrusion == True:
-        print("intrusion_pass")
-        instance.cam_status = 'warning'
-        instance.weight += 3
+#     event_handler(sender, instance)
+#
+# def event_handler(sender, instance,**kwargs):
+#     if instance.fallen == True:
+#         print("Fallen_detect")
+#         instance.cam_status = 'warning'
+#         instance.weight += 2
+#
+#     if instance.trash == True:
+#         print("trash_detect")
+#         instance.cam_status = 'warning'
+#         instance.weight += 1
+#
+#     if instance.fence == True:
+#         print("fence_pass")
+#         instance.cam_status = 'warning'
+#         instance.weight += 3
+#
+#     if instance.instrusion == True:
+#         print("intrusion_pass")
+#         instance.cam_status = 'warning'
+#         instance.weight += 3
