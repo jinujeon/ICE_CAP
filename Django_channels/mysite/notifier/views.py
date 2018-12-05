@@ -23,6 +23,8 @@ class HomeView(TemplateView):
 def profile(request):
     if request.method == "GET":
         name = request.user.get_username()
+    if name == 'Jun':
+        return render(request, 'home/resident.html')
     profile = Profile.objects.all()
     for pro in profile:
         if str(pro.user) == name:
