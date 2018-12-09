@@ -295,7 +295,7 @@ class actRecognition():
         # 사람 수가 0이 아니고 사람 수가 변경되었을 때
         if len(cam.fxy_list) != 0 and self.peopleNum != len(cam.fxy_list):
             if self.select_wall:
-                box = cv2.selectROI('selectroi', cam.frame)  # x, y, w, h
+                box = cv2.selectROI('selectroi', cam.frame) # x, y, w, h
                 self.colist1[1], self.colist1[3] = int(box[3] * 0.1 + box[1]), int(box[3] * 0.1 + box[1])
                 self.colist2[1], self.colist2[3] = int(box[3] * 0.7 + box[1]), int(box[3] * 0.7 + box[1])
                 cv2.destroyWindow('selectroi')
