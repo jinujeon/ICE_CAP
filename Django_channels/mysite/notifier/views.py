@@ -194,6 +194,31 @@ def livefe2(request):
         return StreamingHttpResponse(gen1(cam), content_type="multipart/x-mixed-replace;boundary=frame")
     except ConnectionAbortedError as e:
         print(e)
+        
+def img():
+    image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/backg2.jpg')
+    ret, jpeg = cv2.imencode('.jpg', image)
+    frame = jpeg.tobytes()
+    yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+def imgbackg(request):
+    try:
+        return StreamingHttpResponse(img(), content_type="multipart/x-mixed-replace;boundary=frame")
+    except ConnectionAbortedError as e:
+        print(e)
+
+def img2():
+    image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/edum.gif')
+    ret, jpeg = cv2.imencode('.jpg', image)
+    frame = jpeg.tobytes()
+    yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+def imgedumimg(request):
+    try:
+        return StreamingHttpResponse(img2(), content_type="multipart/x-mixed-replace;boundary=frame")
+    except ConnectionAbortedError as e:
+        print(e)
+
 
 # def update_profile(request, user_id):
 #    user = User.objects.get(pk=user_id)
