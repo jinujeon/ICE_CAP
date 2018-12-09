@@ -17,4 +17,6 @@ urlpatterns = [
     url(r'resident/', views.resident, name='resident'),
     url(r'^residentcam0/$', views.residentcam0, name='residentcam0'),
     url(r'^residentcam1/$', views.residentcam1, name='residentcam1'),
+    # url(r'img/backg', views.imgback, name='imgback'),
+    # url(r'img/edumimg', views.imgedumimg, name='imgedumimg'),
 ]
