@@ -62,6 +62,7 @@ if __name__ == '__main__':
 
         # 4.Start Act detection
         frecv.cam_list[frecv.index].actrec.run(frecv.cam_list[frecv.index])
+        # print(frecv.cam_list[frecv.index])
         # for index in frecv.cam_list:
         #     if index.id == frecv.cam_list[i].id:
         #         index = frecv.cam_list[i]

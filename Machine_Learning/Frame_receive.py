@@ -40,6 +40,7 @@ class Cam(threading.Thread):
         else:
             self.data['wall'] = False
         print("restricted: {}".format(self.data['restricted']))
+        print("wall: {}".format(self.data['wall']))
         print(("COMPLETE"))
 
 class Frame_recv():
