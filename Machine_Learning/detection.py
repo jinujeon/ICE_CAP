@@ -322,10 +322,11 @@ class actRecognition():
         :param cam:
         :return:
         '''
+        cam.trFrame_count += 1
         if ((('trash' in cam.e_list) or ('metal' in cam.e_list) or (
                 'bottle' in cam.e_list)) and self.trFirst):  # 쓰레기가 처음 감지되었을 때
             self.trash_time = 0
-            if cam.frame_count %3 == 0 and cam.frame_count != 0:
+            if cam.trFrame_count %3 == 0 and cam.trFrame_count != 0:
                 self.trSettings(cam)
                 self.trFirst = False
             else:
