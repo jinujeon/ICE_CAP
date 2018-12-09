@@ -94,7 +94,7 @@ class Frame_sender:
         self.video_list[cam_id].sizecon()
         if self.video_list[cam_id].sizecontrol % 1 == 0:
             self.video_list[cam_id].storeframe(self.video_list[cam_id].frame)
-        if (time.time() - self.video_list[cam_id].time) > 10:
+        if (time.time() - self.video_list[cam_id].time) > 300:
             self.video_list[cam_id].__del__()  # 현재까지 영상 저장
             self.video_list[cam_id].write(cam_id)  # 영상저장함수실행
         if self.ret_list[cam_id]:
@@ -102,6 +102,7 @@ class Frame_sender:
             data0 = pickle.dumps(frame_encode0, 0)
             size = len(data0)
             print("##SIZE{}##: ".format(cam_id), size)
+            print("###INDEX",idx)
             try:
                 if schedule[idx] == cam_id:
                     self.socket.send(str(cam_id).encode('UTF-8'))
@@ -122,13 +123,14 @@ class Frame_sender:
         self.scheduler.set_cam_frame_order(1)
         while True:
             # Capture frame-by-frame
+
             if((time.time() - self.last_change_schedule_time) > 5):
                 self.scheduler.set_cam_frame_order(1)
                 self.last_change_schedule_time = time.time()
             schedule = self.scheduler.schedule
             print(schedule)
             id = 0
-            if idx == len(schedule):
+            if idx >= len(schedule):
                 idx = 0
             for video in self.video_list:
                 exec('self.ret{}, self.frame{} = video.read()'.format(id,id))
@@ -163,11 +165,11 @@ class Frame_sender:
 def main():
     id_list = [0,1] #설치되어 있는 카메라 id
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
-    # ADDRESS = '220.67.124.193'
-    ADDRESS = 'localhost'
+    ADDRESS = '220.67.124.193'
+    # ADDRESS = 'localhost'
     PORT = 8485
     # client_socket = initialize_server(ADDRESS,PORT,id_list)
-    fs1 = Frame_sender(id_list, [False,False],[False,False],ADDRESS,PORT, encode_param)
+    fs1 = Frame_sender(id_list, [False,False],[False,True],ADDRESS,PORT, encode_param)
     fs1.run()
 
 if __name__ == "__main__":

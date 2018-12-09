@@ -22,35 +22,16 @@
 <body>
 
 <div style="position: absolute; left: 780px; top: 150px;" class="gr">
-    <div  align="center" style="color: #000000;"onclick="popupOpen0();">
-    공학관 1층복도
+    <div  align="center" style="color: #000000;">
+        <a href="{% url 'residentcam0'%}">공학관 1층복도</a>
     </div>
 </div>
 
 <div style="position: absolute; left: 780px; top: 300px;" class="gr">
-    <div  align="center" style="color: #000000;"onclick="popupOpen1();">
-    2번카메라
+    <div  align="center" style="color: #000000;">
+        <a href="{% url 'residentcam1'%}">2번카메라</a>
     </div>
 </div>
-        <script>
-            function popupOpen0()
-            {
-                var url= "home/residentcam0.html";
-		        var winWidth = 1080;
-	            var winHeight = 1080;
-	            var popupOption= "width="+winWidth+", height="+winHeight;
-		        window.open(url,"",popupOption);
-            }
-            function popupOpen1()
-            {
-                var url= "home/residentcam1.html";
-		        var winWidth = 1080;
-	            var winHeight = 1080;
-	            var popupOption= "width="+winWidth+", height="+winHeight;
-		        window.open(url,"",popupOption);
-            }
-        </script>
 
-</a>
 </body>
 </html>

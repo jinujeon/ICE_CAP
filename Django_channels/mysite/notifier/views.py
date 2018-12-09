@@ -24,7 +24,8 @@ def profile(request):
     if request.method == "GET":
         name = request.user.get_username()
     if name == 'Jun':
-        return render(request, 'home/resident.html')
+        print("Yes!")
+    return render(request, 'home/resident.html')
     profile = Profile.objects.all()
     for pro in profile:
         if str(pro.user) == name:
@@ -35,6 +36,20 @@ def profile(request):
             pro.save()
 
     return HttpResponse("%s is login", name)
+
+def resident(request):
+    return render(request, 'home/resident.html')
+
+def residentcam0(request):
+    print("ye")
+    return render(request, 'home/residentcam0.html')
+
+def residentcam1(request):
+    print("no")
+    return render(request, 'home/residentcam1.html')
+
+
+
 
 
 

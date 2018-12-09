@@ -14,4 +14,7 @@ urlpatterns = [
     url(r'streamtest/', views.livefe, name='livefe'),
     url(r'streamtest2/', views.livefe2, name='livefe2'),
     url(r'loginteste/', views.profile, name='profile'),
+    url(r'resident/', views.resident, name='resident'),
+    url(r'^residentcam0/$', views.residentcam0, name='residentcam0'),
+    url(r'^residentcam1/$', views.residentcam1, name='residentcam1'),
 ]

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <meta charset="utf-8">
 <html lang="en">
 <head>
@@ -11,8 +12,15 @@
 			background-color: #e3ffe0;
         }
         body {
-            background-image: url("{% static 'backg2.jpg' %}");
+            background-image: url( "{% static 'backg2.jpg' %}");
         }
+        input[type=submit] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+}
+
     </style>
 </head>
 <body>
