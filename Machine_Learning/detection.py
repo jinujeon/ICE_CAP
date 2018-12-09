@@ -72,7 +72,7 @@ if __name__ == '__main__':
         # If restricted area, draw alert line
         frecv.cam_list[frecv.index].actrec.draw_line(frecv.cam_list[frecv.index])
         cv2.imshow('Object detector', frecv.cam_list[frecv.index].frame)
-        print(frecv.cam_list[frecv.index].weight)
+        # print(frecv.cam_list[frecv.index].weight)
         # print("CAM_ID: {}".format(frecv.cam_list[frecv.index].id))
 
             # Press 'q' to quit
