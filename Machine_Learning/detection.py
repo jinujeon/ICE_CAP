@@ -110,6 +110,7 @@ class Cam(threading.Thread):
         self.e_list = []
         self.fxy_list = []
         self.txy_list = []
+        self.trFrame_count = 0
 
     def __repr__(self):
         return "CCTV_{}".format(self.id)
@@ -155,6 +156,7 @@ class actRecognition():
         self.fence_tracker = cv2.MultiTracker_create() # 월담 감지 추적기
         self.fallen_time = 0
         self.fence_people = []
+        self.trash_list = []
 
     def fence_settings(self, cam):
         self.fence_prev, self.fence_people = [], []
@@ -242,10 +244,9 @@ class actRecognition():
         window = ()
         i0, i1, i2, i3, self.trDistance = 0, 0, 0, 0, 0
         self.midTr, self.midP = [], []
-        list = cam.txy_list + cam.fxy_list
-        print("list =", list)
+        print("list =", self.trash_list)
         self.trashnum = len(cam.txy_list)
-        for index, i in enumerate(list):
+        for index, i in enumerate(self.trash_list):
             i0, i2 = abs(int(i[0] * 640)), abs(int(i[2] * 640))
             i1, i3 = abs(int(i[1] * 480)), abs(int(i[3] * 480))
             window = (i0, i1, i2, i3)
@@ -261,15 +262,7 @@ class actRecognition():
                                            (i0 <= (self.t_prev[0][2] + self.t_prev[0][0]) <= (i0 + i2))):
                 if len(self.t_prev) > 1:
                     self.pID = len(self.t_prev) - 1  # 쓰레기를 들고 있는 사람
-                ''''
-                self.midTr = [(self.t_prev[0][0] * 2 + self.t_prev[0][2]) / 2,
-                              (self.t_prev[0][1] * 2 + self.t_prev[0][3]) / 2]
-                self.midP = [(i0 * 2 + i2) / 2, (i1 * 2 + i3) / 2]
-                # 쓰레기와 사람 경계 박스의 중점 간 거리를 계산
-                self.trDistance = math.sqrt(
-                    math.pow(self.midTr[0] - self.midP[0], 2) + math.pow(self.midTr[1] - self.midP[1], 2))
-                print("처음 거리:", self.trDistance)
-                '''
+        self.trash_list = []
 
     def trUpdates(self, cam):
         '''
@@ -332,18 +325,23 @@ class actRecognition():
         if ((('trash' in cam.e_list) or ('metal' in cam.e_list) or (
                 'bottle' in cam.e_list)) and self.trFirst):  # 쓰레기가 처음 감지되었을 때
             self.trash_time = 0
-            self.trSettings(cam)
-            self.trFirst = False
+            if cam.frame_count %3 == 0 and cam.frame_count != 0:
+                self.trSettings(cam)
+                self.trFirst = False
+            else:
+                self.trash_list = cam.txy_list + cam.fxy_list
         elif (('trash' in cam.e_list) or ('metal' in cam.e_list) or ('bottle' in cam.e_list)) and (
                 'person' in cam.e_list) and not self.trFirst:  # 쓰레기와 사람이 모두 감지되고 있을 때
             self.trash_time = 0
             self.trUpdates(cam)
         elif ('trash' in cam.e_list) or ('metal' in cam.e_list) or ('bottle' in cam.e_list):
+            self.pID = 0
             if self.trash_time == 0:
                 self.trash_time = time.time()
             if time.time() - self.trash_time >= 10:
                 print("투기된 쓰레기가 감지되었습니다. - 10초 이상")
                 self.trash_warning = True
+                self.trFirst = True
         else:  # 사람만 감지될 때
             if self.trash_time == 0:
                 self.trash_time = time.time()
