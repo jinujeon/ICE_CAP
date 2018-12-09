@@ -4,6 +4,7 @@ import pickle
 import threading
 import Recognition as rec
 import cv2
+
 class Cam(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name='Cam({})'.format(id))
@@ -16,6 +17,7 @@ class Cam(threading.Thread):
         self.fxy_list = []
         self.txy_list = []
         self.trFrame_count = 0
+        self.weight = 1
 
     def __repr__(self):
         return "CCTV_{}".format(self.id)
@@ -55,6 +57,7 @@ class Frame_recv():
         self.index = 0
         self.payload_size = struct.calcsize(">L")
         self.cam_list = ['cam0','cam1','cam2','cam3','cam4','cam5','cam6','cam7','cam8','cam9']
+        self.f_number = [0,0,0,0,0,0,0,0,0,0]
 
     def __repr__(self):
         return 'Frame_recv'
@@ -86,6 +89,7 @@ class Frame_recv():
                 exec('{} =  Cam()'.format(self.cam_list[num]))
                 exec("{}.parse_data(decoded)".format(self.cam_list[num]))
                 exec("self.cam_list[num] = {}".format(self.cam_list[num]))
+
             self.cam_list = self.cam_list[:cam_num]
             self.is_cam = True
 
@@ -102,6 +106,10 @@ class Frame_recv():
             print("ConnectionResetError")
             self.conn.close()
             self.is_conn = False
+        except ValueError:
+            print("ValueError")
+            self.conn.close()
+            self.is_conn = False
         else:
             packed_msg_size = self.data[:self.payload_size]
             self.data = self.data[self.payload_size:]
@@ -115,6 +123,10 @@ class Frame_recv():
             frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
             frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
             self.frame = frame
+            self.cam_list[self.index].weight = 1
+
+    def send_weight(self,index):
+        self.conn.send(str(self.cam_list[index].weight).encode("UTF-8"))
 
     def run(self):
         if not self.is_cam:
@@ -122,3 +134,13 @@ class Frame_recv():
         self.recv_frame()
         self.cam_list[self.index].frame = self.frame
         return self.index
+
+    def capture(self, camid):
+        # png로 압축 없이 영상 저장
+        name = '/img_{}.png'.format(self.f_number[camid])
+        self.f_number[camid] += 1
+        cv2.imwrite(
+            'C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name,
+            self.cam_list[self.index].frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 0])
+        if self.f_number[camid] == 4:
+            self.f_number[camid] = 0

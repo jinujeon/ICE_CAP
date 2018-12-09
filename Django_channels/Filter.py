@@ -67,7 +67,7 @@ class Frame_sender:
         self.socket.connect((address, port))
         self.encode_param = encode_param
         self.max_fps = 10  # maximum frame per second
-        self.scheduler = Scheduler.Frame_scheduler(self.id_list,self.max_fps)
+        self.scheduler = Scheduler.Frame_scheduler(self.id_list,self.max_fps,self.socket)
         self.last_change_schedule_time = time.time()
         self.index = [0, 0]
         self.wall = wall
@@ -120,13 +120,9 @@ class Frame_sender:
     def run(self):
         self.initialize_server()
         idx = 0
-        self.scheduler.set_cam_frame_order(1)
+        self.scheduler.set_cam_frame_order()
         while True:
             # Capture frame-by-frame
-
-            if((time.time() - self.last_change_schedule_time) > 5):
-                self.scheduler.set_cam_frame_order(1)
-                self.last_change_schedule_time = time.time()
             schedule = self.scheduler.schedule
             print(schedule)
             id = 0
@@ -144,7 +140,11 @@ class Frame_sender:
             self.frame_list = []
             self.ret_list = []
             idx += 1
+            if ((time.time() - self.last_change_schedule_time) > 5):
+                self.scheduler.set_cam_frame_order(1)
+                self.last_change_schedule_time = time.time()
             #self.recv_detect_info()
+
 
     def recv_detect_info(self):
         data = self.socket.recv(1024)
@@ -163,13 +163,13 @@ class Frame_sender:
 
 
 def main():
-    id_list = [0,1] #설치되어 있는 카메라 id
+    id_list = [0] #설치되어 있는 카메라 id
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
     # ADDRESS = '220.67.124.193'
     ADDRESS = 'localhost'
     PORT = 8485
     # client_socket = initialize_server(ADDRESS,PORT,id_list)
-    fs1 = Frame_sender(id_list, [False,False],[False,True],ADDRESS,PORT, encode_param)
+    fs1 = Frame_sender(id_list, [False],[False],ADDRESS,PORT, encode_param)
     fs1.run()
 
 if __name__ == "__main__":

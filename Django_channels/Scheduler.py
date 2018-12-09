@@ -1,11 +1,12 @@
 import requests
 import json
 class Frame_scheduler:
-    def __init__(self,id_list,fps):
+    def __init__(self,id_list,fps,sock):
         self.detection_weight = []
         self.cam_count = len(id_list)
         self.id_list = id_list
         self.schedule = []
+        self.socket = sock
         # self.cam_stat_dict = dict([(id, None) for id in range(self.cam_count)])
         self.bufsize = fps
 

@@ -12,8 +12,8 @@ import Object_detection as obd
 
 if __name__ == '__main__':
     # 1.Start Initialize
-    # HOST = '192.168.0.66'
-    HOST= 'localhost'
+    HOST = '192.168.0.66'
+    # HOST= 'localhost'
     PORT = 8485
     # Ready to start machine learning
     # Load to memory
@@ -50,6 +50,8 @@ if __name__ == '__main__':
         # 2. Start receiving frame
         frecv.run()
         # Frame receive complete
+        frecv.capture(frecv.index)
+
         # 3.Ready to start Obj detection
         frame_expanded = np.expand_dims(frecv.cam_list[frecv.index].frame, axis=0)
         obj_dt = obd.Obj_detection(sess, detection_boxes, detection_scores, detection_classes, num_detections, image_tensor,
@@ -64,11 +66,13 @@ if __name__ == '__main__':
         #     if index.id == frecv.cam_list[i].id:
         #         index = frecv.cam_list[i]
         # End Act detection
-
+        # Send weight
+        frecv.send_weight(frecv.index)
         # Show for debugging
         # If restricted area, draw alert line
         frecv.cam_list[frecv.index].actrec.draw_line(frecv.cam_list[frecv.index])
         cv2.imshow('Object detector', frecv.cam_list[frecv.index].frame)
+        print(frecv.cam_list[frecv.index].weight)
         # print("CAM_ID: {}".format(frecv.cam_list[frecv.index].id))
 
             # Press 'q' to quit

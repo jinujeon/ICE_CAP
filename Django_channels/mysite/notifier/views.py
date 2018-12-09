@@ -151,14 +151,14 @@ class StreamingVideo(object):
         sleep(0.25)
         try :
             name = '/img_{}.png'.format(cam.index)
-            image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name)
+            image = cv2.imread('C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name)
             ret, jpeg = cv2.imencode('.jpg', image)
         except :
             if cam.index == 0:
                 cam.index = 3
             else: cam.index -= 1
             name = '/img_{}.png'.format(cam.index)
-            image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name)
+            image = cv2.imread('C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name)
             ret, jpeg = cv2.imencode('.jpg', image)
         else:
             cam.index += 1
@@ -168,7 +168,6 @@ class StreamingVideo(object):
 
 cam = StreamingVideo() #서버 실행시 최초 1회만 실행
 
-camid = [0]
 def gen(camera):
     while True:
         frame = cam.get_frame(0)
@@ -189,9 +188,46 @@ def gen1(camera):
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 #@gzip.gzip_page
+def livefe1(request):
+    try:
+        return StreamingHttpResponse(gen1(cam), content_type="multipart/x-mixed-replace;boundary=frame")
+    except ConnectionAbortedError as e:
+        print(e)
+
+def gen2(camera):
+    while True:
+        frame = cam.get_frame(2)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+#@gzip.gzip_page
 def livefe2(request):
     try:
         return StreamingHttpResponse(gen1(cam), content_type="multipart/x-mixed-replace;boundary=frame")
+    except ConnectionAbortedError as e:
+        print(e)
+
+def img():
+    image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/backg2.jpg')
+    ret, jpeg = cv2.imencode('.jpg', image)
+    frame = jpeg.tobytes()
+    yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+def imgbackg(request):
+    try:
+        return StreamingHttpResponse(img(), content_type="multipart/x-mixed-replace;boundary=frame")
+    except ConnectionAbortedError as e:
+        print(e)
+
+def img2():
+    image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/edum.gif')
+    ret, jpeg = cv2.imencode('.jpg', image)
+    frame = jpeg.tobytes()
+    yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+def imgedumimg(request):
+    try:
+        return StreamingHttpResponse(img2(), content_type="multipart/x-mixed-replace;boundary=frame")
     except ConnectionAbortedError as e:
         print(e)
 
