@@ -114,6 +114,7 @@ class actRecognition():
         i0, i1, i2, i3, self.trDistance = 0, 0, 0, 0, 0
         self.midTr, self.midP = [], []
         print("list =", self.trash_list)
+        print("txy list=", cam.txy_list)
         self.trashnum = len(cam.txy_list)
         for index, i in enumerate(self.trash_list):
             i0, i2 = abs(int(i[0] * 640)), abs(int(i[2] * 640))
@@ -206,6 +207,7 @@ class actRecognition():
             self.trUpdates(cam)
         elif ('trash' in cam.e_list) or ('metal' in cam.e_list) or ('bottle' in cam.e_list):
             self.pID = 0
+            self.trFirst = True
             if self.trash_time == 0:
                 self.trash_time = time.time()
             if time.time() - self.trash_time >= 10:
@@ -213,11 +215,11 @@ class actRecognition():
                 self.trash_warning = True
                 self.trFirst = True
         else:  # 사람만 감지될 때
+            self.trFirst = True
             if self.trash_time == 0:
                 self.trash_time = time.time()
             if time.time() - self.trash_time >= 10:
                 self.trash_time = 0
-                self.trFirst = True
 
         # 상황 판단 DB 업데이트
         if self.trash_warning:
