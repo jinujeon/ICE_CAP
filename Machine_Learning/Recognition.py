@@ -228,6 +228,7 @@ class actRecognition():
             if cam.data['trash'] == False:
                 cam.data['trash'] = True
                 cam.actrec.send_post(cam)
+            cam.weight += 1
             self.trash_warning = False
         else:
             if cam.data['trash'] == True:
@@ -256,7 +257,7 @@ class actRecognition():
             if cam.data['intrusion'] == False:
                 cam.data['intrusion'] = True
                 cam.actrec.send_post(cam)
-
+            cam.weight += 3
             self.intr_warning = False
         else:
             if cam.data['intrusion'] == True:
@@ -277,6 +278,7 @@ class actRecognition():
                     cam.data['fallen'] = True
                     cam.actrec.send_post(cam)
                     print("쓰러진 사람 발견")
+                cam.weight += 2
         else:
             self.fallen_time = 0
             if cam.data['fallen'] == True:
@@ -309,6 +311,7 @@ class actRecognition():
                 print("월담을 감지했습니다")
                 cam.data['fence'] = True
                 cam.actrec.send_post(cam)
+            cam.weight += 3
             self.fence_warning = False
         else:
             if cam.data['fence'] == True:
