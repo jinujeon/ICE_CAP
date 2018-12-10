@@ -148,21 +148,21 @@ class StreamingVideo(object):
         self.slep = 0
 
     def get_frame(self, camid):
-        sleep(0.25)
+        sleep(0.5)
         try :
             name = '/img_{}.png'.format(cam.index)
             image = cv2.imread('C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name)
             ret, jpeg = cv2.imencode('.jpg', image)
         except :
             if cam.index == 0:
-                cam.index = 3
+                cam.index = 2
             else: cam.index -= 1
             name = '/img_{}.png'.format(cam.index)
             image = cv2.imread('C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name)
             ret, jpeg = cv2.imencode('.jpg', image)
         else:
             cam.index += 1
-        if cam.index % 4 == 0:
+        if cam.index % 3 == 0:
             cam.index = 0
         return jpeg.tobytes()
 
@@ -208,7 +208,7 @@ def livefe2(request):
         print(e)
         
 def img():
-    image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/backg2.jpg')
+    image = cv2.imread('C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/backg2.jpg')
     ret, jpeg = cv2.imencode('.jpg', image)
     frame = jpeg.tobytes()
     yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
@@ -220,7 +220,7 @@ def imgbackg(request):
         print(e)
 
 def img2():
-    image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/edum.gif')
+    image = cv2.imread('C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/edum.gif')
     ret, jpeg = cv2.imencode('.jpg', image)
     frame = jpeg.tobytes()
     yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
@@ -233,7 +233,7 @@ def imgedumimg(request):
 
 
 def img():
-    image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/backg2.jpg')
+    image = cv2.imread('C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/backg2.jpg')
     ret, jpeg = cv2.imencode('.jpg', image)
     frame = jpeg.tobytes()
     yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
@@ -245,7 +245,7 @@ def imgbackg(request):
         print(e)
 
 def img2():
-    image = cv2.imread('C:/Users/ice/Documents/GitHub/temp/ICE_CAP/Django_channels/mysite/notifier/statics/edum.gif')
+    image = cv2.imread('C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/edum.gif')
     ret, jpeg = cv2.imencode('.jpg', image)
     frame = jpeg.tobytes()
     yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')

@@ -143,5 +143,5 @@ class Frame_recv():
         cv2.imwrite(
             'C:/Users/Jun-Young/Desktop/EDUM/ICE_CAP/Django_channels/mysite/notifier/statics/' + str(camid) + name,
             self.cam_list[self.index].frame, params=[cv2.IMWRITE_PNG_COMPRESSION, 0])
-        if self.f_number[camid] == 4:
+        if self.f_number[camid] == 3:
             self.f_number[camid] = 0
