@@ -50,6 +50,8 @@ class VideoCamera(object):
         # 동영상 프레임 실제 저장
         self.videooutput.write(frame)
 
+    def showframe(self,cam_id,frame):
+        cv2.imshow('Cam {}'.format(cam_id), frame)  # 카메라로부터 읽어들여온 프레임들을 보여준다.
 class Frame_sender:
     def __init__(self,id_list,virtual,wall,address,port,encode_param):
         self.id_list = id_list
@@ -119,7 +121,8 @@ class Frame_sender:
                 logging.error('ConnectionResetError')
             except ConnectionAbortedError:
                 logging.error('ConnectionAbortedError')
-            cv2.imshow('Cam {}'.format(cam_id), self.frame_list[cam_id])#카메라로부터 읽어들여온 프레임들을 보여준다.
+            self.video_list[cam_id].showframe(cam_id, self.frame_list[cam_id])
+
 
 
     def run(self):
